@@ -12,7 +12,7 @@ export default function SpeechToTextPage() {
   const [lastTranscript, setLastTranscript] = useState('')
 
   const startListening = () => {
-    const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!SpeechRecognition) {
       alert('Speech Recognition not supported in this browser')
       return

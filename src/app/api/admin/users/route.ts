@@ -9,7 +9,7 @@ export async function GET() {
   try {
     const users = await prisma.user.findMany({ orderBy: { createdAt: "desc" } })
     return NextResponse.json({
-      users: users.map((user) => ({
+      users: users.map((user: any) => ({
         id: String(user.id),
         name: user.name ?? user.email,
         email: user.email,

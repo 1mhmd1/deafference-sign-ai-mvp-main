@@ -76,7 +76,7 @@ export default function FeaturesEditor({ content, onChange }: FeaturesEditorProp
                     type="text"
                     value={feature.icon}
                     onChange={(e) => handleFeatureChange(index, 'icon', e.target.value.slice(0, 2))}
-                    maxLength="2"
+                    maxLength={2}
                     className="w-24 px-4 py-2 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
                   />
                 </div>

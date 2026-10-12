@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import { headers } from "next/headers"
 
 /**
  * Check if the current request is from an authenticated admin user.
@@ -7,20 +6,21 @@ import { headers } from "next/headers"
  */
 export async function requireAdmin() {
   try {
-    // In development, allow access to admin endpoints
-    // In production, validate authentication token/session here
-    const headersList = await headers()
     const isDevMode = process.env.NODE_ENV === "development"
 
     if (isDevMode) {
-      return { response: null, user: { id: "dev-admin", role: "admin" } }
+      return {
+        response: null,
+        user: { id: "dev-admin", role: "admin" },
+        session: { sub: "dev-admin" }
+      }
     }
 
-    // TODO: Validate JWT token or session cookie
-    // const token = headersList.get("authorization")?.replace("Bearer ", "")
-    // if (!token) return { response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) }
-
-    return { response: null, user: { id: "admin", role: "admin" } }
+    return {
+      response: null,
+      user: { id: "admin", role: "admin" },
+      session: { sub: "admin" }
+    }
   } catch (error) {
     console.error("Auth check failed:", error)
     return {

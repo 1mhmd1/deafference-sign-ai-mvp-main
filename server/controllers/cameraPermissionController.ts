@@ -47,13 +47,13 @@ export const updateCameraPermission = async (
       success: true,
       data: response,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Camera permission update error:', error);
 
     // userId passed validation (positive integer) but no User row with that
     // id exists, so the upsert's FK constraint fails. This is a client
     // input error, not a database failure — surface it as 404, not 500.
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2003') {
+    if ((error as any)?.code === 'P2003') {
       res.status(404).json({
         success: false,
         error: {
