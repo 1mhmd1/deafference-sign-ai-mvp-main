@@ -9,14 +9,24 @@ import { ContactSubmissions } from "./contact-submissions"
 import { SystemOverview } from "./system-overview"
 import { UserFeedback } from "./user-feedback"
 import { UsersManagement } from "./users-management"
+import { Analytics } from "./analytics"
+import { ActivityLog } from "./activity-log"
+import {
+  MOCK_ACTIVITY_LOG,
+  MOCK_ANALYTICS_METRICS,
+  MOCK_DAILY_SIGNUPS,
+  MOCK_TRANSLATION_USAGE,
+} from "@/lib/mock-analytics-data"
 
-export type AdminView = "users" | "feedback" | "contacts" | "overview"
+export type AdminView = "users" | "feedback" | "contacts" | "overview" | "analytics" | "activity"
 
 const VIEW_TITLES: Record<AdminView, string> = {
   users: "Users Management",
   feedback: "User Feedback",
   contacts: "Contact Submissions",
   overview: "System Overview",
+  analytics: "Analytics & Metrics",
+  activity: "Activity Log",
 }
 
 const FOCUS_RING =
@@ -157,6 +167,28 @@ export function AdminShell() {
             hidden={activeView !== "overview"}
           >
             <SystemOverview stats={data.stats} />
+          </div>
+
+          <div
+            id="admin-panel-analytics"
+            role="tabpanel"
+            aria-labelledby="admin-tab-analytics"
+            hidden={activeView !== "analytics"}
+          >
+            <Analytics
+              metrics={MOCK_ANALYTICS_METRICS}
+              dailySignups={MOCK_DAILY_SIGNUPS}
+              translationUsage={MOCK_TRANSLATION_USAGE}
+            />
+          </div>
+
+          <div
+            id="admin-panel-activity"
+            role="tabpanel"
+            aria-labelledby="admin-tab-activity"
+            hidden={activeView !== "activity"}
+          >
+            <ActivityLog entries={MOCK_ACTIVITY_LOG} />
           </div>
         </main>
       </div>
