@@ -9,20 +9,15 @@ import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
 import { loadPersistedCameraPermission, updateCameraPermission } from "@/lib/camera-permission-service"
 import { useCameraPreferences } from "./camera-preferences"
+import { LandmarkOverlay, type TrackingInfo } from "./landmark-overlay"
 
 export type CameraStatus = "loading" | "streaming" | "denied" | "unsupported" | "error" | "no-devices" | "simulation"
-
-/** One hand's landmarks in normalized video coordinates (0–1). Only a real detector should supply these. */
-export type HandLandmarks = { x: number; y: number }[]
 
 export interface CameraViewProps {
   /** Fires whenever the camera lifecycle state changes (drives the status card). */
   onStateChange?: (status: CameraStatus) => void
-  /**
-   * Landmarks from a hand-tracking model. No detector is wired up yet, so this is
-   * left undefined and the overlay honestly reports tracking as unavailable.
-   */
-  landmarks?: HandLandmarks[] | null
+  /** Rendered under the video, inside the same card (e.g. the camera controls). */
+  footer?: React.ReactNode
 }
 
 export interface CameraViewHandle {
@@ -41,7 +36,7 @@ const REQUEST_TIMEOUT_MS = 6000
 const IS_DEV = process.env.NODE_ENV !== "production"
 
 export const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(function CameraView(
-  { onStateChange, landmarks },
+  { onStateChange, footer },
   ref,
 ) {
   const { t } = useI18n()
@@ -62,6 +57,7 @@ export const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(function
   const [resolution, setResolution] = useState<{ width: number; height: number } | null>(null)
   const [errorInfo, setErrorInfo] = useState<{ name: string; message: string } | null>(null)
   const [debugOpen, setDebugOpen] = useState(false)
+  const [tracking, setTracking] = useState<TrackingInfo | null>(null)
   const onStateChangeRef = useRef(onStateChange)
   useEffect(() => {
     onStateChangeRef.current = onStateChange
@@ -281,7 +277,9 @@ export const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(function
   }
 
   const streaming = status === "streaming"
-  const hasLandmarks = !!landmarks && landmarks.length > 0
+  const trackingOn = streaming && prefs.showLandmarks
+  // Once real body/hand points are drawn, the static outline would only get in the way.
+  const showGuide = streaming && prefs.showFramingGuide && !(trackingOn && tracking?.status === "tracking")
 
   return (
     <motion.div
@@ -290,17 +288,17 @@ export const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(function
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
       <Card className="overflow-hidden p-0">
-        <div className="border-b border-border px-6 py-5 text-start">
-          <p className="text-xs font-semibold tracking-[0.22em] text-muted-foreground uppercase">{copy.eyebrow}</p>
-          <p className="mt-2 text-sm text-muted-foreground">{copy.hint}</p>
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 pt-4 pb-3 text-start sm:px-6">
+          <p className="text-sm font-bold tracking-[0.12em] text-[#1D4ED8] uppercase">{copy.eyebrow}</p>
+          <p className="text-sm text-muted-foreground">{copy.hint}</p>
         </div>
-        <div className="p-4 sm:p-6">
+        <div className="px-3 sm:px-4">
           <div
             className={cn(
-              "relative overflow-hidden rounded-3xl border-2",
+              "relative overflow-hidden rounded-[1.5rem] border-2",
               streaming
-                ? "state-active-ring aspect-video border-indicator-indigo/40 bg-muted"
-                : "min-h-[18rem] border-dashed border-border bg-muted/40 sm:aspect-video sm:min-h-0",
+                ? "state-active-ring aspect-video border-[color:var(--primary)]/40 bg-slate-900"
+                : "min-h-[22rem] border-dashed border-[color:var(--primary)]/25 bg-white/50 sm:aspect-video sm:min-h-0",
             )}
           >
             {/* Video + landmark points share one (optionally mirrored) layer so points line up with the image. */}
@@ -315,16 +313,20 @@ export const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(function
                   streaming ? "opacity-100" : "pointer-events-none opacity-0",
                 )}
               />
-              {streaming && prefs.showLandmarks && hasLandmarks ? <LandmarkPoints hands={landmarks!} /> : null}
+              {trackingOn ? <LandmarkOverlay videoRef={videoRef} onInfo={setTracking} /> : null}
             </div>
 
-            {streaming && prefs.showFramingGuide ? <FramingGuide /> : null}
+            {showGuide ? <FramingGuide /> : null}
 
             {streaming ? (
               <>
                 <div className="absolute start-3 top-3 z-10 flex flex-wrap items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-background/90 px-2.5 py-1 text-xs font-semibold text-foreground shadow-sm">
-                    <Video className="size-3.5 text-emerald-600" aria-hidden="true" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-sm font-semibold text-foreground shadow-sm backdrop-blur">
+                    <span className="relative flex size-2" aria-hidden="true">
+                      <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+                      <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+                    </span>
+                    <Video className="size-4 text-emerald-600" aria-hidden="true" />
                     {copy.on}
                   </span>
                   {prefs.mirrorVideo ? (
@@ -336,14 +338,9 @@ export const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(function
                 </div>
 
                 <div className="absolute inset-x-3 bottom-3 z-10 flex flex-col items-center gap-1.5 text-center">
-                  {prefs.showLandmarks && !hasLandmarks ? (
-                    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-amber-50/95 px-3 py-1 text-xs font-medium text-amber-800 shadow-sm ring-1 ring-amber-300/60">
-                      <Hand className="size-3.5 shrink-0" aria-hidden="true" />
-                      {copy.landmarksUnavailable}
-                    </span>
-                  ) : null}
-                  {prefs.showFramingGuide ? (
-                    <span className="inline-flex max-w-full rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-foreground shadow-sm">
+                  {trackingOn && tracking ? <TrackingChip info={tracking} /> : null}
+                  {showGuide ? (
+                    <span className="inline-flex max-w-full rounded-full bg-white/90 px-3.5 py-1.5 text-sm font-medium text-foreground shadow-sm backdrop-blur">
                       {copy.framingHint}
                     </span>
                   ) : null}
@@ -351,12 +348,12 @@ export const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(function
               </>
             ) : (
               <div className="relative flex size-full min-h-[inherit] flex-col items-center justify-center gap-4 px-6 py-8 text-center sm:absolute sm:inset-0">
-                <div className="flex size-20 items-center justify-center rounded-full bg-background shadow-sm ring-1 ring-border">
+                <div className="flex size-20 items-center justify-center rounded-full bg-white shadow-[var(--pop-glow)] ring-1 ring-[color:var(--primary)]/15">
                   {statusCopy[status].icon}
                 </div>
                 <div className="max-w-md">
-                  <p className="text-base font-semibold text-foreground sm:text-lg">{statusCopy[status].title}</p>
-                  <p className="mt-2 text-sm text-muted-foreground">{statusCopy[status].desc}</p>
+                  <p className="text-lg font-bold text-brand-navy sm:text-xl">{statusCopy[status].title}</p>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">{statusCopy[status].desc}</p>
                   {status === "denied" ? (
                     <ol className="mt-3 list-decimal space-y-1 ps-5 text-start text-sm text-foreground">
                       {copy.deniedSteps.map((step) => (
@@ -371,7 +368,7 @@ export const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(function
                   )}
                 </div>
                 {statusCopy[status].retry && (
-                  <Button variant="outline" className="h-10 rounded-full px-4" onClick={handleRetry}>
+                  <Button className="h-11 rounded-full bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] px-5 text-white" onClick={handleRetry}>
                     <RotateCcw className="size-4" aria-hidden="true" />
                     {copy.retry}
                   </Button>
@@ -399,7 +396,9 @@ export const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(function
                     <div>state: {status}</div>
                     <div>resolution: {resolution ? `${resolution.width}x${resolution.height}` : "—"}</div>
                     <div>device: {preferredDeviceId ? preferredDeviceId.slice(0, 8) : "default"}</div>
-                    <div>landmarks: {hasLandmarks ? landmarks!.length : "none (no detector)"}</div>
+                    <div>
+                      tracking: {trackingOn ? `${tracking?.status ?? "—"} · hands ${tracking?.hands ?? 0} · body ${tracking?.body ? "yes" : "no"}` : "off"}
+                    </div>
                     {errorInfo && <div className="text-destructive">error: {errorInfo.name}</div>}
                   </div>
                 )}
@@ -407,6 +406,7 @@ export const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(function
             ) : null}
           </div>
         </div>
+        {footer ? <div className="px-4 py-4 sm:px-6">{footer}</div> : <div className="h-3 sm:h-4" />}
       </Card>
     </motion.div>
   )
@@ -448,15 +448,48 @@ function FramingGuide() {
   )
 }
 
-/** Renders landmarks supplied by a real detector. Never fed synthetic data. */
-function LandmarkPoints({ hands }: { hands: HandLandmarks[] }) {
+/** Live status of the body/hand tracker, with the hand colour key once hands are found. */
+function TrackingChip({ info }: { info: TrackingInfo }) {
+  const { t, fmt } = useI18n()
+  const copy = t.app.camera.tracking
+  const base =
+    "inline-flex max-w-full items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium shadow-sm backdrop-blur"
+
+  if (info.status === "loading") {
+    return (
+      <span role="status" className={cn(base, "bg-white/90 text-foreground")}>
+        <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden="true" />
+        {copy.loading}
+      </span>
+    )
+  }
+  if (info.status === "error") {
+    return (
+      <span role="status" className={cn(base, "bg-amber-50/95 text-amber-800 ring-1 ring-amber-300/60")}>
+        <AlertTriangle className="size-4 shrink-0" aria-hidden="true" />
+        {copy.error}
+      </span>
+    )
+  }
+  if (info.hands === 0) {
+    return (
+      <span className={cn(base, "bg-white/90 text-foreground")}>
+        <Hand className="size-4 shrink-0" aria-hidden="true" />
+        {info.body ? copy.showHands : copy.noOne}
+      </span>
+    )
+  }
   return (
-    <svg aria-hidden="true" className="pointer-events-none absolute inset-0 size-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-      {hands.flatMap((hand, h) =>
-        hand.map((point, i) => (
-          <circle key={`${h}-${i}`} cx={point.x * 100} cy={point.y * 100} r="0.8" className="fill-indicator-indigo" />
-        )),
-      )}
-    </svg>
+    <span className={cn(base, "bg-white/90 text-foreground")}>
+      <span className="relative flex size-2" aria-hidden="true">
+        <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+        <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+      </span>
+      {fmt(info.hands === 1 ? copy.oneHand : copy.hands, { count: info.hands })}
+      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground" aria-hidden="true">
+        <span className="size-2.5 rounded-full bg-[#ff8a3d]" />
+        <span className="size-2.5 rounded-full bg-[#38bdf8]" />
+      </span>
+    </span>
   )
 }

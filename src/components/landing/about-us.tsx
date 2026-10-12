@@ -361,7 +361,7 @@ export function AboutUs() {
       <GlowOrb className="-top-32 -right-24 size-[26rem] pop-float" color="rgba(59,130,246,0.16)" />
       <GlowOrb className="bottom-0 -left-24 size-80 pop-float-delay" color="rgba(255,138,61,0.1)" />
 
-      <Container>
+      <Container fluid>
         <SectionTitle
           headingId="about-heading"
           eyebrow={about.eyebrow}

@@ -60,7 +60,14 @@ export function SettingsProvider({
   }, [])
 
   const toggleTheme = useCallback(() => {
-    setSettings((prev) => ({ ...prev, theme: prev.theme === "dark" ? "light" : "dark" }))
+    // Flip what's on screen (also when "system" is selected) and persist only the theme, like setLanguage.
+    const theme: Settings["theme"] = document.documentElement.classList.contains("dark") ? "light" : "dark"
+    setSettings((prev) => ({ ...prev, theme }))
+    setSavedSettings((prev) => {
+      const next = { ...prev, theme }
+      writeSettingsCookie(next)
+      return next
+    })
   }, [])
 
   const setLanguage = useCallback<SettingsContextValue["setLanguage"]>(

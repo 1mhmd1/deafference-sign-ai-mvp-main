@@ -3,20 +3,23 @@
 @import 'shadcn/tailwind.css';
 
 /* Make text visible - targeted fixes only */
-html, body {
+/* Light mode only: dark mode (html.dark) uses the theme tokens instead. */
+html:not(.dark),
+html:not(.dark) body {
   background-color: #ffffff !important;
 }
 
-.landing-pop {
+html:not(.dark) .landing-pop {
   background-color: #ffffff !important;
 }
 
-p, span, h1, h2, h3, h4, h5, h6, li {
+/* The translate studio (.app-pop) sets its own text colours (white-on-blue buttons, status tones). */
+html:not(.dark) :is(p, span, h1, h2, h3, h4, h5, h6, li):not(.app-pop *) {
   color: #000000 !important;
 }
 
 /* Keep buttons and interactive elements their original colors */
-button, a[class*="btn"], [class*="button"] {
+:is(button, a[class*="btn"], [class*="button"]):not(.app-pop *) {
   color: inherit;
 }
 
@@ -556,6 +559,95 @@ html[data-text-size='xlarge'] {
   background-repeat: repeat;
   background-size: 340px 340px;
   animation: star-twinkle 5s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   Landing "pop" theme — dark variant (html.dark, toggled from the navbar's
+   sun/moon button or Settings → Appearance). Also covers /translate and
+   /profile, which reuse .landing-pop. The second half re-maps the handful of
+   hard-coded light utilities the landing markup uses (text-black, bg-white/…,
+   the deep-blue / orange accent text) so they stay readable on dark. */
+.dark .landing-pop {
+  color-scheme: dark;
+  --background: #0b1220;
+  --foreground: #e6edf8;
+  --card: #111a2e;
+  --card-foreground: #e6edf8;
+  --popover: #111a2e;
+  --popover-foreground: #e6edf8;
+  --primary: #60a5fa;
+  --primary-foreground: #0b1220;
+  --secondary: #16213a;
+  --secondary-foreground: #e6edf8;
+  --muted: #16213a;
+  --muted-foreground: #a3b3cf;
+  --accent: #1a2744;
+  --accent-foreground: #e6edf8;
+  --border: rgba(96, 165, 250, 0.18);
+  --input: rgba(96, 165, 250, 0.26);
+  --ring: #60a5fa;
+  --brand-navy: #e6edf8;
+  --brand-magenta: #e6edf8;
+  --pop-ink: #e6edf8;
+  --pop-glow: 0 20px 60px -20px rgba(96, 165, 250, 0.4);
+  background-color: #0b1220;
+  color: #e6edf8;
+}
+
+/* Paper texture stays, dimmed under a deep-navy veil. */
+.dark .landing-pop::before {
+  background:
+    linear-gradient(rgba(8, 13, 26, 0.86), rgba(8, 13, 26, 0.86)),
+    url("/back.avif") center / cover no-repeat !important;
+}
+
+.dark .landing-pop .pop-atmosphere.pop-atmosphere {
+  background-color: rgba(11, 18, 32, 0.45);
+  background-image:
+    radial-gradient(ellipse 70% 55% at 15% -5%, rgba(59, 130, 246, 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 50% at 90% 5%, rgba(167, 180, 255, 0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 45% at 80% 60%, rgba(56, 189, 248, 0.1) 0%, transparent 60%);
+}
+
+.dark .landing-pop .glass-pop,
+.dark .app-pop .bg-card {
+  background: color-mix(in oklch, #111a2e 78%, transparent);
+  border: 1px solid color-mix(in oklch, #60a5fa 22%, transparent);
+  box-shadow:
+    0 1px 1px color-mix(in oklch, white 6%, transparent) inset,
+    0 20px 44px -24px rgba(0, 0, 0, 0.6);
+}
+
+.dark .landing-pop .pop-gradient-text {
+  background: linear-gradient(100deg, #93c5fd 0%, #60a5fa 45%, #7dd3fc 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.dark .landing-pop .text-black,
+.dark .landing-pop .text-foreground {
+  color: #e6edf8;
+}
+.dark .landing-pop .text-\[\#1D4ED8\],
+.dark .landing-pop .text-\[\#1d4ed8\] {
+  color: #93c5fd;
+}
+.dark .landing-pop .text-\[\#C2410C\] {
+  color: #fdba74;
+}
+.dark .landing-pop .bg-white,
+.dark .landing-pop [class*="bg-white/"] {
+  background-color: rgba(17, 26, 46, 0.85);
+}
+.dark .landing-pop [class*="border-white/"] {
+  border-color: rgba(96, 165, 250, 0.2);
+}
+
+/* Site-wide floating Judy (components/judy/floating-judy.tsx) covers content on phones: desktop/tablet only. */
+@media (max-width: 639.98px) {
+  .floating-judy {
+    display: none;
+  }
 }
 
 /* Letter-spacing breaks joined Arabic script, so drop tracking utilities in RTL. */

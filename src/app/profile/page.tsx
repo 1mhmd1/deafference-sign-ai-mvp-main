@@ -1,21 +1,18 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import { AppShell } from '@/components/app-shell/app-shell'
-import { Container } from '@/components/shared/container'
-import { ProfilePageClient } from '@/components/profile/profile-page-client'
+import { Loading } from '@/components/shared/loading'
+import { ProfileHub } from '@/components/profile/profile-hub'
 
 export const metadata: Metadata = {
-  title: 'Deafference — Account Settings',
-  description: 'Manage your Deafference profile, security, and account preferences.',
+  title: 'Deafference — Profile',
+  description: 'Your Deafference profile, history and settings in one place.',
 }
 
 export default function ProfilePage() {
   return (
-    <AppShell>
-      <main className="py-8 sm:py-10 lg:py-12">
-        <Container>
-          <ProfilePageClient />
-        </Container>
-      </main>
-    </AppShell>
+    // useSearchParams (tab sync) needs a Suspense boundary for static rendering.
+    <Suspense fallback={<div className="p-6"><Loading /></div>}>
+      <ProfileHub />
+    </Suspense>
   )
 }

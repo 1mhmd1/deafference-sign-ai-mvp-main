@@ -6,11 +6,10 @@ import { useI18n } from "@/i18n/use-i18n"
 import { Pipeline } from "./pipeline"
 import { AccessibilityPanel } from "./accessibility-panel"
 import { SettingsDebugPanel } from "./settings-debug-panel"
-import { ApplicationHeader } from "./application-header"
+import { WorkspaceTools } from "./application-header"
 import { CameraView, type CameraStatus, type CameraViewHandle } from "./camera-view"
 import { StatusCard, type RecognitionStatus } from "./status-card"
 import { TranslationPanel } from "./translation-panel"
-import { TTSControls } from "./tts-controls"
 import { ControlPanel } from "./control-panel"
 import { RecentTranslations } from "./recent-translations"
 import { TipsCard } from "./tips-card"
@@ -32,7 +31,6 @@ export function DeafferenceApp() {
   const { t } = useI18n()
   const [accessibilityOpen, setAccessibilityOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [translationText, setTranslationText] = useState("")
   const [cameraStatus, setCameraStatus] = useState<CameraStatus>("loading")
   const [statusPreview, setStatusPreview] = useState<RecognitionStatus | null>(null)
   const cameraRef = useRef<CameraViewHandle>(null)
@@ -55,36 +53,47 @@ export function DeafferenceApp() {
   const statusDescription = !statusPreview && liveStatus === "error" ? cameraErrorTitle[cameraStatus] : undefined
 
   return (
-    <div id="top" className="min-h-dvh bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.08),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(168,85,247,0.08),_transparent_32%)]">
-      <ApplicationHeader
-        onOpenAccessibility={() => setAccessibilityOpen(true)}
-        onOpenSettings={() => setSettingsOpen(true)}
-      />
-
-      <main className="py-6 sm:py-10 lg:py-12">
-        <Container>
-          <div className="grid gap-6 lg:grid-cols-[1.25fr_0.95fr] lg:items-start">
-            <section className="space-y-6">
-              <CameraView ref={cameraRef} onStateChange={setCameraStatus} />
+    <div id="top">
+      <main className="pt-6 pb-16 sm:pt-8">
+        <Container fluid>
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(380px,460px)] xl:items-start">
+            {/* Stage: the camera gets most of the screen, with its controls right under it. */}
+            <section>
+              <CameraView
+                ref={cameraRef}
+                onStateChange={setCameraStatus}
+                footer={
+                  <ControlPanel
+                    cameraActive={cameraStatus === "streaming"}
+                    onStartCamera={() => cameraRef.current?.restart()}
+                    trailing={
+                      <WorkspaceTools
+                        onOpenAccessibility={() => setAccessibilityOpen(true)}
+                        onOpenSettings={() => setSettingsOpen(true)}
+                      />
+                    }
+                  />
+                }
+              />
             </section>
 
-            <section className="space-y-5">
+            {/* Result column: what Judy sees and the translation. */}
+            <section className="space-y-5 xl:sticky xl:top-28">
               <StatusCard status={status} recognitionConnected={recognitionConnected} description={statusDescription} />
               <TranslationPanel
                 transcript={transcript}
                 confidence={confidence}
                 recognitionConnected={recognitionConnected}
               />
-              <TTSControls translationText={translationText} onTranslationTextChange={setTranslationText} />
-              <ControlPanel
-                cameraActive={cameraStatus === "streaming"}
-                onStartCamera={() => cameraRef.current?.restart()}
-                onClearTranslation={() => setTranslationText("")}
-              />
-              <Pipeline currentStep={0} isMockMode={isMockMode} />
+            </section>
+          </div>
+
+          <div className="mt-6 space-y-6">
+            <Pipeline currentStep={0} isMockMode={isMockMode} />
+            <div className="grid gap-6 lg:grid-cols-2">
               <RecentTranslations />
               <TipsCard />
-            </section>
+            </div>
           </div>
         </Container>
       </main>

@@ -51,7 +51,7 @@ export function Pipeline({
     <Card className="p-5 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2.5">
-          <p className="text-xs font-semibold tracking-[0.22em] text-muted-foreground uppercase">
+          <p className="text-sm font-bold tracking-[0.12em] text-[#1D4ED8] uppercase">
             {t.app.pipeline.eyebrow}
           </p>
           {isMockMode && <MockModeBadge />}

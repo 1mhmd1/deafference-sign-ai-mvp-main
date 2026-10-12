@@ -185,7 +185,7 @@ export function Contact() {
       <GlowOrb className="pop-float-delay right-[-5rem] bottom-[-4rem] size-80" color="rgba(167,180,255,0.24)" />
       <GlowOrb className="pop-float top-1/3 right-[8%] size-40" color="rgba(255,138,61,0.14)" />
 
-      <Container className="relative">
+      <Container fluid className="relative">
         <SectionTitle headingId="contact-heading" eyebrow={copy.eyebrow} title={copy.title} description={copy.description} />
 
         {/* Form + channel cards: stacked on mobile, side by side (in normal flow) on large screens. */}

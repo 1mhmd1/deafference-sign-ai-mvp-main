@@ -13,7 +13,7 @@ export function RecentTranslations() {
       transition={{ duration: 0.5, ease: "easeOut", delay: 0.12 }}
     >
       <Card className="p-5 sm:p-6">
-        <p className="text-xs font-semibold tracking-[0.22em] text-muted-foreground uppercase">
+        <p className="text-sm font-bold tracking-[0.12em] text-[#1D4ED8] uppercase">
           {t.app.recent.eyebrow}
         </p>
         <div className="mt-4 rounded-2xl border border-dashed border-border bg-background/60 px-4 py-8 text-sm text-muted-foreground">

@@ -50,7 +50,7 @@ export function Pricing() {
         <GlowOrb className="right-[-8%] bottom-10 size-72" color="rgba(109,124,246,0.16)" />
       </div>
 
-      <Container className="relative">
+      <Container fluid className="relative">
         <SectionTitle
           headingId="pricing-heading"
           eyebrow={copy.eyebrow}

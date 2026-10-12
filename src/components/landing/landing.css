@@ -2,32 +2,27 @@
    Imported once by landing-page.tsx. */
 
 /* Make all text dark and readable */
-.landing-pop {
+html:not(.dark) .landing-pop:not(.app-pop) {
   color: #1a1a1a;
 }
 
-.landing-pop p,
-.landing-pop h1,
-.landing-pop h2,
-.landing-pop h3,
-.landing-pop h4,
-.landing-pop h5,
-.landing-pop h6,
-.landing-pop span,
-.landing-pop li {
+/* :not(.app-pop): the translate studio reuses the landing palette but keeps its own text colours
+   (white-on-blue buttons, status tones), and this sheet stays loaded after client-side navigation. */
+html:not(.dark) .landing-pop:not(.app-pop) p,
+html:not(.dark) .landing-pop:not(.app-pop) h1,
+html:not(.dark) .landing-pop:not(.app-pop) h2,
+html:not(.dark) .landing-pop:not(.app-pop) h3,
+html:not(.dark) .landing-pop:not(.app-pop) h4,
+html:not(.dark) .landing-pop:not(.app-pop) h5,
+html:not(.dark) .landing-pop:not(.app-pop) h6,
+html:not(.dark) .landing-pop:not(.app-pop) span,
+html:not(.dark) .landing-pop:not(.app-pop) li {
   color: #1a1a1a !important;
 }
 
 /* Letter-spacing breaks the joined Arabic script, so drop it in RTL. */
 [dir="rtl"] .landing-pop [class*="tracking-"] {
   letter-spacing: 0;
-}
-
-/* The floating companion covers content on phones: desktop/tablet only. */
-@media (max-width: 639.98px) {
-  .landing-pop .landing-judy {
-    display: none;
-  }
 }
 
 /* Keep Judy's speech bubble in the scenarios scene legible on small screens
@@ -48,7 +43,6 @@
    `isolation` keeps the -1 layer above the wrapper's own background colour. */
 .landing-pop {
   isolation: isolate;
-  background-color: #ffffff !important;
 }
 .landing-pop::before {
   content: "" !important;
@@ -56,12 +50,12 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: transparent !important;
+  background: url("/back.avif") center / cover no-repeat;
 }
 
 /* Sections (and section backdrops) that paint their own colour wash: make the
    base colour see-through (their soft blue glows stay) so the paper shows
    behind them too. Doubled class beats globals.css regardless of load order. */
 .landing-pop .pop-atmosphere.pop-atmosphere {
-  background-color: transparent !important;
+  background-color: rgba(246, 250, 255, 0.35);
 }

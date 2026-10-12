@@ -1,0 +1,105 @@
+.page {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: clamp(16px, 4vw, 20px);
+  background: var(--color-bg);
+}
+
+.card {
+  width: 100%;
+  max-width: 440px;
+  padding: clamp(24px, 5vw, 40px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.header {
+  margin-block-end: 32px;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.description {
+  margin-block-start: 8px;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+.emailHighlight {
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.actions {
+  margin-block-start: clamp(20px, 3vw, 24px);
+  text-align: center;
+}
+
+.backLink {
+  display: inline-block;
+  min-height: 44px;
+  padding: clamp(8px, 1vw, 10px) clamp(12px, 2vw, 14px);
+  color: var(--color-text-muted);
+  font-size: clamp(0.875rem, 1vw, 0.9375rem);
+  font-weight: 550;
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.backLink:hover {
+  background: var(--color-surface-muted);
+  color: var(--color-heading);
+}
+
+.backLink:focus-visible {
+  outline: 2px solid var(--color-accent-strong);
+  outline-offset: 2px;
+}
+
+.helpText {
+  margin-block-start: clamp(20px, 3vw, 24px);
+  padding: clamp(12px, 2vw, 16px);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-soft);
+}
+
+.helpText p {
+  margin: 0;
+  color: var(--color-accent-stronger);
+  font-size: clamp(0.875rem, 1vw, 0.9375rem);
+  font-weight: 550;
+}
+
+.demo {
+  margin-block-start: clamp(24px, 4vw, 32px);
+  padding: clamp(12px, 2vw, 16px);
+  border: 1px solid #f3d5c6;
+  border-radius: var(--radius-md);
+  background: #fff8f3;
+  color: #8b4513;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.demo p {
+  margin: 0;
+}
+
+:global([dir="rtl"]) .title {
+  letter-spacing: 0;
+}

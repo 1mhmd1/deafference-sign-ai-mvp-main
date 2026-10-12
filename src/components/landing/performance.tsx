@@ -48,7 +48,7 @@ export function Performance() {
         <GlowOrb className="right-[-6%] bottom-0 size-80" color="rgba(255,138,61,0.10)" />
       </div>
 
-      <Container>
+      <Container fluid>
         <SectionTitle
           headingId="performance-heading"
           eyebrow={copy.eyebrow}

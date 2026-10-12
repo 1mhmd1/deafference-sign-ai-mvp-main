@@ -53,7 +53,7 @@ export function Features() {
       aria-labelledby="features-heading"
       className="py-24 sm:py-28"
     >
-      <Container>
+      <Container fluid>
         <SectionTitle
           headingId="features-heading"
           eyebrow={copy.eyebrow}

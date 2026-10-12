@@ -73,7 +73,7 @@ export function StatusCard({ status, recognitionConnected = false, description }
       transition={{ duration: 0.45, ease: "easeOut", delay: 0.05 }}
     >
       <Card className="p-5">
-        <p className="text-xs font-semibold tracking-[0.22em] text-muted-foreground uppercase">{t.app.status.eyebrow}</p>
+        <p className="text-sm font-bold tracking-[0.12em] text-[#1D4ED8] uppercase">{t.app.status.eyebrow}</p>
         <div className="mt-4 flex items-center gap-4">
           <div className="w-[72px] shrink-0" aria-hidden="true">
             <JudyCharacter inline size={72} pose={meta.pose} mood={meta.mood} announce={false} label={t.app.status.judyLabel} />
@@ -85,7 +85,7 @@ export function StatusCard({ status, recognitionConnected = false, description }
             data-status={status}
             className={cn("min-w-0 flex-1 rounded-2xl border px-4 py-3 text-start", meta.tone)}
           >
-            <p className="flex items-center gap-2 text-base font-semibold text-foreground sm:text-lg">
+            <p className="flex items-center gap-2 text-base font-bold text-brand-navy sm:text-lg">
               <Icon className={cn("size-5 shrink-0", meta.iconTone, meta.spin && "animate-spin")} aria-hidden="true" />
               <span>{copy.title}</span>
             </p>

@@ -68,7 +68,7 @@ export function TranslationPanel({ transcript = "", confidence = null, recogniti
     >
       <Card className="p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs font-semibold tracking-[0.22em] text-muted-foreground uppercase">{copy.eyebrow}</p>
+          <p className="text-sm font-bold tracking-[0.12em] text-[#1D4ED8] uppercase">{copy.eyebrow}</p>
           <span
             className={cn(
               "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold",
@@ -89,17 +89,17 @@ export function TranslationPanel({ transcript = "", confidence = null, recogniti
           aria-live="polite"
           aria-label={copy.transcriptLabel}
           className={cn(
-            "mt-5 flex min-h-[11rem] flex-col justify-center rounded-3xl border bg-background/65 px-5 py-6",
-            hasText ? "border-border text-start" : "items-center border-dashed border-border text-center",
+            "mt-5 flex min-h-[13rem] flex-col justify-center rounded-3xl border bg-white/70 px-5 py-6",
+            hasText ? "border-[color:var(--primary)]/20 text-start" : "items-center border-dashed border-[color:var(--primary)]/25 text-center",
           )}
         >
           {hasText ? (
-            <p className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl" lang={locale}>
+            <p className="text-3xl leading-tight font-bold tracking-tight text-brand-navy sm:text-4xl" lang={locale}>
               {text}
             </p>
           ) : (
             <>
-              <p className="text-lg font-semibold text-foreground">
+              <p className="text-lg font-bold text-brand-navy">
                 {recognitionConnected ? copy.emptyWaiting : copy.emptyNotConnected}
               </p>
               <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">

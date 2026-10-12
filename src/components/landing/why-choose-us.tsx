@@ -98,7 +98,7 @@ export function WhyChooseUs() {
       <GlowOrb className="top-10 -left-28 size-96 pop-float-delay" color="rgba(59,130,246,0.16)" />
       <GlowOrb className="-bottom-16 -right-20 size-80 pop-float" color="rgba(255,138,61,0.1)" />
 
-      <Container>
+      <Container fluid>
         <SectionTitle
           eyebrow={why.eyebrow}
           title={why.title}

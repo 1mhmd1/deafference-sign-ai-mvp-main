@@ -193,7 +193,7 @@ export function HowItWorksVisual() {
       <GlowOrb className="-top-20 -left-16 size-[24rem] pop-float" color="rgba(59,130,246,0.16)" />
       <GlowOrb className="top-24 -right-24 size-[26rem] pop-float-delay" color="rgba(167,180,255,0.18)" />
 
-      <Container>
+      <Container fluid>
         <Reveal className="max-w-2xl">
           <PopEyebrow>
             <span aria-hidden="true">⚡</span> {copy.eyebrow}

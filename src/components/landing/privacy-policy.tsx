@@ -24,7 +24,7 @@ export function PrivacyPolicy() {
       <GlowOrb className="pop-float left-[-10%] top-6 size-72" color="rgba(59,130,246,0.16)" />
       <GlowOrb className="pop-float-delay right-[-8%] bottom-0 size-80" color="rgba(167,180,255,0.2)" />
 
-      <Container className="relative">
+      <Container fluid className="relative">
         <SectionTitle
           headingId="privacy-heading"
           eyebrow={copy.eyebrow}

@@ -1,0 +1,25 @@
+/* App surfaces (/translate, /profile): reuse the landing "pop" palette (via .landing-pop, see globals.css)
+   and add the same paper background plus glass cards. Import once per page root that has .app-pop. */
+
+.app-pop {
+  isolation: isolate;
+}
+.app-pop::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url("/back.avif") center / cover no-repeat;
+}
+
+/* Every shared <Card> on this page becomes a landing-style glass panel. */
+.app-pop .bg-card {
+  background: color-mix(in oklch, white 80%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-color: color-mix(in oklch, #3b82f6 16%, transparent);
+  box-shadow:
+    0 1px 1px color-mix(in oklch, white 60%, transparent) inset,
+    0 20px 44px -24px rgba(30, 64, 175, 0.28);
+}

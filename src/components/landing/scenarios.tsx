@@ -123,7 +123,7 @@ export function Scenarios() {
     <section id="scenarios" aria-labelledby="scenarios-heading" className="pop-atmosphere relative overflow-hidden py-24 sm:py-28">
       <GlowOrb className="-top-24 right-0 size-[26rem] pop-float" color="rgba(45,212,191,0.16)" />
 
-      <Container>
+      <Container fluid>
         <Reveal className="max-w-2xl">
           <PopEyebrow>
             <span aria-hidden="true">🧭</span> {copy.eyebrow}
@@ -134,7 +134,7 @@ export function Scenarios() {
           <p className="mt-4 text-base leading-7 text-black">{copy.description}</p>
         </Reveal>
 
-        <Reveal delay={0.1} className="mx-auto mt-12 max-w-5xl">
+        <Reveal delay={0.1} className="mt-12">
           <div ref={sceneRef} className="relative aspect-[1672/941] w-full" style={{ ["--judy-travel" as string]: `${travelMs}ms` }}>
             <Image
               src="/scenarios-hub.png"

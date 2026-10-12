@@ -1,21 +1,6 @@
-import type { Metadata } from "next"
-import { AppShell } from "@/components/app-shell/app-shell"
-import { Container } from "@/components/shared/container"
-import { SettingsView } from "@/components/settings/settings-view"
+import { redirect } from "next/navigation"
 
-export const metadata: Metadata = {
-  title: "Deafference — Settings",
-  description: "Manage appearance, language, privacy, and notification preferences.",
-}
-
+/** Settings now live inside the profile page. */
 export default function SettingsPage() {
-  return (
-    <AppShell>
-      <main className="py-8 sm:py-10 lg:py-12">
-        <Container>
-          <SettingsView />
-        </Container>
-      </main>
-    </AppShell>
-  )
+  redirect("/profile?tab=settings")
 }

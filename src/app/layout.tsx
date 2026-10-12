@@ -3,9 +3,9 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono, IBM_Plex_Sans_Arabic } from 'next/font/google'
 import { AuthProvider, type AuthUser } from '@/components/auth/auth-provider'
-import { DevRoleSwitcher } from '@/components/auth/dev-role-switcher'
 import { EmergencyQuickActions } from '@/components/deafference/emergency-quick-actions'
 import { SettingsProvider } from '@/components/deafference/settings-provider'
+import { FloatingJudy } from '@/components/judy/floating-judy'
 import { getCurrentSession } from '@/lib/auth/current-user'
 import { parseSettingsCookie, SETTINGS_COOKIE_NAME } from '@/lib/settings'
 import { dirFor, localeFromLanguage } from '@/i18n/locale'
@@ -56,16 +56,17 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={dirFor(locale)}
-      className={`${geistSans.variable} ${geistMono.variable} ${plexArabic.variable} scroll-smooth`}
+      // Server-render a saved dark theme too, so it doesn't flash light first ("system" resolves client-side).
+      className={`${geistSans.variable} ${geistMono.variable} ${plexArabic.variable} scroll-smooth${initialSettings.theme === 'dark' ? ' dark' : ''}`}
       // Lets Next turn smooth scrolling off during route changes (keeps it for in-page anchors).
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
-      <body className="min-h-dvh bg-background font-sans antialiased text-foreground" style={{ backgroundColor: '#ffffff', color: '#000000' }}>
+      <body className="min-h-dvh bg-background font-sans antialiased text-foreground">
         <AuthProvider initialUser={initialUser}>
           <SettingsProvider initialSettings={initialSettings}>
             {children}
-            <DevRoleSwitcher />
+            <FloatingJudy />
             <EmergencyQuickActions />
           </SettingsProvider>
         </AuthProvider>

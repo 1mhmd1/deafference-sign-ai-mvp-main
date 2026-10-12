@@ -1,21 +1,6 @@
-import type { Metadata } from "next"
-import { AppShell } from "@/components/app-shell/app-shell"
-import { Container } from "@/components/shared/container"
-import { TranslationHistory } from "@/components/deafference/translation-history"
+import { redirect } from "next/navigation"
 
-export const metadata: Metadata = {
-  title: "Deafference — History",
-  description: "Your recent translations, stored only on this device.",
-}
-
+/** History now lives inside the profile page. */
 export default function HistoryPage() {
-  return (
-    <AppShell>
-      <main className="py-8 sm:py-10 lg:py-12">
-        <Container>
-          <TranslationHistory />
-        </Container>
-      </main>
-    </AppShell>
-  )
+  redirect("/profile?tab=history")
 }

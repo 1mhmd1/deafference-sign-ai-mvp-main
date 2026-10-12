@@ -1,4 +1,16 @@
 const en = {
+  hub: {
+    sections: "Profile sections",
+    welcome: "Welcome back",
+    guestName: "Guest",
+    guestHint: "Sign in to save your history and preferences.",
+    backToSite: "Back to site",
+    tabs: {
+      profile: { label: "Profile", description: "Your details and security" },
+      history: { label: "History", description: "Recent translations" },
+      settings: { label: "Settings", description: "Appearance and privacy" },
+    },
+  },
   page: {
     title: "Account Settings",
     subtitle: "Manage your profile, security, and account preferences.",
@@ -98,6 +110,18 @@ const en = {
 export type ProfileMessages = typeof en
 
 const ar: ProfileMessages = {
+  hub: {
+    sections: "أقسام الملف الشخصي",
+    welcome: "مرحبًا بعودتك",
+    guestName: "زائر",
+    guestHint: "سجّل الدخول لحفظ سجلّك وتفضيلاتك.",
+    backToSite: "العودة إلى الموقع",
+    tabs: {
+      profile: { label: "الملف الشخصي", description: "بياناتك وأمان حسابك" },
+      history: { label: "السجل", description: "الترجمات الأخيرة" },
+      settings: { label: "الإعدادات", description: "المظهر والخصوصية" },
+    },
+  },
   page: {
     title: "إعدادات الحساب",
     subtitle: "أدِر ملفك الشخصي وأمان حسابك وتفضيلاته.",

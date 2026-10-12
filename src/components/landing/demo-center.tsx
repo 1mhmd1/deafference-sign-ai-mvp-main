@@ -417,7 +417,7 @@ export function DemoCenter() {
       <GlowOrb className="top-0 -right-24 size-[26rem] pop-float" color="rgba(59,130,246,0.16)" />
       <GlowOrb className="-bottom-24 -left-16 size-[24rem] pop-float-delay" color="rgba(127,224,224,0.18)" />
 
-      <Container>
+      <Container fluid>
         <Reveal className="max-w-2xl">
           <PopEyebrow>
             <span aria-hidden="true">▶</span> {copy.eyebrow}

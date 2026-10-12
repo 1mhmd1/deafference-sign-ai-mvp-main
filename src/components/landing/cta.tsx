@@ -46,7 +46,7 @@ export function CTA() {
         delay={1.4}
       />
 
-      <Container className="relative">
+      <Container fluid className="relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

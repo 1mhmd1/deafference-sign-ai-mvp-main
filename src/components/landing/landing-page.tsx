@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Navbar } from "./navbar"
 import { Hero } from "./hero"
 import { AboutUs } from "./about-us"
@@ -16,7 +15,6 @@ import { FAQ } from "./faq"
 import { Contact } from "./contact"
 import { CTA } from "./cta"
 import { Footer } from "./footer"
-import { JudyCharacter } from "@/components/judy/judy-character"
 import { useI18n } from "@/i18n/use-i18n"
 import { cn } from "@/lib/utils"
 import { CalmModeProvider, useCalmMode } from "./calm-mode"
@@ -32,17 +30,12 @@ export function LandingPage() {
 }
 
 function LandingContent() {
-  const { t, dir } = useI18n()
+  const { t } = useI18n()
   const calm = useCalmMode()?.calm ?? false
-  // Where the visitor last dropped Judy; she returns here after her auto-play moves.
-  const [judyPos, setJudyPos] = useState<{ x: number; y: number } | null>(null)
 
   return (
-    <div
-      className={cn("landing-pop relative min-h-dvh bg-background text-foreground", calm && "reduce-motion")}
-      style={{ backgroundColor: '#ffffff', color: '#000000' }}
-    >
-      {/* First focusable element: lets keyboard users jump past Judy and the navbar. */}
+    <div className={cn("landing-pop relative min-h-dvh bg-background text-foreground", calm && "reduce-motion")}>
+      {/* First focusable element: lets keyboard users jump past the navbar. */}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-[#1D4ED8] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
@@ -50,23 +43,10 @@ function LandingContent() {
         {t.landing.nav.skipLink}
       </a>
       <div aria-hidden="true" className="pop-particles pointer-events-none fixed inset-0 z-0 opacity-0" />
-      {/* Decorative companion: hidden below `sm` (landing.css) so it never covers content on phones. */}
-      {/* Rests on the start side so she never sits under the emergency button (end side). */}
-      <JudyCharacter
-        x={judyPos?.x ?? (dir === "rtl" ? "calc(100% - 148px)" : 16)}
-        y={judyPos?.y ?? 10}
-        draggable
-        onDragEnd={setJudyPos}
-        autoPlay={true}
-        autoPlayLines={t.common.judyLines}
-        announce={false}
-        label={t.landing.judy.floatingLabel}
-        className="landing-judy"
-      />
       <Navbar />
       {/* Story order: the problem → how it works → Judy's everyday scenarios → try it →
           what it does → trust (performance, team) → pricing → privacy → questions → contact. */}
-      <main id="main-content" tabIndex={-1} className="relative z-10 outline-none" style={{ color: '#1a1a1a' }}>
+      <main id="main-content" tabIndex={-1} className="relative z-10 outline-none">
         <SectionTransition first>
           <Hero />
         </SectionTransition>

@@ -26,6 +26,10 @@ const en = {
     label: "Calm mode",
     ariaLabel: "Calm mode: reduce motion on this page",
   },
+  theme: {
+    toDark: "Switch to dark mode",
+    toLight: "Switch to light mode",
+  },
   judy: {
     floatingLabel: "Judy, the Deafference guide (decorative animation)",
     sceneLabel: "Judy walking through the everyday places where Deafference helps",
@@ -598,6 +602,10 @@ const ar: LandingMessages = {
   calm: {
     label: "الوضع الهادئ",
     ariaLabel: "الوضع الهادئ: تقليل الحركة في هذه الصفحة",
+  },
+  theme: {
+    toDark: "التبديل إلى الوضع الداكن",
+    toLight: "التبديل إلى الوضع الفاتح",
   },
   judy: {
     floatingLabel: "جودي، مرشدة Deafference (رسم متحرك للزينة)",

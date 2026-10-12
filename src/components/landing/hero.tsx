@@ -27,15 +27,15 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="pop-atmosphere relative overflow-hidden pt-16 sm:pt-24"
+      className="pop-atmosphere relative overflow-hidden pt-8 sm:pt-10"
     >
       <div className="pop-grid pointer-events-none absolute inset-0 -z-10 opacity-[0.05]" aria-hidden="true" />
       <GlowOrb className="-top-24 -left-24 size-[26rem] pop-float" color="rgba(59,130,246,0.22)" />
       <GlowOrb className="top-10 -right-32 size-[30rem] pop-float-delay" color="rgba(167,180,255,0.22)" />
       <GlowOrb className="bottom-0 left-1/3 size-72" color="rgba(255,138,61,0.12)" />
 
-      <Container className="pb-24 sm:pb-32">
-        <div className="grid items-center gap-16 lg:grid-cols-2 lg:gap-12">
+      <Container fluid className="pb-24 sm:pb-32">
+        <div className="grid items-center gap-16 lg:grid-cols-2 lg:items-start lg:gap-12">
           <div>
             <motion.span
               initial={{ opacity: 0, y: 14 }}

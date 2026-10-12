@@ -14,7 +14,7 @@ export function TipsCard() {
       transition={{ duration: 0.5, ease: "easeOut", delay: 0.14 }}
     >
       <Card className="p-5 sm:p-6">
-        <p className="text-xs font-semibold tracking-[0.22em] text-muted-foreground uppercase">
+        <p className="text-sm font-bold tracking-[0.12em] text-[#1D4ED8] uppercase">
           {t.app.tips.eyebrow}
         </p>
         <ul className="mt-4 space-y-3">

@@ -9,6 +9,8 @@ import { useI18n } from "@/i18n/use-i18n"
 import { DeafferenceApp } from "./deafference-app"
 import { AvatarStudio } from "./avatar-studio"
 import { SpeechStudio } from "./speech-studio"
+import { TranslateHeader } from "./translate-header"
+import "@/components/shared/app-pop.css"
 
 export type TranslateMode = "sign" | "avatar" | "speech"
 
@@ -56,15 +58,18 @@ export function TranslateWorkspace() {
 
   const label = { sign: s.sign, avatar: s.avatar, speech: s.speech }
   const hint = { sign: s.signHint, avatar: s.avatarHint, speech: s.speechHint }
+  const title = { sign: t.app.header.title, avatar: s.avatar, speech: s.speech }
 
   return (
-    <div>
-      <div className="border-b border-border/70 bg-background/80 pt-5 pb-4">
-        <Container>
+    <div className="landing-pop app-pop relative min-h-dvh text-foreground">
+      <TranslateHeader title={title[mode]} />
+
+      <Container fluid className="pt-6 sm:pt-8">
+        <div className="flex flex-col items-center gap-3 text-center">
           <div
             role="tablist"
             aria-label={s.label}
-            className="grid grid-cols-1 gap-1 rounded-2xl border border-border bg-muted p-1 sm:inline-grid sm:grid-cols-3"
+            className="glass-pop grid w-full max-w-3xl grid-cols-1 gap-1.5 rounded-3xl p-1.5 sm:grid-cols-3 sm:rounded-full"
           >
             {MODES.map(({ id, icon: Icon }, index) => {
               const selected = id === mode
@@ -83,27 +88,29 @@ export function TranslateWorkspace() {
                   onClick={() => select(id)}
                   onKeyDown={(event) => handleKeyDown(event, index)}
                   className={cn(
-                    "flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors",
+                    "flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-sm font-semibold whitespace-nowrap transition-all sm:text-base",
                     "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none",
-                    selected ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                    selected
+                      ? "bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white shadow-[0_14px_32px_-12px_rgba(37,99,235,0.55)]"
+                      : "text-brand-navy hover:bg-white/80",
                   )}
                 >
-                  <Icon className="size-4" aria-hidden="true" />
+                  <Icon className="size-5" aria-hidden="true" />
                   {label[id]}
                 </button>
               )
             })}
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">{hint[mode]}</p>
-        </Container>
-      </div>
+          <p className="text-sm text-muted-foreground sm:text-base">{hint[mode]}</p>
+        </div>
+      </Container>
 
       <div id="translate-panel" role="tabpanel" aria-labelledby={`translate-tab-${mode}`}>
         {mode === "sign" ? (
           <DeafferenceApp />
         ) : (
-          <main className="py-8 sm:py-10">
-            <Container>{mode === "avatar" ? <AvatarStudio key={initialText} initialText={initialText} /> : <SpeechStudio />}</Container>
+          <main className="py-6 sm:py-8">
+            <Container fluid>{mode === "avatar" ? <AvatarStudio key={initialText} initialText={initialText} /> : <SpeechStudio />}</Container>
           </main>
         )}
       </div>

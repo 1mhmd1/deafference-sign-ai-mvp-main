@@ -54,7 +54,7 @@ export function Footer() {
         delay={0.6}
       />
 
-      <Container className="relative grid gap-12 sm:grid-cols-3 lg:grid-cols-[1.3fr_auto_auto_auto] lg:items-start lg:gap-10">
+      <Container fluid className="relative grid gap-12 sm:grid-cols-3 lg:grid-cols-[1.3fr_auto_auto_auto] lg:items-start lg:gap-10">
         <div className="max-w-sm sm:col-span-3 lg:col-span-1">
           <Logo />
           <p className="mt-5 text-sm leading-7 text-black">{copy.tagline}</p>
@@ -93,7 +93,7 @@ export function Footer() {
         </div>
       </Container>
 
-      <Container className="relative mt-14">
+      <Container fluid className="relative mt-14">
         <section
           id="accessibility"
           aria-labelledby="accessibility-heading"
@@ -119,7 +119,7 @@ export function Footer() {
         </section>
       </Container>
 
-      <Container className="relative mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[color:var(--primary)]/10 pt-6">
+      <Container fluid className="relative mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[color:var(--primary)]/10 pt-6">
         <p className="text-xs text-black">{fmt(copy.rights, { year: new Date().getFullYear() })}</p>
         <FooterLink href={resolveLandingHref("#top", pathname)}>
           <ArrowUp className="size-4" aria-hidden="true" />
