@@ -42,6 +42,17 @@ export const MOCK_FEEDBACK: FeedbackEntry[] = [
   { id: "fbk_506", userEmail: "hana.k@rivertown-bank.com", category: "Billing", rating: 1, text: "Invoice for June lists two active seats but our team only has one licensed reception terminal.", submittedDate: "2026-07-27", status: "New" },
 ]
 
+export const MOCK_USERS: AdminUser[] = [
+  { id: "user_001", name: "Aya Raneem", email: "aya@deafference.com", role: "Admin", status: "Active", joinedDate: "2026-01-15" },
+  { id: "user_002", name: "Sarah Chen", email: "sarah.chen@deafference.com", role: "Admin", status: "Active", joinedDate: "2026-02-20" },
+  { id: "user_003", name: "Marcus Williams", email: "marcus.w@clinic.org", role: "Individual", status: "Active", joinedDate: "2026-03-10" },
+  { id: "user_004", name: "Emma Johnson", email: "emma.johnson@hospital.net", role: "Individual", status: "Active", joinedDate: "2026-03-18" },
+  { id: "user_005", name: "James O'Brien", email: "james.obrien@example.com", role: "Individual", status: "Suspended", joinedDate: "2026-04-05" },
+  { id: "user_006", name: "Sophia Martinez", email: "sophia.m@bank.com", role: "Individual", status: "Active", joinedDate: "2026-04-22" },
+  { id: "user_007", name: "David Kim", email: "david.kim@school.edu", role: "Individual", status: "Active", joinedDate: "2026-05-11" },
+  { id: "user_008", name: "Priya Patel", email: "priya.p@clinic.org", role: "Individual", status: "Active", joinedDate: "2026-05-28" },
+]
+
 export const MOCK_CONTACT_SUBMISSIONS: ContactSubmission[] = [
   { id: "ctc_301", name: "Rosa Mendes", organization: "Clearwater Family Dental", email: "rosa.mendes@clearwaterdental.com", subject: "Pilot for two clinic locations", message: "We run two dental offices and want to trial Deafference at our front desks for a month before committing to both sites. What does a pilot arrangement look like?", receivedDate: "2026-07-24", read: false },
   { id: "ctc_302", name: "Grace Whitfield", organization: null, email: "grace.whitfield@example.com", subject: "Question about personal use pricing", message: "I'm deaf and work as a freelance consultant. Is there an individual plan, or is Deafference aimed only at businesses right now?", receivedDate: "2026-07-26", read: false },
