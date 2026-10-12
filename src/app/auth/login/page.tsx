@@ -16,8 +16,15 @@ export default function LoginPage() {
   const [formState, setFormState] = useState<FormState>('idle')
   const [errors, setErrors] = useState<FormErrors>({})
   const [showPassword, setShowPassword] = useState(false)
+  const [togglePulse, setTogglePulse] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+
+  const handlePasswordToggle = () => {
+    setShowPassword(!showPassword)
+    setTogglePulse(true)
+    setTimeout(() => setTogglePulse(false), 300)
+  }
 
   const validateForm = () => {
     const newErrors: FormErrors = {}
@@ -164,9 +171,14 @@ export default function LoginPage() {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-3.5 text-gray-600 hover:text-gray-900 transition-colors p-1"
+                  onClick={handlePasswordToggle}
+                  className={`absolute right-4 top-3.5 p-1 rounded transition-all duration-300 ${
+                    togglePulse
+                      ? 'bg-blue-100 text-blue-600 scale-110'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  title={showPassword ? 'Password visible' : 'Password hidden'}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>

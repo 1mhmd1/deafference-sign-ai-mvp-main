@@ -20,7 +20,18 @@ export default function SignupPage() {
   const [errors, setErrors] = useState<FormErrors>({})
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [togglePulse, setTogglePulse] = useState({ password: false, confirm: false })
   const [agreedToTerms, setAgreedToTerms] = useState(false)
+
+  const handlePasswordToggle = (field: 'password' | 'confirm') => {
+    if (field === 'password') {
+      setShowPassword(!showPassword)
+    } else {
+      setShowConfirmPassword(!showConfirmPassword)
+    }
+    setTogglePulse({ ...togglePulse, [field]: true })
+    setTimeout(() => setTogglePulse({ ...togglePulse, [field]: false }), 300)
+  }
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -217,9 +228,14 @@ export default function SignupPage() {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-3.5 text-gray-600 hover:text-gray-900 transition-colors p-1"
+                  onClick={() => handlePasswordToggle('password')}
+                  className={`absolute right-4 top-3.5 p-1 rounded transition-all duration-300 ${
+                    togglePulse.password
+                      ? 'bg-blue-100 text-blue-600 scale-110'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  title={showPassword ? 'Password visible' : 'Password hidden'}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -256,9 +272,14 @@ export default function SignupPage() {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-3.5 text-gray-600 hover:text-gray-900 transition-colors p-1"
+                  onClick={() => handlePasswordToggle('confirm')}
+                  className={`absolute right-4 top-3.5 p-1 rounded transition-all duration-300 ${
+                    togglePulse.confirm
+                      ? 'bg-blue-100 text-blue-600 scale-110'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
                   aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  title={showConfirmPassword ? 'Password visible' : 'Password hidden'}
                 >
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
