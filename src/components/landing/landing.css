@@ -44,7 +44,7 @@ html:not(.dark) .landing-pop:not(.app-pop) li {
 .landing-pop {
   isolation: isolate;
 }
-.landing-pop::before {
+.landing-pop.landing-home::before {
   content: "" !important;
   position: fixed;
   inset: 0;

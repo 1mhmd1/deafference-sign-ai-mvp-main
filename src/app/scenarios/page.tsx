@@ -12,7 +12,6 @@ export const metadata: Metadata = {
 export default function ScenariosPage() {
   return (
     <div className="landing-bright relative min-h-dvh bg-background text-foreground">
-      <div aria-hidden="true" className="starfield pointer-events-none fixed inset-0 z-30" />
       <Navbar />
       <main>
         <ScenarioGrid />

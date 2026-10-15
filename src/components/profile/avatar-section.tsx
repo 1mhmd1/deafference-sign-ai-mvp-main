@@ -7,12 +7,19 @@ import { Card } from '@/components/ui/card'
 import { useI18n } from '@/i18n/use-i18n'
 import { ApiError } from './api-error'
 
-const ACCEPTED_TYPES = ['image/png', 'image/jpeg']
+export const ACCEPTED_AVATAR_TYPES = ['image/png', 'image/jpeg']
 /** Mirrors the server limit in /api/account/avatar (data URL ≤ 700,000 chars ≈ 500 KB image). */
 const MAX_DATA_URL_LENGTH = 700_000
 
 function estimatedDataUrlLength(file: File) {
   return Math.ceil(file.size / 3) * 4 + `data:${file.type};base64,`.length
+}
+
+/** Client-side check before uploading; returns the problem (a `t.profile.avatar` key) or null. */
+export function validateAvatarFile(file: File): 'invalidType' | 'tooLarge' | null {
+  if (!ACCEPTED_AVATAR_TYPES.includes(file.type)) return 'invalidType'
+  if (estimatedDataUrlLength(file) > MAX_DATA_URL_LENGTH) return 'tooLarge'
+  return null
 }
 
 export interface AvatarSectionProps {
@@ -37,6 +44,11 @@ export function AvatarSection({ displayName, initialAvatarUrl, onUpload, onRemov
   const [error, setError] = useState<string>()
   const [success, setSuccess] = useState<string>()
 
+  // The picture can also change from the profile header's camera button.
+  useEffect(() => {
+    setSavedUrl(initialAvatarUrl ?? null)
+  }, [initialAvatarUrl])
+
   // Revoke the temporary preview object URL when it's replaced or the section unmounts.
   useEffect(() => {
     return () => {
@@ -60,12 +72,9 @@ export function AvatarSection({ displayName, initialAvatarUrl, onUpload, onRemov
     if (!file) return
 
     setSuccess(undefined)
-    if (!ACCEPTED_TYPES.includes(file.type)) {
-      setError(m.invalidType)
-      return
-    }
-    if (estimatedDataUrlLength(file) > MAX_DATA_URL_LENGTH) {
-      setError(m.tooLarge)
+    const problem = validateAvatarFile(file)
+    if (problem) {
+      setError(m[problem])
       return
     }
 
@@ -103,7 +112,7 @@ export function AvatarSection({ displayName, initialAvatarUrl, onUpload, onRemov
   const alt = pendingUrl ? '' : displayName ? fmt(m.altSaved, { name: displayName }) : m.altFallback
 
   return (
-    <Card>
+    <Card id="profile-field-photo" className="scroll-mt-28">
       <section aria-labelledby={`${idPrefix}-heading`} className="flex flex-col gap-4">
         <h2 id={`${idPrefix}-heading`} className="text-lg font-semibold text-foreground">
           {m.heading}
@@ -132,7 +141,7 @@ export function AvatarSection({ displayName, initialAvatarUrl, onUpload, onRemov
               id={`${idPrefix}-file`}
               name="avatar"
               type="file"
-              accept={ACCEPTED_TYPES.join(',')}
+              accept={ACCEPTED_AVATAR_TYPES.join(',')}
               onChange={handleFileChange}
               className="sr-only"
               tabIndex={-1}

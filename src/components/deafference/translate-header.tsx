@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowLeft, UserCircle2 } from "lucide-react"
+import { UserCircle2 } from "lucide-react"
 import { initialsFor } from "@/components/auth/auth-nav-actions"
 import { useAuth } from "@/components/auth/auth-provider"
+import { BackButton } from "@/components/shared/back-button"
 import { LanguageToggle } from "@/components/shared/language-toggle"
 import { APP_ROUTES } from "@/lib/constants"
 import { cn } from "@/lib/utils"
@@ -34,17 +35,7 @@ export function TranslateHeader({ title }: { title: string }) {
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <Link
-            href={APP_ROUTES.home}
-            aria-label={t.profile.hub.backToSite}
-            className={cn(
-              "glass-pop inline-flex h-11 items-center justify-center gap-2 rounded-full px-3.5 text-sm font-semibold text-brand-navy transition-all hover:-translate-y-0.5 hover:bg-white/90 sm:px-4",
-              FOCUS_RING,
-            )}
-          >
-            <ArrowLeft className="size-4 rtl:-scale-x-100" aria-hidden="true" />
-            <span className="hidden md:inline">{t.profile.hub.backToSite}</span>
-          </Link>
+          <BackButton />
           <LanguageToggle />
           <Link
             href={APP_ROUTES.profile}

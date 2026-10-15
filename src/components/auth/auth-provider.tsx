@@ -25,6 +25,8 @@ export interface AuthContextValue {
   /** Calls POST /api/auth/signup. Throws an Error with a user-facing message on failure. */
   signUp: (values: SignUpValues) => Promise<void>
   signOut: () => Promise<void>
+  /** Mirrors a profile edit (name/email) the server already saved, so the nav updates without a reload. */
+  updateUser: (patch: Partial<Pick<AuthUser, "name" | "email">>) => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -103,6 +105,10 @@ export function AuthProvider({ initialUser, children }: { initialUser: AuthUser 
     [router],
   )
 
+  const updateUser = useCallback((patch: Partial<Pick<AuthUser, "name" | "email">>) => {
+    setUser((current) => (current ? { ...current, ...patch } : current))
+  }, [])
+
   const value = useMemo<AuthContextValue>(
     () => ({
       role: user?.role ?? "guest",
@@ -111,8 +117,9 @@ export function AuthProvider({ initialUser, children }: { initialUser: AuthUser 
       signIn,
       signUp,
       signOut,
+      updateUser,
     }),
-    [user, setRole, signIn, signUp, signOut],
+    [user, setRole, signIn, signUp, signOut, updateUser],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

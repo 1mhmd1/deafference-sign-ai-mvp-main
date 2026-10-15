@@ -1,21 +1,25 @@
 'use client'
 
 import { useId, useState, type SubmitEvent } from 'react'
-import { Loader2 } from 'lucide-react'
+import { Check, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { FieldError } from '@/components/shared/field-error'
 import { EMAIL_PATTERN } from '@/lib/validation'
+import { cn } from '@/lib/utils'
 import { useI18n } from '@/i18n/use-i18n'
 import { ApiError } from './api-error'
 
-const SIGN_LANGUAGE_VALUES = ['', 'asl', 'bsl', 'lsf', 'dgs', 'other'] as const
+const SIGN_LANGUAGE_VALUES = ['', 'arsl', 'asl', 'bsl', 'isl', 'lsf', 'dgs', 'other'] as const
+export const HEARING_STATUS_VALUES = ['deaf', 'hardOfHearing', 'hearing'] as const
 
 export interface PersonalInfoValues {
   fullName: string
   email: string
   signLanguage: string
+  /** One of HEARING_STATUS_VALUES, or '' when not answered yet. */
+  hearingStatus: string
 }
 
 export interface PersonalInfoFormProps {
@@ -32,7 +36,12 @@ interface PersonalInfoErrors {
 type SubmitStatus = 'idle' | 'submitting' | 'success'
 
 function normalize(values: PersonalInfoValues): PersonalInfoValues {
-  return { fullName: values.fullName.trim(), email: values.email.trim(), signLanguage: values.signLanguage }
+  return {
+    fullName: values.fullName.trim(),
+    email: values.email.trim(),
+    signLanguage: values.signLanguage,
+    hearingStatus: values.hearingStatus,
+  }
 }
 
 function diff(current: PersonalInfoValues, saved: PersonalInfoValues): Partial<PersonalInfoValues> {
@@ -42,6 +51,7 @@ function diff(current: PersonalInfoValues, saved: PersonalInfoValues): Partial<P
   if (a.fullName !== b.fullName) changes.fullName = a.fullName
   if (a.email.toLowerCase() !== b.email.toLowerCase()) changes.email = a.email
   if (a.signLanguage !== b.signLanguage) changes.signLanguage = a.signLanguage
+  if (a.hearingStatus !== b.hearingStatus) changes.hearingStatus = a.hearingStatus
   return changes
 }
 
@@ -53,6 +63,7 @@ export function PersonalInfoForm({ defaultValues, onSave }: PersonalInfoFormProp
     fullName: defaultValues?.fullName ?? '',
     email: defaultValues?.email ?? '',
     signLanguage: defaultValues?.signLanguage ?? '',
+    hearingStatus: defaultValues?.hearingStatus ?? '',
   }
   const [saved, setSaved] = useState<PersonalInfoValues>(initial)
   const [values, setValues] = useState<PersonalInfoValues>(initial)
@@ -120,12 +131,15 @@ export function PersonalInfoForm({ defaultValues, onSave }: PersonalInfoFormProp
 
     setStatus('submitting')
     try {
-      const result = (await onSave?.(changes)) as Partial<{ name: string; email: string; signLanguage: string }> | undefined
+      const result = (await onSave?.(changes)) as
+        | Partial<{ name: string; email: string; signLanguage: string; hearingStatus: string }>
+        | undefined
       const next = normalize(values)
       const savedValues: PersonalInfoValues = {
         fullName: result?.name ?? next.fullName,
         email: result?.email ?? next.email,
         signLanguage: result?.signLanguage ?? next.signLanguage,
+        hearingStatus: result?.hearingStatus ?? next.hearingStatus,
       }
       setSaved(savedValues)
       setValues(savedValues)
@@ -147,7 +161,7 @@ export function PersonalInfoForm({ defaultValues, onSave }: PersonalInfoFormProp
           <fieldset className="flex flex-col gap-4" disabled={submitting} aria-busy={submitting}>
             <legend className="sr-only">{m.legend}</legend>
 
-            <div className="flex flex-col gap-1.5">
+            <div id="profile-field-name" className="flex scroll-mt-28 flex-col gap-1.5">
               <label htmlFor={`${idPrefix}-name`} className="text-sm font-medium">
                 {m.fullName}
               </label>
@@ -165,7 +179,7 @@ export function PersonalInfoForm({ defaultValues, onSave }: PersonalInfoFormProp
               <FieldError id={`${idPrefix}-name-error`} message={errors.fullName} />
             </div>
 
-            <div className="flex flex-col gap-1.5">
+            <div id="profile-field-email" className="flex scroll-mt-28 flex-col gap-1.5">
               <label htmlFor={`${idPrefix}-email`} className="text-sm font-medium">
                 {m.email}
               </label>
@@ -185,7 +199,37 @@ export function PersonalInfoForm({ defaultValues, onSave }: PersonalInfoFormProp
               <FieldError id={`${idPrefix}-email-error`} message={errors.email} />
             </div>
 
-            <div className="flex flex-col gap-1.5">
+            <fieldset id="profile-field-hearing" className="flex scroll-mt-28 flex-col gap-2">
+              <legend className="mb-1.5 text-sm font-medium">{m.hearingStatus}</legend>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {HEARING_STATUS_VALUES.map((value) => {
+                  const selected = values.hearingStatus === value
+                  return (
+                    <label
+                      key={value}
+                      className={cn(
+                        'flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors',
+                        'has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-card',
+                        selected ? 'border-primary bg-primary/10 text-primary' : 'border-border text-foreground hover:bg-muted',
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="hearingStatus"
+                        value={value}
+                        checked={selected}
+                        onChange={() => setField('hearingStatus', value)}
+                        className="sr-only"
+                      />
+                      {selected ? <Check className="size-4 shrink-0" aria-hidden="true" /> : null}
+                      {m.hearingOptions[value]}
+                    </label>
+                  )
+                })}
+              </div>
+            </fieldset>
+
+            <div id="profile-field-sign-language" className="flex scroll-mt-28 flex-col gap-1.5">
               <label htmlFor={`${idPrefix}-sign-language`} className="text-sm font-medium">
                 {m.signLanguage}
               </label>
