@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, type RefObject } from "react"
+// @ts-ignore - MediaPipe types optional in development
 import type { HandLandmarker, NormalizedLandmark, PoseLandmarker } from "@mediapipe/tasks-vision"
 
 /**
@@ -65,6 +66,7 @@ export function LandmarkOverlay({
     async function start() {
       report({ status: "loading", hands: 0, body: false })
       try {
+        // @ts-ignore - MediaPipe types optional in development
         const vision = await import("@mediapipe/tasks-vision")
         const fileset = await vision.FilesetResolver.forVisionTasks(WASM_BASE)
 
@@ -100,7 +102,7 @@ export function LandmarkOverlay({
         const { DrawingUtils, HandLandmarker, PoseLandmarker } = vision
         const handLinks = HandLandmarker.HAND_CONNECTIONS
         const bodyLinks = PoseLandmarker.POSE_CONNECTIONS.filter(
-          (c) => c.start >= FIRST_BODY_POINT && c.end >= FIRST_BODY_POINT,
+          (c: any) => c.start >= FIRST_BODY_POINT && c.end >= FIRST_BODY_POINT,
         )
         let lastTime = -1
 
@@ -130,7 +132,7 @@ export function LandmarkOverlay({
           if (body) {
             // Hide joints the model can't see (e.g. legs out of frame) instead of guessing them.
             const visible = (p: NormalizedLandmark | undefined) => !!p && (p.visibility ?? 1) >= MIN_VISIBILITY
-            const links = bodyLinks.filter((c) => visible(body[c.start]) && visible(body[c.end]))
+            const links = bodyLinks.filter((c: any) => visible(body[c.start]) && visible(body[c.end]))
             draw.drawConnectors(body, links, { color: BODY_LINE, lineWidth: 3 * scale })
             draw.drawLandmarks(
               body.slice(FIRST_BODY_POINT).filter(visible),
@@ -138,7 +140,7 @@ export function LandmarkOverlay({
             )
           }
 
-          handResult.landmarks.forEach((hand, i) => {
+          handResult.landmarks.forEach((hand: any, i: number) => {
             const side = handResult.handedness[i]?.[0]?.categoryName === "Left" ? "Left" : "Right"
             const color = HAND_COLORS[side]
             draw.drawConnectors(hand, handLinks, { color, lineWidth: 3 * scale })

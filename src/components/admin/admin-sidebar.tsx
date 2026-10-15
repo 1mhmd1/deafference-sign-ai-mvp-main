@@ -2,12 +2,14 @@
 
 import { useRef } from "react"
 import Link from "next/link"
-import { LayoutDashboard, Mail, MessageSquare, Users, Edit3, type LucideIcon } from "lucide-react"
+import { LayoutDashboard, Mail, MessageSquare, Users, Edit3, BarChart3, Activity, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { AdminView } from "./admin-shell"
 
 const NAV_ITEMS: Array<{ value: AdminView; label: string; icon: LucideIcon }> = [
   { value: "overview", label: "System Overview", icon: LayoutDashboard },
+  { value: "analytics", label: "Analytics & Metrics", icon: BarChart3 },
+  { value: "activity", label: "Activity Log", icon: Activity },
   { value: "users", label: "Users Management", icon: Users },
   { value: "feedback", label: "User Feedback", icon: MessageSquare },
   { value: "contacts", label: "Contact Submissions", icon: Mail },
@@ -23,10 +25,12 @@ export function AdminSidebar({
   onNavigate?: () => void
 }) {
   const tabRefs = useRef<Record<AdminView, HTMLButtonElement | null>>({
+    overview: null,
+    analytics: null,
+    activity: null,
     users: null,
     feedback: null,
     contacts: null,
-    overview: null,
   })
 
   function activateAt(index: number) {
