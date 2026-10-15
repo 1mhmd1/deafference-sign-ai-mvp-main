@@ -19,6 +19,8 @@ export interface PasswordChangeValues {
 export interface SecurityFormProps {
   /** Throws `ApiError` on failure. */
   onUpdatePassword?: (values: PasswordChangeValues) => Promise<void>
+  /** False when no password is set yet: the current-password field is hidden and the form sets one. */
+  hasPassword?: boolean
 }
 
 interface PasswordChangeErrors {
@@ -35,7 +37,7 @@ const initialValues: PasswordChangeValues = {
   confirmNewPassword: '',
 }
 
-export function SecurityForm({ onUpdatePassword }: SecurityFormProps) {
+export function SecurityForm({ onUpdatePassword, hasPassword = true }: SecurityFormProps) {
   const { t, fmt } = useI18n()
   const m = t.profile.security
   const idPrefix = useId()
@@ -57,7 +59,7 @@ export function SecurityForm({ onUpdatePassword }: SecurityFormProps) {
 
   function validate(current: PasswordChangeValues): PasswordChangeErrors {
     const next: PasswordChangeErrors = {}
-    if (!current.currentPassword) next.currentPassword = m.currentRequired
+    if (hasPassword && !current.currentPassword) next.currentPassword = m.currentRequired
     if (!current.newPassword) {
       next.newPassword = m.newRequired
     } else if (current.newPassword.length < MIN_PASSWORD_LENGTH) {
@@ -111,7 +113,7 @@ export function SecurityForm({ onUpdatePassword }: SecurityFormProps) {
     .join(' ')
 
   return (
-    <Card>
+    <Card id="profile-field-password" className="scroll-mt-28">
       <section aria-labelledby={`${idPrefix}-heading`} className="flex flex-col gap-4">
         <h2 id={`${idPrefix}-heading`} className="text-lg font-semibold text-foreground">
           {m.heading}
@@ -121,20 +123,24 @@ export function SecurityForm({ onUpdatePassword }: SecurityFormProps) {
           <fieldset className="flex flex-col gap-4" disabled={submitting} aria-busy={submitting}>
             <legend className="sr-only">{m.legend}</legend>
 
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor={`${idPrefix}-current`} className="text-sm font-medium">
-                {m.current}
-              </label>
-              <PasswordField
-                id={`${idPrefix}-current`}
-                autoComplete="current-password"
-                value={values.currentPassword}
-                onChange={(value) => setField('currentPassword', value)}
-                invalid={Boolean(errors.currentPassword)}
-                describedBy={errors.currentPassword ? `${idPrefix}-current-error` : undefined}
-              />
-              <FieldError id={`${idPrefix}-current-error`} message={errors.currentPassword} />
-            </div>
+            {hasPassword ? (
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor={`${idPrefix}-current`} className="text-sm font-medium">
+                  {m.current}
+                </label>
+                <PasswordField
+                  id={`${idPrefix}-current`}
+                  autoComplete="current-password"
+                  value={values.currentPassword}
+                  onChange={(value) => setField('currentPassword', value)}
+                  invalid={Boolean(errors.currentPassword)}
+                  describedBy={errors.currentPassword ? `${idPrefix}-current-error` : undefined}
+                />
+                <FieldError id={`${idPrefix}-current-error`} message={errors.currentPassword} />
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">{m.setFirst}</p>
+            )}
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={`${idPrefix}-new`} className="text-sm font-medium">
@@ -195,7 +201,7 @@ export function SecurityForm({ onUpdatePassword }: SecurityFormProps) {
             <div className="mt-2 flex flex-wrap items-center gap-3">
               <Button type="submit" className="h-10 px-4">
                 {submitting ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
-                {submitting ? m.submitting : m.submit}
+                {submitting ? m.submitting : hasPassword ? m.submit : m.setSubmit}
               </Button>
               <p role="status" aria-live="polite" className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
                 {status === 'success' ? m.success : ''}

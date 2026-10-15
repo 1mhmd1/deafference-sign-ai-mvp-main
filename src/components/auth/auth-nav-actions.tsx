@@ -18,7 +18,7 @@ export function initialsFor(name: string, email: string) {
   return source.slice(0, 2).toUpperCase()
 }
 
-/** Login/Signup buttons for guests, or an account chip + sign out for signed-in users. Drop into any header's top-right slot. */
+/** Login/Signup buttons for guests (both open /profile, which works without a server), or an account chip + sign out for signed-in users. Drop into any header's top-right slot. */
 export function AuthNavActions({
   className,
   hideAccount = false,
@@ -39,13 +39,13 @@ export function AuthNavActions({
           size="sm"
           className="h-10 px-3"
           nativeButton={false}
-          render={<Link href={APP_ROUTES.login}>{t.auth.nav.login}</Link>}
+          render={<Link href={APP_ROUTES.profile}>{t.auth.nav.login}</Link>}
         />
         <Button
           size="sm"
           className="h-10 px-3"
           nativeButton={false}
-          render={<Link href={APP_ROUTES.signup}>{t.auth.nav.signup}</Link>}
+          render={<Link href={APP_ROUTES.profile}>{t.auth.nav.signup}</Link>}
         />
       </div>
     )

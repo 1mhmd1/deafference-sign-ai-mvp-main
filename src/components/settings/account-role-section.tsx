@@ -44,14 +44,14 @@ export function AccountRoleSection() {
               size="lg"
               className="h-10 px-4"
               nativeButton={false}
-              render={<Link href={APP_ROUTES.login}>{m.signIn}</Link>}
+              render={<Link href={APP_ROUTES.profile}>{m.signIn}</Link>}
             />
             <Button
               variant="outline"
               size="lg"
               className="h-10 px-4"
               nativeButton={false}
-              render={<Link href={APP_ROUTES.signup}>{m.createAccount}</Link>}
+              render={<Link href={APP_ROUTES.profile}>{m.createAccount}</Link>}
             />
           </div>
         </section>

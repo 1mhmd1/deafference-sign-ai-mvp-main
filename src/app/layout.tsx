@@ -6,6 +6,7 @@ import { AuthProvider, type AuthUser } from '@/components/auth/auth-provider'
 import { EmergencyQuickActions } from '@/components/deafference/emergency-quick-actions'
 import { SettingsProvider } from '@/components/deafference/settings-provider'
 import { FloatingJudy } from '@/components/judy/floating-judy'
+import { NavigationTracker } from '@/components/shared/back-button'
 import { getCurrentSession } from '@/lib/auth/current-user'
 import { parseSettingsCookie, SETTINGS_COOKIE_NAME } from '@/lib/settings'
 import { dirFor, localeFromLanguage } from '@/i18n/locale'
@@ -67,6 +68,7 @@ export default async function RootLayout({
           <SettingsProvider initialSettings={initialSettings}>
             {children}
             <FloatingJudy />
+            <NavigationTracker />
             <EmergencyQuickActions />
           </SettingsProvider>
         </AuthProvider>

@@ -34,7 +34,7 @@ function LandingContent() {
   const calm = useCalmMode()?.calm ?? false
 
   return (
-    <div className={cn("landing-pop relative min-h-dvh bg-background text-foreground", calm && "reduce-motion")}>
+    <div className={cn("landing-pop landing-home relative min-h-dvh bg-background text-foreground", calm && "reduce-motion")}>
       {/* First focusable element: lets keyboard users jump past the navbar. */}
       <a
         href="#main-content"

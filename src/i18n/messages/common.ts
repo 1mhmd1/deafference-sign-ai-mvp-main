@@ -39,6 +39,7 @@ const en = {
     retry: "Try again",
     cancel: "Cancel",
     save: "Save",
+    back: "Back",
   },
 }
 
@@ -85,6 +86,7 @@ const ar: CommonMessages = {
     retry: "حاول مرة أخرى",
     cancel: "إلغاء",
     save: "حفظ",
+    back: "رجوع",
   },
 }
 

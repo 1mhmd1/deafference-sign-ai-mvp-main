@@ -10,7 +10,7 @@ import { useI18n } from '@/i18n/use-i18n'
 import { ApiError } from './api-error'
 
 export interface DangerZoneProps {
-  /** Runs after the user confirmed and was signed out (e.g. navigate home). */
+  /** Runs after the user confirmed and was signed out (e.g. navigate home). Leave out to hide the sign-out row. */
   onSignedOut?: () => void
   onDeleteAccount?: () => Promise<void>
 }
@@ -56,16 +56,18 @@ export function DangerZone({ onSignedOut, onDeleteAccount }: DangerZoneProps) {
           {m.heading}
         </h2>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-          <div>
-            <p className="text-sm font-medium text-foreground">{m.signOutTitle}</p>
-            <p className="text-sm text-muted-foreground">{m.signOutBody}</p>
+        {onSignedOut ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+            <div>
+              <p className="text-sm font-medium text-foreground">{m.signOutTitle}</p>
+              <p className="text-sm text-muted-foreground">{m.signOutBody}</p>
+            </div>
+            <Button type="button" variant="outline" className="h-10 px-4" onClick={() => setLogoutOpen(true)}>
+              <LogOut className="size-4 rtl:-scale-x-100" aria-hidden="true" />
+              {m.signOut}
+            </Button>
           </div>
-          <Button type="button" variant="outline" className="h-10 px-4" onClick={() => setLogoutOpen(true)}>
-            <LogOut className="size-4 rtl:-scale-x-100" aria-hidden="true" />
-            {m.signOut}
-          </Button>
-        </div>
+        ) : null}
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>

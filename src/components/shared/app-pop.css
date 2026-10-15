@@ -1,17 +1,5 @@
 /* App surfaces (/translate, /profile): reuse the landing "pop" palette (via .landing-pop, see globals.css)
-   and add the same paper background plus glass cards. Import once per page root that has .app-pop. */
-
-.app-pop {
-  isolation: isolate;
-}
-.app-pop::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: url("/back.avif") center / cover no-repeat;
-}
+   plus glass cards on a plain background (the paper texture is landing-only). Import once per page root that has .app-pop. */
 
 /* Every shared <Card> on this page becomes a landing-style glass panel. */
 .app-pop .bg-card {

@@ -14,6 +14,7 @@ export interface ProfileSettingsProps {
   onRemoveAvatar?: AvatarSectionProps['onRemove']
   onSavePersonalInfo?: PersonalInfoFormProps['onSave']
   onUpdatePassword?: SecurityFormProps['onUpdatePassword']
+  hasPassword?: SecurityFormProps['hasPassword']
   onSignedOut?: DangerZoneProps['onSignedOut']
   onDeleteAccount?: DangerZoneProps['onDeleteAccount']
 }
@@ -26,21 +27,27 @@ export function ProfileSettings({
   onRemoveAvatar,
   onSavePersonalInfo,
   onUpdatePassword,
+  hasPassword,
   onSignedOut,
   onDeleteAccount,
 }: ProfileSettingsProps) {
   return (
-    <div className="flex flex-col gap-6">
-      <AvatarSection
-        displayName={displayName}
-        initialAvatarUrl={initialAvatarUrl}
-        onUpload={onUploadAvatar}
-        onRemove={onRemoveAvatar}
-      />
-      <PersonalInfoForm defaultValues={defaultValues} onSave={onSavePersonalInfo} />
-      <LanguageSection />
-      <SecurityForm onUpdatePassword={onUpdatePassword} />
-      <DangerZone onSignedOut={onSignedOut} onDeleteAccount={onDeleteAccount} />
+    // Two columns on wide screens: who you are (photo, details, language) | how you sign in (password, account).
+    <div className="grid items-start gap-6 lg:grid-cols-2">
+      <div className="flex flex-col gap-6">
+        <AvatarSection
+          displayName={displayName}
+          initialAvatarUrl={initialAvatarUrl}
+          onUpload={onUploadAvatar}
+          onRemove={onRemoveAvatar}
+        />
+        <PersonalInfoForm defaultValues={defaultValues} onSave={onSavePersonalInfo} />
+        <LanguageSection />
+      </div>
+      <div className="flex flex-col gap-6">
+        <SecurityForm onUpdatePassword={onUpdatePassword} hasPassword={hasPassword} />
+        <DangerZone onSignedOut={onSignedOut} onDeleteAccount={onDeleteAccount} />
+      </div>
     </div>
   )
 }

@@ -1,19 +1,24 @@
 "use client"
 
-import { useRef, useState, type KeyboardEvent } from "react"
+import { useId, useRef, useState, type ChangeEvent, type KeyboardEvent } from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { ArrowLeft, History, LogIn, LogOut, Mic, Settings2, ShieldCheck, UserCircle2, type LucideIcon } from "lucide-react"
+import { Camera, History, Loader2, LogOut, Mic, Pencil, Settings2, ShieldCheck, UserCircle2, type LucideIcon } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
 import { LogoutConfirmDialog } from "@/components/auth/logout-confirm-dialog"
 import { TranslationHistory } from "@/components/deafference/translation-history"
 import { SettingsView } from "@/components/settings/settings-view"
 import { Wordmark } from "@/components/shared/wordmark"
 import { Container } from "@/components/shared/container"
+import { BackButton } from "@/components/shared/back-button"
 import { LanguageToggle } from "@/components/shared/language-toggle"
 import { APP_ROUTES } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
+import { AccountProvider, useAccount, type CompletionItem } from "./account-context"
+import { ApiError } from "./api-error"
+import { ACCEPTED_AVATAR_TYPES, validateAvatarFile } from "./avatar-section"
+import { COMPLETION_TARGETS, ProfileCompletionButton, ProfileCompletionPanel } from "./profile-completion"
 import { ProfilePageClient } from "./profile-page-client"
 import "@/components/shared/app-pop.css"
 
@@ -52,8 +57,23 @@ function initialsFor(name: string, email: string) {
 
 /** /profile: one page holding the account, history and settings, switched in place. */
 export function ProfileHub() {
+  return (
+    <AccountProvider>
+      <ProfileHubContent />
+    </AccountProvider>
+  )
+}
+
+function ProfileHubContent() {
   const { user, role } = useAuth()
-  const { t } = useI18n()
+  const { state: accountState, uploadAvatar } = useAccount()
+  const account = accountState.kind === "loaded" ? accountState.account : null
+  const photoInputRef = useRef<HTMLInputElement>(null)
+  const [photoBusy, setPhotoBusy] = useState(false)
+  const [photoMessage, setPhotoMessage] = useState<{ tone: "error" | "success"; text: string }>()
+  const [completionOpen, setCompletionOpen] = useState(false)
+  const completionPanelId = useId()
+  const { t, fmt } = useI18n()
   const copy = t.profile.hub
   const router = useRouter()
   const pathname = usePathname()
@@ -86,7 +106,55 @@ export function ProfileHub() {
     settings: <SettingsView />,
   }
 
-  const displayName = user ? user.name || user.email : copy.guestName
+  // The profile lives in this browser (account-context.tsx); fall back to a signed-in session's name.
+  const name = account?.name || user?.name || ""
+  const email = account?.email || user?.email || ""
+  const hasIdentity = Boolean(name || email)
+  const displayName = name || email || copy.guestName
+
+  // Checklist item → open the Profile tab, then scroll to that field and focus it (it may not be mounted yet).
+  function goToCompletionItem(item: CompletionItem) {
+    select("profile")
+    let tries = 0
+    const reveal = () => {
+      const target = document.getElementById(COMPLETION_TARGETS[item])
+      if (!target) {
+        if (++tries < 60) requestAnimationFrame(reveal)
+        return
+      }
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" })
+      target.querySelector<HTMLElement>("input:not([type=file]):not([tabindex='-1']), select, button")?.focus({ preventScroll: true })
+    }
+    requestAnimationFrame(reveal)
+  }
+
+  // Camera button on the identity card: same checks and messages as the Profile Picture section.
+  async function handlePhotoChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    event.target.value = ""
+    if (!file) return
+    const problem = validateAvatarFile(file)
+    if (problem) {
+      setPhotoMessage({ tone: "error", text: t.profile.avatar[problem] })
+      return
+    }
+    setPhotoMessage(undefined)
+    setPhotoBusy(true)
+    try {
+      await uploadAvatar(file)
+      setPhotoMessage({ tone: "success", text: copy.photoUpdated })
+    } catch (error) {
+      let text = t.profile.avatar.uploadFailed
+      if (error instanceof ApiError && error.status === 0) text = t.common.errors.network
+      else if (error instanceof ApiError && error.status === 400) {
+        text = /too large/i.test(error.message) ? t.profile.avatar.tooLarge : t.profile.avatar.invalidType
+      }
+      setPhotoMessage({ tone: "error", text })
+    } finally {
+      setPhotoBusy(false)
+    }
+  }
 
   return (
     <div className="landing-pop app-pop relative min-h-dvh text-foreground">
@@ -95,12 +163,9 @@ export function ProfileHub() {
         <div className="glass-pop flex min-h-16 items-center justify-between gap-3 rounded-[1.75rem] px-4 py-2.5 sm:px-6">
           <Link href={APP_ROUTES.home} aria-label={copy.backToSite} className={cn("flex shrink-0 items-center gap-3 rounded-lg", FOCUS_RING)}>
             <Wordmark />
-            <span className="hidden items-center gap-1.5 border-s border-[color:var(--primary)]/15 ps-3 text-sm font-semibold text-brand-navy sm:inline-flex">
-              <ArrowLeft className="size-4 rtl:-scale-x-100" aria-hidden="true" />
-              {copy.backToSite}
-            </span>
           </Link>
           <div className="flex items-center gap-2">
+            <BackButton />
             <Link href={APP_ROUTES.translate} className={cn(PRIMARY_BUTTON, "hidden sm:inline-flex")}>
               <Mic className="size-4" aria-hidden="true" />
               {t.app.shell.nav.translate}
@@ -117,12 +182,7 @@ export function ProfileHub() {
                 <LogOut className="size-4 rtl:-scale-x-100" aria-hidden="true" />
                 <span className="hidden md:inline">{t.common.logout.trigger}</span>
               </button>
-            ) : (
-              <Link href={APP_ROUTES.login} className={PRIMARY_BUTTON}>
-                <LogIn className="size-4 rtl:-scale-x-100" aria-hidden="true" />
-                {t.profile.load.signIn}
-              </Link>
-            )}
+            ) : null}
           </div>
         </div>
       </header>
@@ -136,20 +196,59 @@ export function ProfileHub() {
           </div>
           <div className="flex flex-col gap-4 px-6 pb-6 sm:flex-row sm:items-end sm:gap-6 sm:px-8 sm:pb-8">
             <div className="relative z-10 -mt-12 flex size-24 shrink-0 items-center justify-center rounded-full bg-white p-1.5 shadow-[var(--pop-glow)] sm:-mt-14 sm:size-28">
-              <span
-                aria-hidden="true"
-                className="flex size-full items-center justify-center rounded-full bg-[color:var(--primary)]/10 text-2xl font-bold text-[#1D4ED8] sm:text-3xl"
-              >
-                {user ? initialsFor(user.name, user.email) : <UserCircle2 className="size-12" />}
-              </span>
+              {account?.avatarUrl ? (
+                <img
+                  src={account.avatarUrl}
+                  alt={fmt(t.profile.avatar.altSaved, { name: displayName })}
+                  className="size-full rounded-full object-cover"
+                />
+              ) : (
+                <span
+                  aria-hidden="true"
+                  className="flex size-full items-center justify-center rounded-full bg-[color:var(--primary)]/10 text-2xl font-bold text-[#1D4ED8] sm:text-3xl"
+                >
+                  {hasIdentity ? initialsFor(name, email) : <UserCircle2 className="size-12" />}
+                </span>
+              )}
+              {photoBusy ? (
+                <span aria-hidden="true" className="absolute inset-1.5 flex items-center justify-center rounded-full bg-black/40">
+                  <Loader2 className="size-6 animate-spin text-white" />
+                </span>
+              ) : null}
+              {account ? (
+                <>
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept={ACCEPTED_AVATAR_TYPES.join(",")}
+                    onChange={handlePhotoChange}
+                    className="sr-only"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => photoInputRef.current?.click()}
+                    disabled={photoBusy}
+                    aria-label={copy.changePhoto}
+                    title={copy.changePhoto}
+                    className={cn(
+                      "absolute -bottom-0.5 -end-0.5 flex size-9 items-center justify-center rounded-full border-2 border-white bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white shadow-md transition-transform hover:scale-105 disabled:opacity-60",
+                      FOCUS_RING,
+                    )}
+                  >
+                    <Camera className="size-4" aria-hidden="true" />
+                  </button>
+                </>
+              ) : null}
             </div>
             <div className="min-w-0 flex-1">
-              {user ? <p className="text-sm font-semibold tracking-[0.12em] text-[#1D4ED8] uppercase">{copy.welcome}</p> : null}
+              {hasIdentity ? <p className="text-sm font-semibold tracking-[0.12em] text-[#1D4ED8] uppercase">{copy.welcome}</p> : null}
               <h1 className="mt-1 truncate text-2xl font-extrabold tracking-tight text-brand-navy sm:text-4xl">{displayName}</h1>
-              {user ? null : <p className="mt-1 text-sm text-muted-foreground sm:text-base">{copy.guestHint}</p>}
-              {user ? (
+              {hasIdentity ? null : <p className="mt-1 text-sm text-muted-foreground sm:text-base">{copy.guestHint}</p>}
+              {email || role === "admin" ? (
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground sm:text-base">
-                  <span className="truncate">{user.email}</span>
+                  <span className="truncate">{email}</span>
                   {role === "admin" ? (
                     <Link
                       href={APP_ROUTES.admin}
@@ -164,8 +263,37 @@ export function ProfileHub() {
                   ) : null}
                 </div>
               ) : null}
+              <p
+                role="status"
+                aria-live="polite"
+                className={cn(
+                  "mt-2 text-sm font-medium empty:hidden",
+                  photoMessage?.tone === "error" ? "text-destructive" : "text-emerald-700 dark:text-emerald-400",
+                )}
+              >
+                {photoMessage?.text}
+              </p>
             </div>
+            {account ? (
+              <div className="flex flex-wrap gap-2 self-start sm:self-end">
+                {active !== "profile" ? (
+                  <button type="button" onClick={() => select("profile")} className={SECONDARY_BUTTON}>
+                    <Pencil className="size-4" aria-hidden="true" />
+                    {copy.editProfile}
+                  </button>
+                ) : null}
+                <ProfileCompletionButton
+                  account={account}
+                  open={completionOpen}
+                  onToggle={() => setCompletionOpen((open) => !open)}
+                  panelId={completionPanelId}
+                />
+              </div>
+            ) : null}
           </div>
+          {account && completionOpen ? (
+            <ProfileCompletionPanel account={account} id={completionPanelId} onGo={goToCompletionItem} />
+          ) : null}
         </section>
 
         {/* Section switcher: landing-style pill tabs. */}
