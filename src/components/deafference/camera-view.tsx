@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
-import { loadPersistedCameraPermission, updateCameraPermission } from "@/lib/camera-permission-service"
+import { BackendUnavailableError, loadPersistedCameraPermission, updateCameraPermission } from "@/lib/camera-permission-service"
 import { useCameraPreferences } from "./camera-preferences"
 import { LandmarkOverlay, type TrackingInfo } from "./landmark-overlay"
 
@@ -82,6 +82,7 @@ export const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(function
         await updateCameraPermission(userId, next)
         console.log(`${LOG_PREFIX} Persisted camera permission status "${next}" for user ${userId}.`)
       } catch (err) {
+        if (err instanceof BackendUnavailableError) return
         console.warn(`${LOG_PREFIX} Failed to persist camera permission status "${next}" to the backend.`, err)
       }
     }
@@ -210,7 +211,8 @@ export const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(function
             return
           }
         } catch (err) {
-          console.warn(`${LOG_PREFIX} Failed to load persisted camera permission; continuing with live check.`, err)
+          if (err instanceof BackendUnavailableError) console.info(`${LOG_PREFIX} ${err.message}`)
+          else console.warn(`${LOG_PREFIX} Failed to load persisted camera permission; continuing with live check.`, err)
         }
       }
       if (cancelled) return

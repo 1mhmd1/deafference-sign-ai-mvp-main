@@ -7,6 +7,7 @@ import { useI18n } from "@/i18n/use-i18n"
 import { AuthShell } from "./auth-shell"
 import { AuthForm, type SignInValues, type SignUpValues } from "./auth-form"
 import { useAuth } from "./auth-provider"
+import { JudyWelcome } from "./judy-welcome"
 
 /** Only allow same-origin, path-relative redirects — never forward to an absolute or protocol-relative URL. */
 function sanitizeRedirect(redirectTo: string | undefined) {
@@ -40,7 +41,7 @@ export function AuthFlow({
   const safeRedirect = redirectTo ? sanitizeRedirect(redirectTo) : null
 
   return (
-    <AuthShell>
+    <AuthShell aside={<JudyWelcome mode={defaultMode ?? "signin"} />} backgroundImage="/back2.jpg">
       {reason === "auth-required" ? (
         <div
           role="alert"

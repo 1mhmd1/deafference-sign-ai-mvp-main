@@ -4,6 +4,14 @@ const en = {
     backToHome: "Back to home",
     copyright: "© {year} Deafference. All rights reserved.",
   },
+  judy: {
+    label: "Judy, the Deafference companion, signing hello and welcome",
+    signHello: "Hello",
+    signWelcome: "Welcome",
+    greeting: "Hi, I'm Judy!",
+    signin: "Welcome back — so happy to see you again.",
+    signup: "Welcome! Let's set up your account together.",
+  },
   skipLink: {
     signin: "Skip to sign in form",
     signup: "Skip to sign up form",
@@ -134,6 +142,14 @@ const ar: AuthMessages = {
     homeLogoAlt: "الصفحة الرئيسية لـ Deafference",
     backToHome: "العودة إلى الرئيسية",
     copyright: "© {year} Deafference. جميع الحقوق محفوظة.",
+  },
+  judy: {
+    label: "جودي، رفيقة Deafference، تقول مرحبًا وأهلًا بك بلغة الإشارة",
+    signHello: "مرحبًا",
+    signWelcome: "أهلًا بك",
+    greeting: "مرحبًا، أنا جودي!",
+    signin: "أهلًا بعودتك — سعيدة جدًا برؤيتك مجددًا.",
+    signup: "أهلًا بك! لنُنشئ حسابك معًا.",
   },
   skipLink: {
     signin: "انتقل إلى نموذج تسجيل الدخول",

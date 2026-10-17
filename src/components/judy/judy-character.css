@@ -472,3 +472,94 @@
   50% { transform: translateY(-9px) rotate(7deg); }
 }
 .judy-coy .judy-head { animation: judy-coy-sway 1.6s ease-in-out infinite; }
+
+/* Auth welcome: Judy signs HELLO (flat hand from the temple, out and away),
+   then WELCOME (both open hands sweep in toward her body), rests, and repeats.
+   The caption chips (.judy-sign-caption-*) share the same 7s clock so the word
+   under her always matches the sign. Reduced motion: the rule above stops all
+   .judy-figure g animations, leaving her at rest. */
+.judy-companion.auth-judy { width: 112px; }
+@media (min-width: 1024px) { .judy-companion.auth-judy { width: 210px; } }
+
+@keyframes judy-sign-arm-right {
+  0%, 2% { transform: rotate(0deg); }
+  9%, 14% { transform: rotate(-55deg); }
+  23%, 29% { transform: rotate(-110deg); }
+  38%, 44% { transform: rotate(-50deg); }
+  58%, 66% { transform: rotate(-35deg); }
+  78%, 100% { transform: rotate(0deg); }
+}
+@keyframes judy-sign-fore-right {
+  0%, 2% { transform: rotate(0deg); }
+  9%, 14% { transform: rotate(-125deg); }
+  23%, 29% { transform: rotate(-60deg); }
+  38%, 44% { transform: rotate(-25deg); }
+  58%, 66% { transform: rotate(85deg); }
+  78%, 100% { transform: rotate(0deg); }
+}
+@keyframes judy-sign-arm-left {
+  0%, 30% { transform: rotate(0deg); }
+  38%, 44% { transform: rotate(50deg); }
+  58%, 66% { transform: rotate(35deg); }
+  78%, 100% { transform: rotate(0deg); }
+}
+@keyframes judy-sign-fore-left {
+  0%, 30% { transform: rotate(0deg); }
+  38%, 44% { transform: rotate(25deg); }
+  58%, 66% { transform: rotate(-85deg); }
+  78%, 100% { transform: rotate(0deg); }
+}
+@keyframes judy-sign-head {
+  0%, 2%, 78%, 100% { transform: rotate(0deg); }
+  12%, 26% { transform: rotate(-4deg); }
+  44%, 62% { transform: translateY(2px) rotate(3deg); }
+}
+/* WELCOME ends with both hands resting on her abdomen, so the left arm must be drawn in front of the torso. */
+.judy-arm-left-front { display: none; }
+.judy-signing-welcome .judy-arm-left-back { display: none; }
+.judy-signing-welcome .judy-arm-left-front { display: inline; }
+.judy-signing-welcome .judy-arm-right { animation: judy-sign-arm-right 7s ease-in-out infinite; }
+.judy-signing-welcome .judy-fore-right { animation: judy-sign-fore-right 7s ease-in-out infinite; }
+.judy-signing-welcome .judy-arm-left { animation: judy-sign-arm-left 7s ease-in-out infinite; }
+.judy-signing-welcome .judy-fore-left { animation: judy-sign-fore-left 7s ease-in-out infinite; }
+.judy-signing-welcome .judy-head { animation: judy-sign-head 7s ease-in-out infinite; }
+
+@keyframes judy-sign-caption-hello { 0%, 4% { opacity: 0; } 9%, 30% { opacity: 1; } 35%, 100% { opacity: 0; } }
+@keyframes judy-sign-caption-welcome { 0%, 33% { opacity: 0; } 38%, 68% { opacity: 1; } 74%, 100% { opacity: 0; } }
+.judy-sign-caption-hello { opacity: 0; animation: judy-sign-caption-hello 7s ease-in-out infinite; }
+.judy-sign-caption-welcome { opacity: 0; animation: judy-sign-caption-welcome 7s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .judy-sign-caption-hello, .judy-sign-caption-welcome { animation: none; }
+  .judy-sign-caption-hello { opacity: 1; }
+}
+
+/* I LOVE YOU (random move): she steps to mid-screen, zooms in (the `scale` property,
+   so it stacks with facing's scaleX and the breathing transform), raises her hand in
+   the ILY handshape with a small wiggle and a heart, then zooms back out when the move
+   ends. The bubble rides above the zoomed figure. */
+.judy-facing {
+  transform-origin: 50% 100%;
+  transition: scale 700ms cubic-bezier(.34, 1.56, .64, 1);
+}
+.judy-signing-love .judy-facing { scale: 2.2; }
+.judy-signing-love .judy-bubble { bottom: 220%; }
+.judy-love-arm { display: none; transform-box: view-box; transform-origin: 138px 108px; }
+.judy-love-hand { transform-box: view-box; transform-origin: 160px 106px; }
+.judy-love-finger-edge { fill: none; stroke: #DBA983; stroke-width: 8; stroke-linecap: round; }
+.judy-love-finger { fill: none; stroke: #F2CBA9; stroke-width: 5.5; stroke-linecap: round; }
+.judy-love-heart { fill: #F47C20; transform-box: fill-box; transform-origin: center; }
+.judy-signing-love .judy-arm-right { display: none; }
+.judy-signing-love .judy-love-arm { display: block; animation: judy-love-raise 900ms cubic-bezier(.34, 1.56, .64, 1) both; }
+.judy-signing-love .judy-love-hand { animation: judy-love-wiggle 1.4s ease-in-out 900ms infinite; }
+.judy-signing-love .judy-love-heart { animation: judy-love-heart 1.4s ease-in-out 900ms infinite both; }
+@keyframes judy-love-raise { from { transform: rotate(55deg); } to { transform: rotate(0deg); } }
+@keyframes judy-love-wiggle { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-7deg); } }
+@keyframes judy-love-heart {
+  0% { opacity: 0; transform: translateY(6px) scale(.5); }
+  35%, 70% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-10px) scale(1.1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .judy-facing { transition: none; }
+  .judy-signing-love .judy-love-heart { animation: none; }
+}

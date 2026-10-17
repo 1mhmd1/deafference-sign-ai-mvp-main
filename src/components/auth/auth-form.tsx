@@ -185,7 +185,7 @@ function FederatedButtons({
         <Button
           type="button"
           size="lg"
-          className={cn(SOCIAL_BUTTON_CLASS, 'bg-black text-white hover:bg-black/85')}
+          className={cn(SOCIAL_BUTTON_CLASS, 'bg-black text-white! hover:bg-black/85')}
           aria-label={t.auth.federated.appleLabel}
           aria-busy={pending === 'apple' || undefined}
           disabled={pending !== null}

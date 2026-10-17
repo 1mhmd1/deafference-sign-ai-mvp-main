@@ -21,6 +21,40 @@ interface UserRecord { id: number }
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000").replace(/\/+$/, "")
 const DEMO_USER_ID_STORAGE_KEY = "deafference:cameraPermissionUserId"
+const BACKEND_DOWN_STORAGE_KEY = "deafference:cameraPermissionBackendDown"
+
+/** Thrown instead of hitting the network once the API server is known to be unreachable this session. */
+export class BackendUnavailableError extends Error {
+  constructor() {
+    super(`Camera-permission API at ${API_BASE_URL} is unreachable; skipping persistence for this session.`)
+    this.name = "BackendUnavailableError"
+  }
+}
+
+let backendDown = false
+
+function isBackendDown(): boolean {
+  if (backendDown) return true
+  try {
+    backendDown = window.sessionStorage.getItem(BACKEND_DOWN_STORAGE_KEY) === "1"
+  } catch {}
+  return backendDown
+}
+
+// fetch() only rejects on network failure (server not running, CORS, offline), never on HTTP errors.
+// Remember that once so the camera view stops retrying and flooding the console with connection errors.
+async function apiFetch(path: string, init: RequestInit): Promise<Response> {
+  if (isBackendDown()) throw new BackendUnavailableError()
+  try {
+    return await fetch(`${API_BASE_URL}${path}`, init)
+  } catch {
+    backendDown = true
+    try {
+      window.sessionStorage.setItem(BACKEND_DOWN_STORAGE_KEY, "1")
+    } catch {}
+    throw new BackendUnavailableError()
+  }
+}
 
 function withIdentityHeaders(headers: Record<string, string> = {}): Record<string, string> {
   return { ...headers, "X-User-Id": getOrCreateUserId() }
@@ -43,7 +77,7 @@ async function getOrCreateDemoUserId(): Promise<number> {
   const cached = Number(window.localStorage.getItem(DEMO_USER_ID_STORAGE_KEY))
   if (Number.isInteger(cached) && cached > 0) return cached
 
-  const response = await fetch(`${API_BASE_URL}/api/users`, {
+  const response = await apiFetch("/api/users", {
     method: "POST",
     headers: withIdentityHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ email: `anon-${generateAnonId()}@deafference.local` }),
@@ -56,7 +90,7 @@ async function getOrCreateDemoUserId(): Promise<number> {
 }
 
 export async function fetchCameraPermission(userId: number): Promise<CameraPermissionRecord | null> {
-  const response = await fetch(`${API_BASE_URL}/api/users/camera-permission/${userId}`, {
+  const response = await apiFetch(`/api/users/camera-permission/${userId}`, {
     headers: withIdentityHeaders({ "Content-Type": "application/json" }),
   })
   if (response.status === 404) return null
@@ -67,7 +101,7 @@ export async function fetchCameraPermission(userId: number): Promise<CameraPermi
 }
 
 export async function updateCameraPermission(userId: number, status: CameraPermissionStatus): Promise<CameraPermissionRecord> {
-  const response = await fetch(`${API_BASE_URL}/api/users/camera-permission`, {
+  const response = await apiFetch("/api/users/camera-permission", {
     method: "POST",
     headers: withIdentityHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ userId, status }),

@@ -30,6 +30,7 @@ export type JudyPose =
   | "phone"
   | "sleep"
   | "coy"
+  | "love"
 
 // Each pose turns on the same state classes the Vue file combined for it, and
 // the mood (face) the original paired it with. `mood` overrides the face.
@@ -54,6 +55,8 @@ const POSES: Record<JudyPose, { classes: string[]; mood: JudyMood }> = {
   sleep: { classes: ["judy-sleeping"], mood: "neutral" },
   // Playful: one finger at the corner of her smile, glancing up to the right.
   coy: { classes: ["judy-coy"], mood: "happy" },
+  // Signs I LOVE YOU (thumb, index and pinky up, palm out) while zoomed in so the handshape reads.
+  love: { classes: ["judy-signing-love"], mood: "happy" },
 }
 
 const DRAG_THRESHOLD = 4
@@ -108,6 +111,7 @@ export const JUDY_AUTOPLAY_LINES = {
   burger: "A burger! Yum!",
   yum: "Yum!",
   phone: "Hello! How are you?",
+  loveYou: "I love you! 🤟",
   tickle: "Hehe, that tickles!",
   tapHint1: "Psst… tap me!",
   tapHint2: "I'm ticklish. Try tapping me!",
@@ -217,6 +221,12 @@ export function JudyCharacter({
       nextFrame(() => nextFrame(() => setAutoPos({ x: window.innerWidth + 12, y: 10 })))
     }
 
+    const signLove = () => {
+      play({ pose: "love", mood: "happy" }, linesRef.current.loveYou)
+      // Step to the middle of the screen so there is room to zoom in on the sign.
+      setAutoPos({ x: Math.round(window.innerWidth / 2 - 66), y: 10 })
+    }
+
     const moves: Array<() => void> = [
       () => play({ pose: "wave", mood: "happy" }, linesRef.current.hi),
       () => play({ pose: "listen", mood: "listen" }, linesRef.current.listening),
@@ -228,6 +238,7 @@ export function JudyCharacter({
       () => play({ pose: "hungry", mood: "happy" }, linesRef.current.burger),
       () => play({ pose: "eat", mood: "happy" }, linesRef.current.yum),
       () => play({ pose: "phone", mood: "happy" }, linesRef.current.phone),
+      signLove,
       () => roam(false),
       () => roam(true),
       () => {
@@ -236,14 +247,15 @@ export function JudyCharacter({
       },
     ]
 
-    const finish = (wasDriving: boolean) =>
+    const finish = (goHome: boolean) =>
       later(() => {
         if (travel !== undefined) window.clearInterval(travel)
         travel = undefined
         setAutoAction(null)
         setAutoMessage("")
-        // Driving ends off-screen, so she comes home; roaming leaves her where she stopped.
-        if (wasDriving) setAutoPos(null)
+        // Driving ends off-screen and signing ends mid-screen, so she comes home;
+        // roaming leaves her where she stopped.
+        if (goHome) setAutoPos(null)
       }, MOVE_LASTS_MS)
 
     // During the rest after a move, sometimes invite the visitor to tap her. The hint is
@@ -267,7 +279,7 @@ export function JudyCharacter({
       if (drag.current.pointerId === -1) {
         const move = moves[Math.floor(Math.random() * moves.length)]
         move()
-        finish(move === drive)
+        finish(move === drive || move === signLove)
       }
       scheduleTapHint()
       later(idleMoment, MOVE_LASTS_MS + REST_BETWEEN_MS)
@@ -451,7 +463,7 @@ export function JudyCharacter({
             </g>
           </g>
 
-          <g className="judy-arm-left">
+          <g className="judy-arm-left judy-arm-left-back">
             <path d="M82 108 L74 150" className="judy-upperarm" />
             <g className="judy-fore-left">
               <path d="M74 150 L70 212" className="judy-forearm" />
@@ -475,6 +487,23 @@ export function JudyCharacter({
             <path d="M99 108 L110 121 L121 108" className="judy-collar" />
             <path d="M78 124q-10 18-13 46l-2 32" className="judy-seam" />
             <rect x="131" y="140" width="8" height="24" rx="4" className="judy-ember" />
+          </g>
+
+          {/* Same left arm drawn in front of the torso; shown instead of the back one only
+              when a pose brings that hand across her body (see .judy-signing-welcome). */}
+          <g className="judy-arm-left judy-arm-left-front" aria-hidden="true">
+            <path d="M82 108 L74 150" className="judy-upperarm" />
+            <g className="judy-fore-left">
+              <path d="M74 150 L70 212" className="judy-forearm" />
+              <path d="M79 152 L70 157" className="judy-cuff" />
+              <circle cx="70" cy="217" r="9" className="judy-hand" />
+              <g className="judy-fingers">
+                <path d="M62 220 L58 228" />
+                <path d="M66 225 L63 234" />
+                <path d="M70 227 L70 236" />
+                <path d="M74 225 L77 233" />
+              </g>
+            </g>
           </g>
 
           <g className="judy-sleep-arm" aria-hidden="true">
@@ -696,6 +725,20 @@ export function JudyCharacter({
             <circle cx="123" cy="111" r="8" className="judy-hand" />
             <path d="M119.6 105.5 L116.6 95.5" className="judy-coy-finger" />
             <path d="M126 113l3 3M124 116l2 4" className="judy-fingers" />
+          </g>
+          {/* I LOVE YOU handshape: palm facing out, thumb, index and pinky extended,
+              middle and ring fingers folded down. */}
+          <g className="judy-love-arm" aria-hidden="true">
+            <path d="M138 108 C152 120 160 136 158 150" className="judy-eating-sleeve" />
+            <path d="M158 150 L160 106" className="judy-eating-forearm" />
+            <path d="M154 154 L161 147" className="judy-cuff" />
+            <g className="judy-love-hand">
+              <path d="M154 87 L152 64M167 89 L173 71M152 98 L138 89" className="judy-love-finger-edge" />
+              <path d="M154 87 L152 64M167 89 L173 71M152 98 L138 89" className="judy-love-finger" />
+              <rect x="150" y="84" width="20" height="22" rx="8" className="judy-hand" />
+              <path d="M157 88 q2.5 -3 5 0M161 89 q2.5 -3 5 0" className="judy-fingers" />
+            </g>
+            <path d="M186 60c-4-5-12-1-9 5l9 9 9-9c3-6-5-10-9-5z" className="judy-love-heart" />
           </g>
         </svg>
       </div>

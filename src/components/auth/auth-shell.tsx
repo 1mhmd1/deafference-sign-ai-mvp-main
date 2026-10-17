@@ -14,13 +14,28 @@ const FOCUS_RING =
 /**
  * Shared frame for every auth screen (sign in, create account, forgot/reset
  * password). Borrows the landing page's light "pop" theme — glass card
- * and the real wordmark (plain background — only the landing page keeps its decorative one) — so moving
+ * and the real wordmark (plain background unless `backgroundImage` is passed) — so moving
  * from the marketing site into auth feels like the same product.
  */
-export function AuthShell({ children }: { children: ReactNode }) {
+export function AuthShell({
+  children,
+  aside,
+  backgroundImage,
+}: {
+  children: ReactNode
+  aside?: ReactNode
+  /** Optional full-bleed photo behind the screen, softened by an overlay so the form stays readable. */
+  backgroundImage?: string
+}) {
   const { t, fmt } = useI18n()
   return (
-    <div className="landing-pop relative flex min-h-dvh flex-col text-foreground">
+    <div className="landing-pop relative isolate flex min-h-dvh flex-col text-foreground">
+      {backgroundImage && (
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+          <img src={backgroundImage} alt="" className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-background/60" />
+        </div>
+      )}
 
       <header className="flex items-center justify-between gap-3 px-4 pt-5 sm:px-8 sm:pt-6">
         <Link href={APP_ROUTES.home} className={cn("min-w-0 rounded-lg", FOCUS_RING)}>
@@ -34,9 +49,14 @@ export function AuthShell({ children }: { children: ReactNode }) {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex w-full max-w-md flex-col items-center gap-4"
+          className={cn(
+            "flex w-full flex-col items-center gap-4",
+            // With an aside (e.g. Judy's welcome) it sits beside the form from `lg` up, above it on smaller screens.
+            aside ? "max-w-md lg:max-w-4xl lg:flex-row lg:items-center lg:gap-12" : "max-w-md",
+          )}
         >
-          {children}
+          {aside}
+          <div className="flex w-full max-w-md flex-col items-center gap-4">{children}</div>
         </motion.div>
       </div>
 
