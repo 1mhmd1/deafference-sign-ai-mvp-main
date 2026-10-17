@@ -509,10 +509,12 @@
   58%, 66% { transform: rotate(-85deg); }
   78%, 100% { transform: rotate(0deg); }
 }
+/* Every frame keeps the -8px lift the SVG gives her head (translate(0 -8)); a CSS
+   transform replaces that attribute, so without it her head sinks into her neck. */
 @keyframes judy-sign-head {
-  0%, 2%, 78%, 100% { transform: rotate(0deg); }
-  12%, 26% { transform: rotate(-4deg); }
-  44%, 62% { transform: translateY(2px) rotate(3deg); }
+  0%, 2%, 78%, 100% { transform: translateY(-8px) rotate(0deg); }
+  12%, 26% { transform: translateY(-8px) rotate(-4deg); }
+  44%, 62% { transform: translateY(-6px) rotate(3deg); }
 }
 /* WELCOME ends with both hands resting on her abdomen, so the left arm must be drawn in front of the torso. */
 .judy-arm-left-front { display: none; }

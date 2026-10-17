@@ -27,8 +27,13 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="pop-atmosphere relative overflow-hidden pt-8 sm:pt-10"
+      className="pop-atmosphere relative isolate overflow-hidden pt-8 sm:pt-10"
     >
+      {/* Hero photo behind everything, washed out so the headline and buttons stay readable. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20">
+        <img src="/hero.jpg" alt="" className="h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-background/60" />
+      </div>
       <div className="pop-grid pointer-events-none absolute inset-0 -z-10 opacity-[0.05]" aria-hidden="true" />
       <GlowOrb className="-top-24 -left-24 size-[26rem] pop-float" color="rgba(59,130,246,0.22)" />
       <GlowOrb className="top-10 -right-32 size-[30rem] pop-float-delay" color="rgba(167,180,255,0.22)" />
