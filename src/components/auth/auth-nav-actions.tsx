@@ -22,10 +22,13 @@ export function initialsFor(name: string, email: string) {
 export function AuthNavActions({
   className,
   hideAccount = false,
+  signupClassName,
 }: {
   className?: string
   /** Leave out the account chip (for headers that render their own profile icon). */
   hideAccount?: boolean
+  /** Extra classes for the Sign up button (e.g. a white button on the landing navbar). */
+  signupClassName?: string
 }) {
   const { user, role } = useAuth()
   const { t } = useI18n()
@@ -43,7 +46,7 @@ export function AuthNavActions({
         />
         <Button
           size="sm"
-          className="h-10 px-3"
+          className={cn("h-10 px-3", signupClassName)}
           nativeButton={false}
           render={<Link href={APP_ROUTES.signup}>{t.auth.nav.signup}</Link>}
         />

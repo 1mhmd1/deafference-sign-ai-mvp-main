@@ -543,12 +543,13 @@
   transform-origin: 50% 100%;
   transition: scale 700ms cubic-bezier(.34, 1.56, .64, 1);
 }
-.judy-signing-love .judy-facing { scale: 2.2; }
-.judy-signing-love .judy-bubble { bottom: 220%; }
+.judy-signing-love .judy-facing { scale: 1.6; }
+.judy-signing-love .judy-bubble { bottom: 160%; }
 .judy-love-arm { display: none; transform-box: view-box; transform-origin: 138px 108px; }
-.judy-love-hand { transform-box: view-box; transform-origin: 160px 106px; }
-.judy-love-finger-edge { fill: none; stroke: #DBA983; stroke-width: 8; stroke-linecap: round; }
-.judy-love-finger { fill: none; stroke: #F2CBA9; stroke-width: 5.5; stroke-linecap: round; }
+.judy-love-hand { transform-box: view-box; transform-origin: 160px 107px; }
+.judy-love-finger-edge { fill: none; stroke: #DBA983; stroke-width: 9.5; stroke-linecap: round; }
+.judy-love-finger { fill: none; stroke: #F2CBA9; stroke-width: 6.5; stroke-linecap: round; }
+.judy-love-folded { fill: #F2CBA9; stroke: #DBA983; stroke-width: 1.8; }
 .judy-love-heart { fill: #F47C20; transform-box: fill-box; transform-origin: center; }
 .judy-signing-love .judy-arm-right { display: none; }
 .judy-signing-love .judy-love-arm { display: block; animation: judy-love-raise 900ms cubic-bezier(.34, 1.56, .64, 1) both; }

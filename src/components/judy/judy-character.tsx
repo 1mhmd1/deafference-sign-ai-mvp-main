@@ -733,12 +733,15 @@ export function JudyCharacter({
             <path d="M158 150 L160 106" className="judy-eating-forearm" />
             <path d="M154 154 L161 147" className="judy-cuff" />
             <g className="judy-love-hand">
-              <path d="M154 87 L152 64M167 89 L173 71M152 98 L138 89" className="judy-love-finger-edge" />
-              <path d="M154 87 L152 64M167 89 L173 71M152 98 L138 89" className="judy-love-finger" />
-              <rect x="150" y="84" width="20" height="22" rx="8" className="judy-hand" />
-              <path d="M157 88 q2.5 -3 5 0M161 89 q2.5 -3 5 0" className="judy-fingers" />
+              {/* Extended: index (up), pinky (up and out), thumb (out to the side). */}
+              <path d="M152 86 L150 58M169 88 L177 66M149 99 L133 88" className="judy-love-finger-edge" />
+              <path d="M152 86 L150 58M169 88 L177 66M149 99 L133 88" className="judy-love-finger" />
+              <rect x="147" y="82" width="26" height="25" rx="9" className="judy-hand" />
+              {/* Folded: middle and ring fingers bent down over the palm, knuckles showing. */}
+              <rect x="153.5" y="79" width="7" height="13" rx="3.5" className="judy-love-folded" />
+              <rect x="161" y="80" width="7" height="12" rx="3.5" className="judy-love-folded" />
             </g>
-            <path d="M186 60c-4-5-12-1-9 5l9 9 9-9c3-6-5-10-9-5z" className="judy-love-heart" />
+            <path d="M193 52c-4-5-12-1-9 5l9 9 9-9c3-6-5-10-9-5z" className="judy-love-heart" />
           </g>
         </svg>
       </div>

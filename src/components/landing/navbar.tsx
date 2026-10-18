@@ -120,9 +120,16 @@ export function Navbar() {
           <a
             href={pathname === "/" ? "#top" : "/"}
             aria-label={nav.home}
-            className={cn("flex shrink-0 items-center gap-2.5 rounded-lg", focusRingPop)}
+            className={cn("nav-logo flex shrink-0 items-center rounded-lg", focusRingPop)}
           >
-            <Wordmark />
+            {/* Bigger logo with a warm glow behind the ear, a glint that sweeps across the
+                letters every few seconds (masked to the logo's shape) and a lift on hover.
+                Styles in landing.css (.nav-logo-*). */}
+            <span className="relative inline-flex">
+              <span aria-hidden="true" className="nav-logo-glow" />
+              <Wordmark className="nav-logo-img relative h-12 sm:h-14 lg:h-[3.75rem]" />
+              <span aria-hidden="true" className="nav-logo-shine" />
+            </span>
           </a>
 
           <nav aria-label={nav.desktopLabel} className="hidden min-w-0 xl:block">
@@ -167,7 +174,7 @@ export function Navbar() {
 
             <LanguageToggle className="xl:hidden" />
 
-            <AuthNavActions hideAccount className="hidden xl:flex" />
+            <AuthNavActions hideAccount className="hidden xl:flex" signupClassName="border border-[color:var(--primary)]/20 bg-white font-semibold text-[#1D4ED8] shadow-sm [a]:hover:bg-[#EFF6FF]" />
 
             <Link
               href={APP_ROUTES.profile}
@@ -237,7 +244,7 @@ export function Navbar() {
 
               <div className="mt-3 flex flex-col gap-3 border-t border-[color:var(--primary)]/12 pt-3">
                 <ThemeToggle className="self-start" />
-                <AuthNavActions hideAccount className="self-start" />
+                <AuthNavActions hideAccount className="self-start" signupClassName="border border-[color:var(--primary)]/20 bg-white font-semibold text-[#1D4ED8] shadow-sm [a]:hover:bg-[#EFF6FF]" />
                 <a
                   href={demoHref}
                   onClick={() => setIsMenuOpen(false)}

@@ -374,6 +374,32 @@ const en = {
       "Every plan includes core translation. Higher plans add two-way translation, integrations and dedicated support as your rollout grows.",
     mostPopular: "Most popular",
     note: "Prices are indicative and may change before general availability. Contact us for a quote tailored to your organisation.",
+    paths: {
+      label: "Who is Deafference for?",
+      back: "Back to both options",
+      switchTo: "Switch to",
+      personal: {
+        title: "Personal use",
+        body: "For Deaf and hard-of-hearing people using Deafference in their own everyday life.",
+        cta: "See the personal plan",
+      },
+      industries: {
+        title: "Industries",
+        body: "For clinics, hospitals, schools, agencies and teams that serve Deaf and hard-of-hearing people.",
+        cta: "See options for organisations",
+      },
+      tracksLabel: "How would your organisation like to pay?",
+      subscription: {
+        title: "Subscription",
+        body: "Monthly plans for single sites and growing teams. Pro or Premium.",
+      },
+      enterprise: {
+        title: "Enterprise",
+        body: "A tailored annual contract for networks and multi-site organisations.",
+      },
+      contract: "Annual contract",
+      chooseHint: "Choose Subscription or Enterprise to see the details.",
+    },
     plans: [
       {
         name: "Free",
@@ -384,12 +410,12 @@ const en = {
         cta: "Get started",
       },
       {
-        name: "Basic",
+        name: "Pro",
         audience: "For small clinics, private practices and local community offices",
         price: "$500",
         cadence: "/month",
         features: ["Real-time sign translation", "Digital communication cards", "Single-device access", "Email support"],
-        cta: "Choose Basic",
+        cta: "Choose Pro",
       },
       {
         name: "Premium",
@@ -938,6 +964,32 @@ const ar: LandingMessages = {
     description: "تشمل كل خطة الترجمة الأساسية. وتضيف الخطط الأعلى الترجمة في الاتجاهين والتكاملات والدعم المخصص مع توسّع استخدامك.",
     mostPopular: "الأكثر طلبًا",
     note: "الأسعار تقديرية وقد تتغير قبل الإطلاق العام. تواصل معنا للحصول على عرض سعر مناسب لمؤسستك.",
+    paths: {
+      label: "لمن صُمّم Deafference؟",
+      back: "العودة إلى الخيارين",
+      switchTo: "الانتقال إلى",
+      personal: {
+        title: "الاستخدام الشخصي",
+        body: "للأشخاص الصمّ وضعاف السمع الذين يستخدمون Deafference في حياتهم اليومية.",
+        cta: "اعرض الخطة الشخصية",
+      },
+      industries: {
+        title: "القطاعات",
+        body: "للعيادات والمستشفيات والمدارس والجهات والفرق التي تخدم الصمّ وضعاف السمع.",
+        cta: "اعرض خيارات المؤسسات",
+      },
+      tracksLabel: "كيف تفضّل مؤسستك الدفع؟",
+      subscription: {
+        title: "اشتراك",
+        body: "خطط شهرية للمواقع الفردية والفرق المتنامية: الاحترافية أو المميزة.",
+      },
+      enterprise: {
+        title: "المؤسسات",
+        body: "عقد سنوي مخصص للشبكات والمؤسسات متعددة الفروع.",
+      },
+      contract: "عقد سنوي",
+      chooseHint: "اختر الاشتراك أو المؤسسات لعرض التفاصيل.",
+    },
     plans: [
       {
         name: "مجانية",
@@ -948,12 +1000,12 @@ const ar: LandingMessages = {
         cta: "ابدأ الآن",
       },
       {
-        name: "أساسية",
+        name: "الاحترافية",
         audience: "للعيادات الصغيرة والممارسات الخاصة والمكاتب المجتمعية المحلية",
         price: "$500",
         cadence: "/شهريًا",
         features: ["ترجمة الإشارة في الوقت الفعلي", "بطاقات تواصل رقمية", "استخدام على جهاز واحد", "دعم عبر البريد الإلكتروني"],
-        cta: "اختر الأساسية",
+        cta: "اختر الاحترافية",
       },
       {
         name: "مميزة",

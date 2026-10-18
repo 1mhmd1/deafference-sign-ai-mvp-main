@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { BrainCircuit, CodeXml, FileText, PhoneCall, Plug, Radio, ShieldCheck, Video, type LucideIcon } from "lucide-react"
+import { BrainCircuit, CodeXml, FileText, PhoneCall, Plug, ShieldCheck, Video, type LucideIcon } from "lucide-react"
 import { Container } from "@/components/shared/container"
 import { SectionTitle } from "@/components/shared/section-title"
 import { IconBadge } from "@/components/shared/icon-badge"
@@ -75,32 +75,6 @@ export function Features() {
             <FeatureCardGrid />
           </motion.div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.55, ease: "easeOut", delay: 0.05 }}
-          className="mt-6"
-        >
-          <GlassPanel className="relative overflow-hidden p-6 sm:p-8">
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[color:var(--primary)]/10 via-transparent to-[color:var(--pop-lavender)]/10" />
-            <div className="pointer-events-none absolute -top-10 -right-10 h-56 w-56 rounded-full bg-[color:var(--primary)]/18 blur-3xl" />
-            <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-start gap-4">
-                <IconBadge icon={Radio} variant="solid" />
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground sm:text-xl">{copy.live.title}</h3>
-                  <p className="mt-2 max-w-xl text-sm leading-7 text-black sm:text-base">{copy.live.body}</p>
-                </div>
-              </div>
-              <span className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full bg-[color:var(--primary)]/10 px-3 py-1.5 text-xs font-semibold text-[#1D4ED8]">
-                <span className="pop-pulse size-1.5 rounded-full bg-brand-orange" aria-hidden="true" />
-                {copy.live.chip}
-              </span>
-            </div>
-          </GlassPanel>
-        </motion.div>
 
         <div className="mt-12">
           <h3 className="text-sm font-semibold tracking-[0.18em] text-black uppercase">

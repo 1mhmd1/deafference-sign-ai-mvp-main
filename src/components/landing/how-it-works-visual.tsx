@@ -1,287 +1,251 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
-import { ArrowRight, BrainCircuit, Hand, Mic } from "lucide-react"
+import { useEffect, useId, useState, type ReactNode } from "react"
+import { AnimatePresence, motion } from "framer-motion"
+import { ArrowRight, AudioLines, Cpu, MonitorPlay } from "lucide-react"
 import { Container } from "@/components/shared/container"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
 import { useLandingReducedMotion } from "./calm-mode"
 import { GlowOrb, PopEyebrow, Reveal } from "./ui/pop"
 
-const WAVE_BARS = [10, 18, 12, 24, 16, 22, 11, 17, 9] as const
+// Shared look for the three step diagrams: hairline strokes, neutral ink for structure,
+// and a colour story: orange is speech, blue is sign. Step 1 is orange, step 2 turns
+// orange into blue, step 3 is blue. No characters or faces.
+const INK = "var(--brand-navy)"
+const ACCENT = "var(--primary)"
+const SOUND = "var(--brand-orange)"
 
-/** Step 1: a hearing person talks; their words appear as a live waveform in a speech bubble. */
-function SpeechCaptureVisual({ active }: { active: boolean }) {
+function DiagramPanel({ children }: { children: ReactNode }) {
   return (
-    <div className="flex h-24 items-center justify-center" aria-hidden="true">
-      <svg width="168" height="96" viewBox="0 0 168 96" fill="none">
-        {/* Speaker */}
-        <path d="M6 94c0-17 9-27 24-27s24 10 24 27Z" fill="var(--brand-navy)" fillOpacity="0.14" />
-        <circle cx="30" cy="42" r="17" fill="#F2CBA9" />
-        <path d="M13 40c0-12 7-19 17-19s17 7 17 19c-4-6-10-9-17-9s-13 3-17 9Z" fill="var(--brand-navy)" fillOpacity="0.75" />
-        <circle cx="24" cy="43" r="1.8" fill="var(--brand-navy)" />
-        <circle cx="36" cy="43" r="1.8" fill="var(--brand-navy)" />
-        <motion.ellipse
-          cx="30"
-          cy="51"
-          rx="3.5"
-          fill="var(--brand-red)"
-          initial={{ ry: 1 }}
-          animate={active ? { ry: [1, 3.2, 1.4, 2.8, 1] } : { ry: 1 }}
-          transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut" }}
-        />
-
-        {/* Speech bubble carrying the sound */}
-        <path
-          d="M70 8h84a10 10 0 0 1 10 10v34a10 10 0 0 1-10 10H82l-12 10 2-10a10 10 0 0 1-12-10V18A10 10 0 0 1 70 8Z"
-          fill="white"
-          stroke="var(--brand-orange)"
-          strokeWidth="2"
-        />
-        {WAVE_BARS.map((h, i) => (
-          <motion.rect
-            key={i}
-            x={74 + i * 9}
-            y={35 - h / 2}
-            width="4.5"
-            height={h}
-            rx="2.25"
-            fill="var(--brand-orange)"
-            style={{ transformBox: "fill-box", transformOrigin: "center" }}
-            animate={active ? { scaleY: [0.5, 1.15, 0.65, 1] } : { scaleY: 0.45 }}
-            transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.07, ease: "easeInOut" }}
-          />
-        ))}
-
-        {/* Microphone listening */}
-        <circle cx="150" cy="78" r="14" fill="var(--brand-orange)" />
-        <rect x="146.5" y="69" width="7" height="12" rx="3.5" fill="white" />
-        <path d="M143.5 77a6.5 6.5 0 0 0 13 0M150 83.5v3.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
-        <motion.circle
-          cx="150"
-          cy="78"
-          r="14"
-          stroke="var(--brand-orange)"
-          strokeWidth="1.5"
-          style={{ transformBox: "fill-box", transformOrigin: "center" }}
-          animate={active ? { scale: [1, 1.7], opacity: [0.7, 0] } : { scale: 1, opacity: 0 }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }}
-        />
-      </svg>
-    </div>
+    <svg viewBox="0 0 240 104" fill="none" className="h-auto w-full max-w-[520px]" aria-hidden="true">
+      {children}
+    </svg>
   )
 }
 
-// Hand keypoints (wrist + five fingertips), the way sign recognition sees a hand.
-const HAND_WRIST = [140, 84] as const
-const HAND_TIPS = [
-  [121, 66],
-  [128, 46],
-  [139, 40],
-  [150, 45],
-  [158, 58],
+// Fixed bar heights (no randomness) so server and client render the same waveform.
+const WAVEFORM = [6, 10, 16, 9, 22, 30, 18, 26, 38, 24, 32, 44, 28, 36, 22, 30, 40, 26, 18, 28, 14, 20, 10, 16, 8, 12, 6] as const
+
+/** Step 1: a recording panel: microphone input and a live waveform with a moving playhead. */
+function SpeechCaptureVisual({ active }: { active: boolean }) {
+  const startX = 66
+  const step = 5.6
+  return (
+    <DiagramPanel>
+      {/* Microphone input */}
+      <circle cx="34" cy="52" r="18" stroke={SOUND} strokeOpacity="0.35" strokeWidth="1.5" />
+      <rect x="29" y="39" width="10" height="17" rx="5" stroke={SOUND} strokeWidth="1.75" />
+      <path d="M25 51a9 9 0 0 0 18 0M34 60v5" stroke={SOUND} strokeWidth="1.75" strokeLinecap="round" />
+      <motion.circle
+        cx="34"
+        cy="52"
+        r="18"
+        stroke={SOUND}
+        strokeWidth="1"
+        style={{ transformBox: "fill-box", transformOrigin: "center" }}
+        initial={{ scale: 1, opacity: 0 }}
+        animate={active ? { scale: [1, 1.35], opacity: [0.5, 0] } : { scale: 1, opacity: 0 }}
+        transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
+      />
+
+      {/* Waveform on a baseline */}
+      <path d={`M${startX - 4} 52H${startX + WAVEFORM.length * step}`} stroke={INK} strokeOpacity="0.12" strokeWidth="1" />
+      {WAVEFORM.map((h, i) => (
+        <motion.rect
+          key={i}
+          x={startX + i * step}
+          y={52 - h / 2}
+          width="2"
+          height={h}
+          rx="1"
+          fill={SOUND}
+          style={{ transformBox: "fill-box", transformOrigin: "center" }}
+          initial={{ scaleY: 0.55, opacity: 0.55 }}
+          animate={active ? { scaleY: [0.55, 1, 0.7, 1], opacity: [0.55, 1, 0.8, 1] } : { scaleY: 0.55, opacity: 0.55 }}
+          transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.04, ease: "easeInOut" }}
+        />
+      ))}
+      <motion.line
+        y1="24"
+        y2="80"
+        stroke={SOUND}
+        strokeWidth="1"
+        initial={{ x1: startX, x2: startX, opacity: 0 }}
+        animate={
+          active
+            ? { x1: [startX, startX + WAVEFORM.length * step], x2: [startX, startX + WAVEFORM.length * step], opacity: [0, 0.8, 0.8, 0] }
+            : { x1: startX, x2: startX, opacity: 0 }
+        }
+        transition={{ duration: 2.6, repeat: Infinity, ease: "linear" }}
+      />
+
+      {/* Input level */}
+      <rect x="66" y="88" width="150" height="3" rx="1.5" fill={INK} fillOpacity="0.08" />
+      <motion.rect
+        x="66"
+        y="88"
+        height="3"
+        rx="1.5"
+        fill={SOUND}
+        initial={{ width: 60 }}
+        animate={active ? { width: [40, 120, 70, 110, 40] } : { width: 60 }}
+        transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+      />
+    </DiagramPanel>
+  )
+}
+
+// Widths of the sign-structure blocks the model emits (one row per sign in order).
+const SIGN_TOKENS = [
+  { x: 168, y: 30, w: 46 },
+  { x: 168, y: 47, w: 34 },
+  { x: 168, y: 64, w: 54 },
 ] as const
 
-/** Step 2: sound goes into the AI, which turns it into the keypoints of a signing hand. */
+/** Step 2: audio enters a processing unit and leaves as an ordered set of sign blocks. */
 function AIProcessingVisual({ active }: { active: boolean }) {
+  const gradientId = `hiw-convert-${useId().replace(/:/g, "")}`
   return (
-    <div className="flex h-24 items-center justify-center" aria-hidden="true">
-      <svg width="168" height="96" viewBox="0 0 168 96" fill="none">
-        {/* Sound in */}
-        <path
-          d="M2 48h6l4-10 5 20 5-28 5 34 5-22 4 12 3-6h6"
-          stroke="var(--brand-orange)"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <motion.circle
-          cy="48"
-          r="3"
-          fill="var(--brand-orange)"
-          initial={{ cx: 44, opacity: 0 }}
-          animate={active ? { cx: [44, 58], opacity: [0, 1, 0] } : { cx: 44, opacity: 0 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "easeIn" }}
-        />
+    <DiagramPanel>
+      <defs>
+        <linearGradient id={gradientId} x1="96" y1="28" x2="144" y2="76" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="var(--brand-orange)" />
+          <stop offset="1" stopColor="var(--primary)" />
+        </linearGradient>
+      </defs>
+      {/* Audio in */}
+      <path
+        d="M16 52h8l3-8 4 16 4-24 4 30 4-20 3 10 2-4h6"
+        stroke={SOUND}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M62 52h30" stroke={INK} strokeOpacity="0.18" strokeWidth="1.25" strokeDasharray="3 3" />
+      <motion.circle
+        cy="52"
+        r="2.5"
+        fill={SOUND}
+        initial={{ cx: 62, opacity: 0 }}
+        animate={active ? { cx: [62, 92], opacity: [0, 1, 0] } : { cx: 62, opacity: 0 }}
+        transition={{ duration: 1.1, repeat: Infinity, ease: "easeIn" }}
+      />
 
-        {/* AI chip with a turning scan ring */}
-        <motion.circle
-          cx="82"
-          cy="48"
-          r="30"
-          stroke="var(--primary)"
-          strokeOpacity="0.45"
-          strokeWidth="1.5"
-          strokeDasharray="5 6"
-          style={{ transformBox: "fill-box", transformOrigin: "center" }}
-          animate={active ? { rotate: 360 } : { rotate: 0 }}
-          transition={active ? { duration: 6, repeat: Infinity, ease: "linear" } : { duration: 0.4 }}
-        />
-        <path
-          d="M70 22v6M82 22v6M94 22v6M70 68v6M82 68v6M94 68v6M56 36h6M56 48h6M56 60h6M102 36h6M102 48h6M102 60h6"
-          stroke="var(--primary)"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        <motion.rect
-          x="62"
-          y="28"
-          width="40"
-          height="40"
-          rx="10"
-          fill="var(--primary)"
-          animate={active ? { fillOpacity: [0.8, 1, 0.8] } : { fillOpacity: 0.9 }}
-          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <text x="82" y="54" textAnchor="middle" fontSize="17" fontWeight="800" fill="white" fontFamily="inherit">
-          AI
-        </text>
+      {/* Processing unit */}
+      <rect x="96" y="28" width="48" height="48" rx="10" fill={`url(#${gradientId})`} fillOpacity="0.1" stroke={`url(#${gradientId})`} strokeWidth="1.75" />
+      <rect x="108" y="40" width="24" height="24" rx="4" stroke={`url(#${gradientId})`} strokeWidth="1.5" />
+      <path
+        d="M114 28v-5M120 28v-5M126 28v-5M114 81v-5M120 81v-5M126 81v-5M96 46h-5M96 52h-5M96 58h-5M149 46h-5M149 52h-5M149 58h-5"
+        stroke={`url(#${gradientId})`}
+        strokeOpacity="0.6"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <motion.rect
+        x="109"
+        width="22"
+        height="1.5"
+        fill={SOUND}
+        initial={{ y: 42, opacity: 0 }}
+        animate={active ? { y: [42, 61, 42], opacity: [0.9, 0.9, 0.9] } : { y: 42, opacity: 0 }}
+        transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+      />
 
-        {/* Signing hand out, drawn as keypoints */}
-        <motion.circle
-          cy="48"
-          r="3"
-          fill="var(--primary)"
-          initial={{ cx: 106, opacity: 0 }}
-          animate={active ? { cx: [106, 118], opacity: [0, 1, 0] } : { cx: 106, opacity: 0 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "easeOut", delay: 0.5 }}
-        />
-        {HAND_TIPS.map(([x, y], i) => (
-          <motion.g
-            key={i}
-            animate={active ? { opacity: [0.2, 1, 1, 0.2] } : { opacity: 1 }}
-            transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
-          >
-            <line x1={HAND_WRIST[0]} y1={HAND_WRIST[1]} x2={x} y2={y} stroke="var(--brand-navy)" strokeOpacity="0.45" strokeWidth="2" />
-            <circle cx={x} cy={y} r="4" fill="var(--brand-red)" />
-          </motion.g>
-        ))}
-        <circle cx={HAND_WRIST[0]} cy={HAND_WRIST[1]} r="5.5" fill="var(--brand-navy)" />
-      </svg>
-    </div>
+      {/* Ordered sign structure out */}
+      <path d="M149 52h11M160 35v34M160 35h6M160 52h6M160 69h6" stroke={INK} strokeOpacity="0.18" strokeWidth="1.25" />
+      {SIGN_TOKENS.map((token, i) => (
+        <motion.g
+          key={i}
+          initial={{ opacity: 1 }}
+          animate={active ? { opacity: [0.25, 1, 1, 0.25] } : { opacity: 1 }}
+          transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.3, ease: "easeInOut" }}
+        >
+          <rect x={token.x} y={token.y} width={token.w} height="10" rx="5" fill={ACCENT} fillOpacity={i === 0 ? 0.9 : 0.55} />
+          <circle cx={token.x + 5} cy={token.y + 5} r="2" fill="white" />
+        </motion.g>
+      ))}
+    </DiagramPanel>
   )
 }
 
-/** Step 3: an animated signer on screen, with the caption typing in underneath. */
+/** Step 3: a video frame with a signer silhouette, timeline and captions underneath. */
 function SignStreamVisual({ active }: { active: boolean }) {
   return (
-    <div className="flex h-24 items-center justify-center" aria-hidden="true">
-      <svg width="168" height="96" viewBox="0 0 168 96" fill="none">
-        {/* Screen */}
-        <rect x="30" y="2" width="108" height="84" rx="12" fill="white" stroke="var(--brand-navy)" strokeOpacity="0.25" strokeWidth="2" />
-        <path d="M70 93h28" stroke="var(--brand-navy)" strokeOpacity="0.25" strokeWidth="3" strokeLinecap="round" />
+    <DiagramPanel>
+      {/* Video frame */}
+      <rect x="64" y="12" width="112" height="62" rx="8" fill={INK} fillOpacity="0.06" stroke={INK} strokeOpacity="0.18" strokeWidth="1.25" />
+      {/* Live indicator */}
+      <circle cx="74" cy="21" r="2.5" fill="#10B981" />
+      <motion.circle
+        cx="74"
+        cy="21"
+        r="2.5"
+        fill="#10B981"
+        style={{ transformBox: "fill-box", transformOrigin: "center" }}
+        initial={{ scale: 1, opacity: 0 }}
+        animate={active ? { scale: [1, 2.6], opacity: [0.5, 0] } : { scale: 1, opacity: 0 }}
+        transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }}
+      />
 
-        {/* Live dot */}
-        <circle cx="44" cy="15" r="3.5" fill="#10B981" />
-        <motion.circle
-          cx="44"
-          cy="15"
-          r="3.5"
-          fill="#10B981"
-          style={{ transformBox: "fill-box", transformOrigin: "center" }}
-          animate={active ? { scale: [1, 2.4], opacity: [0.6, 0] } : { scale: 1, opacity: 0 }}
-          transition={{ duration: 1.4, repeat: Infinity, ease: "easeOut" }}
-        />
+      {/* Signer silhouette */}
+      <circle cx="120" cy="34" r="8" fill={ACCENT} fillOpacity="0.85" />
+      <path d="M100 74c0-16 9-25 20-25s20 9 20 25Z" fill={ACCENT} fillOpacity="0.85" />
+      <motion.g
+        initial={{ x: 0, y: 0 }}
+        animate={active ? { x: [0, -3, 2, 0], y: [0, -4, 1, 0] } : { x: 0, y: 0 }}
+        transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <path d="M104 58l-6-16" stroke={ACCENT} strokeOpacity="0.85" strokeWidth="5" strokeLinecap="round" />
+        <circle cx="97" cy="39" r="4" fill={ACCENT} />
+      </motion.g>
+      <motion.g
+        initial={{ x: 0, y: 0 }}
+        animate={active ? { x: [0, 3, -2, 0], y: [0, 2, -5, 0] } : { x: 0, y: 0 }}
+        transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+      >
+        <path d="M136 58l7-14" stroke={ACCENT} strokeOpacity="0.85" strokeWidth="5" strokeLinecap="round" />
+        <circle cx="144" cy="41" r="4" fill={ACCENT} />
+      </motion.g>
 
-        {/* Signer */}
-        <path d="M60 66c0-14 10-22 24-22s24 8 24 22Z" fill="var(--primary)" />
-        <circle cx="84" cy="30" r="11" fill="#F2CBA9" />
-        <path d="M73 29c0-8 5-13 11-13s11 5 11 13c-3-4-7-6-11-6s-8 2-11 6Z" fill="var(--brand-navy)" fillOpacity="0.8" />
-        <path d="M79 35q5 4 10 0" stroke="var(--brand-navy)" strokeWidth="1.6" strokeLinecap="round" />
-        {/* Signing arm: forearm up from the elbow, I-LOVE-YOU handshape */}
-        <motion.g
-          style={{ transformBox: "view-box", transformOrigin: "106px 58px" }}
-          animate={active ? { rotate: [0, -14, 6, -10, 0] } : { rotate: 0 }}
-          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <path d="M100 52L106 58L114 36" stroke="#F2CBA9" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M112 31l-1-9M120 32l3-8M110 36l-6-3" stroke="#F2CBA9" strokeWidth="3.5" strokeLinecap="round" />
-          <circle cx="115" cy="34" r="5.5" fill="#F2CBA9" />
-        </motion.g>
+      {/* Timeline */}
+      <rect x="64" y="80" width="112" height="2.5" rx="1.25" fill={INK} fillOpacity="0.1" />
+      <motion.rect
+        x="64"
+        y="80"
+        height="2.5"
+        rx="1.25"
+        fill={SOUND}
+        initial={{ width: 48 }}
+        animate={active ? { width: [0, 112] } : { width: 48 }}
+        transition={{ duration: 3.2, repeat: Infinity, ease: "linear" }}
+      />
 
-        {/* Caption */}
-        <rect x="42" y="70" width="84" height="10" rx="5" fill="var(--brand-navy)" fillOpacity="0.85" />
-        <motion.rect
-          x="48"
-          y="73.5"
-          height="3"
-          rx="1.5"
-          fill="white"
-          initial={{ width: 56 }}
-          animate={active ? { width: [0, 72, 72, 0] } : { width: 56 }}
-          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", times: [0, 0.5, 0.85, 1] }}
-        />
-      </svg>
-    </div>
+      {/* Captions */}
+      <rect x="78" y="88" width="84" height="3" rx="1.5" fill={INK} fillOpacity="0.35" />
+      <motion.rect
+        x="92"
+        y="95"
+        height="3"
+        rx="1.5"
+        fill={INK}
+        fillOpacity="0.2"
+        initial={{ width: 56 }}
+        animate={active ? { width: [0, 56, 56] } : { width: 56 }}
+        transition={{ duration: 3.2, repeat: Infinity, ease: "easeOut", times: [0, 0.5, 1] }}
+      />
+    </DiagramPanel>
   )
 }
 
 /** Visuals zipped by index with `t.landing.howItWorks.stages`. */
 const STAGES = [
-  { Icon: Mic, index: "01", Visual: SpeechCaptureVisual, terminal: false },
-  { Icon: BrainCircuit, index: "02", Visual: AIProcessingVisual, terminal: false },
-  { Icon: Hand, index: "03", Visual: SignStreamVisual, terminal: true },
+  { Icon: AudioLines, index: "01", Visual: SpeechCaptureVisual, terminal: false, tile: "from-[#F97316] to-[#C2410C]" },
+  { Icon: Cpu, index: "02", Visual: AIProcessingVisual, terminal: false, tile: "from-[#F97316] to-[#2563EB]" },
+  { Icon: MonitorPlay, index: "03", Visual: SignStreamVisual, terminal: true, tile: "from-[#2563EB] to-[#1D4ED8]" },
 ] as const
 
-/** Animated connector that sits in the gap between two stages: a traveling
- * glow dot along a dashed line, plus a pulsing arrow node. Horizontal on
- * desktop (left-to-right flow), vertical on mobile (top-to-bottom flow). */
-function StageConnector({ active }: { active: boolean }) {
-  const { dir } = useI18n()
-  const travel = dir === "rtl" ? ["95%", "0%"] : ["0%", "95%"]
-  return (
-    <>
-      {/* Desktop: horizontal connector in the gap to the right of the card */}
-      <div
-        className="pointer-events-none absolute top-16 -end-4 z-20 hidden w-8 -translate-y-1/2 md:block"
-        aria-hidden="true"
-      >
-        <div className="relative h-px w-full overflow-visible rounded-full bg-gradient-to-r from-[color:var(--primary)]/10 via-[color:var(--primary)]/45 to-[color:var(--primary)]/10">
-          <motion.span
-            className="absolute top-1/2 size-1.5 -translate-y-1/2 rounded-full bg-[color:var(--primary)] shadow-[0_0_10px_2px_rgba(59,130,246,0.7)]"
-            animate={{ left: travel, opacity: [0, 1, 1, 0] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-          />
-        </div>
-        <motion.span
-          animate={active ? { scale: [1, 1.15, 1] } : { scale: 1 }}
-          transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-          className={cn(
-            "glass-pop absolute top-1/2 left-1/2 flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-[color:var(--primary)] transition-colors",
-            active && "pop-pulse",
-          )}
-        >
-          <ArrowRight className="size-4 rtl:-scale-x-100" />
-        </motion.span>
-      </div>
-
-      {/* Mobile: vertical connector below the card */}
-      <div
-        className="pointer-events-none absolute -bottom-8 left-1/2 z-20 block h-8 w-px -translate-x-1/2 md:hidden"
-        aria-hidden="true"
-      >
-        <div className="relative h-full w-px overflow-visible rounded-full bg-gradient-to-b from-[color:var(--primary)]/10 via-[color:var(--primary)]/45 to-[color:var(--primary)]/10">
-          <motion.span
-            className="absolute left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-[color:var(--primary)] shadow-[0_0_10px_2px_rgba(59,130,246,0.7)]"
-            animate={{ top: ["0%", "95%"], opacity: [0, 1, 1, 0] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-          />
-        </div>
-        <motion.span
-          animate={active ? { scale: [1, 1.15, 1] } : { scale: 1 }}
-          transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-          className={cn(
-            "glass-pop absolute top-1/2 left-1/2 flex size-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-[color:var(--primary)] transition-colors",
-            active && "pop-pulse",
-          )}
-        >
-          <ArrowRight className="size-3.5 rotate-90" />
-        </motion.span>
-      </div>
-    </>
-  )
-}
+const STEP_MS = 2800
 
 export function HowItWorksVisual() {
   const { t } = useI18n()
@@ -295,9 +259,13 @@ export function HowItWorksVisual() {
 
   useEffect(() => {
     if (paused) return
-    const id = setInterval(() => setActive((s) => (s + 1) % STAGES.length), 2800)
+    const id = setInterval(() => setActive((s) => (s + 1) % STAGES.length), STEP_MS)
     return () => clearInterval(id)
   }, [paused])
+
+  const current = STAGES[active]
+  const currentText = copy.stages[active]
+  const CurrentVisual = current.Visual
 
   return (
     <section
@@ -311,101 +279,141 @@ export function HowItWorksVisual() {
 
       <Container fluid>
         <Reveal className="max-w-2xl">
-          <PopEyebrow>
-            <span aria-hidden="true">⚡</span> {copy.eyebrow}
-          </PopEyebrow>
+          <PopEyebrow>{copy.eyebrow}</PopEyebrow>
           <h2 id="how-it-works-heading" className="mt-5 text-3xl font-bold tracking-tight text-balance text-black sm:text-4xl">
             {copy.title}
           </h2>
           <p className="mt-4 text-base leading-7 text-black">{copy.description}</p>
         </Reveal>
 
-        {/* Steps are content, not controls: hovering/tapping only moves the decorative highlight. */}
-        <ol
-          className="relative mt-16 grid grid-cols-1 gap-14 md:grid-cols-3 md:gap-8"
+        <div
+          className="mt-14 grid gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-10"
           onMouseEnter={() => setHovering(true)}
           onMouseLeave={() => setHovering(false)}
         >
-          {STAGES.map((stage, i) => {
-            const isActive = active === i
-            const Visual = stage.Visual
-            const text = copy.stages[i]
-            return (
-              <li
-                key={stage.index}
-                onMouseEnter={() => setActive(i)}
-                onClick={() => {
-                  setActive(i)
-                  setLocked(true)
-                }}
-                className={cn(
-                  "glass-pop group relative rounded-3xl border p-6 text-start transition-all duration-300",
-                  isActive
-                    ? "border-[color:var(--primary)]/45 shadow-[var(--pop-glow)]"
-                    : "border-transparent hover:-translate-y-1 hover:border-[color:var(--primary)]/20",
-                )}
-              >
-                {i < STAGES.length - 1 && <StageConnector active={isActive} />}
-
-                <div className="flex items-center gap-3">
-                  <motion.span
-                    aria-hidden="true"
-                    animate={isActive ? { scale: [1, 1.08, 1], opacity: 1 } : { scale: 1, opacity: 0.7 }}
-                    transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          {/* Step list. Steps are content, not controls: hovering/tapping only moves the highlight. */}
+          <Reveal className="lg:col-span-5">
+            <ol className="relative flex h-full flex-col justify-between gap-3">
+              {/* Spine joining the step icons (centred on the 44px tiles inside the 16px row padding). */}
+              <span aria-hidden="true" className="absolute start-[37px] top-10 bottom-10 w-0.5 -translate-x-1/2 rounded-full bg-gradient-to-b from-brand-orange/70 via-[color:var(--primary)]/40 to-[color:var(--primary)]/70 rtl:translate-x-1/2" />
+              {STAGES.map((stage, i) => {
+                const isActive = active === i
+                const text = copy.stages[i]
+                return (
+                  <li
+                    key={stage.index}
+                    onMouseEnter={() => setActive(i)}
+                    onClick={() => {
+                      setActive(i)
+                      setLocked(true)
+                    }}
                     className={cn(
-                      "relative flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-bold",
+                      "relative flex gap-4 rounded-2xl border p-4 text-start transition-[background-color,border-color,box-shadow] duration-300",
                       isActive
-                        ? "bg-[#2563EB] text-white shadow-[0_0_0_6px_rgba(59,130,246,0.14)]"
-                        : "bg-[color:var(--primary)]/10 text-[#1D4ED8]",
+                        ? "border-brand-orange/25 bg-card bg-gradient-to-r from-brand-orange/[0.06] to-transparent shadow-[0_1px_2px_rgba(16,24,40,0.05),0_16px_36px_-24px_rgba(234,88,12,0.3)] rtl:bg-gradient-to-l"
+                        : "border-transparent hover:bg-card/60",
                     )}
                   >
-                    {stage.index}
-                  </motion.span>
-                  <span
-                    aria-hidden="true"
-                    className={cn(
-                      "flex size-9 items-center justify-center rounded-xl transition-colors",
-                      isActive ? "bg-brand-orange/15 text-[#C2410C]" : "bg-[color:var(--primary)]/10 text-[#1D4ED8]",
-                    )}
-                  >
-                    <stage.Icon className="size-5" />
+                    {/* Orange accent: a short bar on the inline-start edge of the active step. */}
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "absolute inset-y-5 -start-px w-0.5 rounded-full bg-brand-orange transition-opacity duration-300",
+                        isActive ? "opacity-100" : "opacity-0",
+                      )}
+                    />
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "relative z-10 flex size-11 shrink-0 items-center justify-center rounded-xl transition-colors duration-300",
+                        isActive
+                          ? cn("bg-gradient-to-br text-white shadow-[0_10px_22px_-10px_rgba(234,88,12,0.55)]", stage.tile)
+                          : "bg-card text-[#1D4ED8] ring-1 ring-[color:var(--primary)]/20",
+                      )}
+                    >
+                      <stage.Icon className="size-5" strokeWidth={1.75} />
+                    </span>
+                    <div className="min-w-0 pt-0.5">
+                      <p className="flex flex-wrap items-center gap-x-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                        <span
+                          className={cn("font-mono font-semibold transition-colors duration-300", isActive && "text-[#C2410C]")}
+                        >
+                          {stage.index}
+                        </span>
+                        <span aria-hidden="true">·</span>
+                        <span>{text?.tag}</span>
+                      </p>
+                      <h3 className="mt-1 text-lg font-semibold tracking-tight text-black">{text?.title}</h3>
+                      <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{text?.caption}</p>
+                    </div>
+                  </li>
+                )
+              })}
+            </ol>
+          </Reveal>
+
+          {/* Stage: the active step's diagram, large. Decorative — the list above carries the content. */}
+          <Reveal delay={0.1} className="lg:col-span-7">
+            <div
+              aria-hidden="true"
+              className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(16,24,40,0.05),0_30px_60px_-30px_rgba(30,64,175,0.3)]"
+            >
+              <span className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-brand-orange via-[#F59E0B] to-[color:var(--primary)] rtl:bg-gradient-to-l" />
+              <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-3.5 sm:px-6">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-white", current.tile)}>
+                    <current.Icon className="size-4" strokeWidth={1.75} />
                   </span>
+                  <span className="truncate text-sm font-semibold text-black">{currentText?.title}</span>
                 </div>
-
-                <Visual active={isActive && !reduceMotion} />
-
-                <h3 className="mt-2 text-lg font-bold text-black">{text?.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-black">{text?.caption}</p>
-
-                <span
-                  className={cn(
-                    "mt-4 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold transition-colors",
-                    isActive
-                      ? "border-[color:var(--primary)]/35 bg-[color:var(--primary)]/10 text-[#1D4ED8]"
-                      : "border-border text-black",
-                  )}
-                >
-                  {stage.terminal ? (
-                    <>
-                      <span className="relative flex size-1.5" aria-hidden="true">
-                        <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-75" />
-                        <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
-                      </span>
-                      {text?.tag}
-                    </>
+                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2.5 py-1 text-xs font-medium text-black">
+                  {current.terminal ? (
+                    <span className="size-1.5 rounded-full bg-emerald-500" />
                   ) : (
-                    <>
-                      {text?.tag}
-                      <ArrowRight className="size-3 rtl:-scale-x-100" aria-hidden="true" />
-                    </>
+                    <ArrowRight className="size-3 rtl:-scale-x-100" />
                   )}
+                  {currentText?.tag}
                 </span>
-              </li>
-            )
-          })}
-        </ol>
+              </div>
+
+              <div className="relative min-h-64 flex-1 overflow-hidden bg-[radial-gradient(circle,rgba(37,99,235,0.14)_1px,transparent_1px)] [background-size:18px_18px] sm:min-h-72">
+                <span className="pointer-events-none absolute -top-24 -start-24 size-72 rounded-full bg-[radial-gradient(circle,rgba(249,115,22,0.18),transparent_70%)]" />
+                <span className="pointer-events-none absolute -bottom-24 -end-24 size-72 rounded-full bg-[radial-gradient(circle,rgba(37,99,235,0.14),transparent_70%)]" />
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={active}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className="absolute inset-0 flex items-center justify-center p-6 sm:p-10"
+                  >
+                    <CurrentVisual active={!reduceMotion} />
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              {/* Progress: one segment per step; done steps in soft orange, the running one fills in orange. */}
+              <div className="flex gap-2 border-t border-border px-5 py-4 sm:px-6">
+                {STAGES.map((stage, i) => (
+                  <span key={stage.index} className="relative h-1 flex-1 overflow-hidden rounded-full bg-border">
+                    {i < active && <span className="absolute inset-0 rounded-full bg-brand-orange/45" />}
+                    {i === active && (
+                      <motion.span
+                        key={paused ? "still" : `run-${active}`}
+                        className="absolute inset-0 origin-[left] rounded-full bg-brand-orange rtl:origin-[right]"
+                        initial={{ scaleX: paused ? 1 : 0 }}
+                        animate={{ scaleX: 1 }}
+                        transition={{ duration: paused ? 0 : STEP_MS / 1000, ease: "linear" }}
+                      />
+                    )}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+        </div>
       </Container>
     </section>
   )
 }
-

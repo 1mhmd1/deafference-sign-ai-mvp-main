@@ -27,9 +27,11 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="pop-atmosphere relative isolate overflow-hidden pt-8 sm:pt-10"
+      className="pop-atmosphere relative isolate -mt-[76px] overflow-hidden pt-[calc(76px+2rem)] sm:-mt-[84px] sm:pt-[calc(84px+2.5rem)]"
     >
-      {/* Hero photo behind everything, washed out so the headline and buttons stay readable. */}
+      {/* Hero photo behind everything, washed out so the headline and buttons stay readable.
+          The section is pulled up under the sticky navbar (76px tall, 84px from `sm`: its top
+          padding + bar height in navbar.tsx) so the photo also fills the area behind the navbar. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20">
         <img src="/hero.jpg" alt="" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-background/60" />
