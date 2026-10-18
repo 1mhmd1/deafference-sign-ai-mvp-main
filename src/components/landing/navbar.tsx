@@ -116,7 +116,7 @@ export function Navbar() {
           isScrolled ? "glass-pop shadow-[0_18px_50px_-28px_rgba(30,64,175,0.45)]" : "border border-transparent bg-transparent",
         )}
       >
-        <Container fluid className="flex h-16 min-w-0 items-center justify-between gap-4 sm:h-[4.25rem]">
+        <Container fluid className="flex h-16 min-w-0 items-center justify-between gap-2 sm:h-[4.25rem] sm:gap-4">
           <a
             href={pathname === "/" ? "#top" : "/"}
             aria-label={nav.home}
@@ -127,7 +127,7 @@ export function Navbar() {
                 Styles in landing.css (.nav-logo-*). */}
             <span className="relative inline-flex">
               <span aria-hidden="true" className="nav-logo-glow" />
-              <Wordmark className="nav-logo-img relative h-12 sm:h-14 lg:h-[3.75rem]" />
+              <Wordmark className="nav-logo-img relative h-10 min-[380px]:h-12 sm:h-14 lg:h-[3.75rem]" />
               <span aria-hidden="true" className="nav-logo-shine" />
             </span>
           </a>
@@ -159,7 +159,7 @@ export function Navbar() {
             </ul>
           </nav>
 
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-1.5 min-[380px]:gap-2 sm:gap-3">
             <div className="hidden items-center gap-2 xl:flex">
               <ThemeToggle />
               <LanguageToggle />

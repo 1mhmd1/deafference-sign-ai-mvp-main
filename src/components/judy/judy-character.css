@@ -131,7 +131,7 @@
 
 .judy-sparkles { display: none; fill: #F47C20; transform-box: view-box; transform-origin: 110px 110px; }
 
-.judy-bubble { position: absolute; bottom: 100%; left: 50%; padding: 8px 12px; border: 1px solid rgba(51,42,34,.12); border-radius: 14px; background: #FCFBF9; color: #332A22; box-shadow: 0 14px 34px -20px rgba(51,42,34,.55); font: 500 12px/1.35 Inter, sans-serif; white-space: nowrap; opacity: 0; transform: translate(-50%, 4px) scale(.94); transition: opacity 240ms ease, transform 240ms ease; }
+.judy-bubble { position: absolute; bottom: 100%; left: 50%; padding: 8px 12px; border: 1px solid rgba(51,42,34,.12); border-radius: 14px; background: #FCFBF9; color: #332A22; box-shadow: 0 14px 34px -20px rgba(51,42,34,.55); font: 500 12px/1.35 Inter, sans-serif; white-space: normal; width: max-content; max-width: 160px; text-align: center; opacity: 0; transform: translate(-50%, 4px) scale(.94); transition: opacity 240ms ease, transform 240ms ease; }
 .judy-bubble::after { content: ''; position: absolute; top: 100%; left: 50%; margin-left: -5px; border: 5px solid transparent; border-top-color: #FCFBF9; }
 .judy-bubble-visible { opacity: 1; transform: translate(-50%, -8px) scale(1); }
 
@@ -413,7 +413,7 @@
 .judy-subscribing .judy-leg-right { animation: judy-party-leg-right 1200ms ease-in-out infinite; }
 .judy-subscribing .judy-sparkles { display: block; animation: judy-sparkle 1000ms ease-in-out infinite; }
 
-@media (max-width: 640px) { .judy-companion { width: 100px; bottom: 6px; } .judy-bubble { font-size: 11px; } }
+@media (max-width: 640px) { .judy-companion { width: 100px; bottom: 6px; } .judy-bubble { font-size: 11px; max-width: 100px; } }
 @media (prefers-reduced-motion: reduce) {
   .judy-companion,.judy-bubble { transition: none; }
   .judy-figure,.judy-figure g { animation: none !important; }

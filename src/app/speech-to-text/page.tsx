@@ -54,10 +54,10 @@ export default function SpeechToTextPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white p-4 sm:p-6">
       <div className="max-w-2xl mx-auto">
         {/* Navigation */}
-        <nav className="mb-8 flex gap-4 border-b-2 border-gray-300 pb-4">
+        <nav className="mb-8 flex flex-wrap gap-2 sm:gap-4 border-b-2 border-gray-300 pb-4">
           <Link href="/speech-to-text" className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg">
             🎤 Speech → Text
           </Link>
@@ -71,7 +71,7 @@ export default function SpeechToTextPage() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-black mb-2">Speech to Text</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-black mb-2">Speech to Text</h1>
           <p className="text-lg text-gray-700">
             Speak to convert your words into text
           </p>
@@ -111,7 +111,7 @@ export default function SpeechToTextPage() {
         )}
 
         {/* Control Buttons */}
-        <div className="flex gap-3 mb-6">
+        <div className="flex flex-wrap gap-3 mb-6">
           <button
             onClick={startListening}
             disabled={isListening}
@@ -132,7 +132,7 @@ export default function SpeechToTextPage() {
         </div>
 
         {/* Utility Buttons */}
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <button
             onClick={copyToClipboard}
             disabled={!text.trim()}

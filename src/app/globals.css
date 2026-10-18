@@ -643,13 +643,6 @@ html[data-text-size='xlarge'] {
   border-color: rgba(96, 165, 250, 0.2);
 }
 
-/* Site-wide floating Judy (components/judy/floating-judy.tsx) covers content on phones: desktop/tablet only. */
-@media (max-width: 639.98px) {
-  .floating-judy {
-    display: none;
-  }
-}
-
 /* Letter-spacing breaks joined Arabic script, so drop tracking utilities in RTL. */
 [dir="rtl"] [class*="tracking-"] {
   letter-spacing: 0;

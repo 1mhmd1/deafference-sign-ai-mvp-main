@@ -34,7 +34,7 @@ export function ScenarioGrid() {
 
         {/* The full reference illustration — your logo composited in place of the
             placeholder "D" — spinning continuously as the whole scenario section. */}
-        <div className="mt-12 flex justify-center overflow-visible py-4">
+        <div className="mt-12 flex justify-center overflow-x-clip py-4">
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 22, repeat: Infinity, ease: "linear" }}

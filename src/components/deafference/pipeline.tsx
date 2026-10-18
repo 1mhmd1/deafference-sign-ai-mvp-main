@@ -30,7 +30,7 @@ function MockModeBadge() {
       <div
         id={tooltipId}
         role="tooltip"
-        className="pointer-events-none absolute start-0 top-full z-20 mt-2 w-[min(16rem,calc(100vw-4rem))] rounded-lg border border-border bg-popover px-3 py-2 text-start text-xs leading-5 text-popover-foreground opacity-0 shadow-lg transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100"
+        className="pointer-events-none absolute start-0 top-full z-20 mt-2 hidden w-[min(16rem,calc(100vw-9rem))] rounded-lg border border-border bg-popover px-3 py-2 text-start text-xs leading-5 text-popover-foreground shadow-lg group-focus-within:block group-hover:block"
       >
         {t.app.pipeline.mockTooltip}
       </div>

@@ -63,7 +63,7 @@ export function Tabs({
 
   return (
     <div className={cn("space-y-6", className)}>
-      <div role="tablist" aria-label={label} className="flex flex-wrap gap-1 rounded-full border border-border bg-muted p-1">
+      <div role="tablist" aria-label={label} className="flex flex-wrap gap-1 rounded-2xl border border-border bg-muted p-1">
         {tabs.map((tab, index) => {
           const selected = tab.value === current?.value
           return (

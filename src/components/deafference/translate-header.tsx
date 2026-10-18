@@ -22,12 +22,12 @@ export function TranslateHeader({ title }: { title: string }) {
 
   return (
     <header className="sticky top-0 z-40 px-3 pt-3 sm:px-4 sm:pt-4">
-      <div className="glass-pop flex min-h-16 items-center justify-between gap-3 rounded-[1.75rem] px-4 py-2.5 sm:gap-4 sm:px-6">
+      <div className="glass-pop flex min-h-16 items-center justify-between gap-2 rounded-[1.75rem] px-3 py-2.5 min-[380px]:gap-3 min-[380px]:px-4 sm:gap-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3 sm:gap-4">
           <Link href={APP_ROUTES.home} aria-label={t.profile.hub.backToSite} className={cn("shrink-0 rounded-lg", FOCUS_RING)}>
             <Wordmark />
           </Link>
-          <div className="min-w-0 border-s border-[color:var(--primary)]/15 ps-3 text-start sm:ps-4">
+          <div className="sr-only min-w-0 border-s border-[color:var(--primary)]/15 text-start min-[480px]:not-sr-only min-[480px]:ps-3 sm:ps-4">
             <p className="hidden truncate text-[11px] font-semibold tracking-[0.18em] text-[#1D4ED8] uppercase sm:block">
               {t.app.header.eyebrow}
             </p>

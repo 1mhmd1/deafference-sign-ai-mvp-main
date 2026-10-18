@@ -96,10 +96,10 @@ export default function TextToSpeechPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white p-4 sm:p-6">
       <div className="max-w-2xl mx-auto">
         {/* Navigation */}
-        <nav className="mb-8 flex gap-4 border-b-2 border-gray-300 pb-4">
+        <nav className="mb-8 flex flex-wrap gap-2 sm:gap-4 border-b-2 border-gray-300 pb-4">
           <Link href="/speech-to-text" className="px-4 py-2 bg-gray-200 text-black font-semibold rounded-lg hover:bg-gray-300">
             🎤 Speech → Text
           </Link>
@@ -113,7 +113,7 @@ export default function TextToSpeechPage() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-black mb-2">Text to Speech</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-black mb-2">Text to Speech</h1>
           <p className="text-lg text-gray-700">
             Type or select phrases to speak out loud
           </p>
@@ -140,7 +140,7 @@ export default function TextToSpeechPage() {
           <label className="block text-sm font-semibold text-black mb-3">
             Quick phrases
           </label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-3">
             {QUICK_PHRASES.map((phrase) => (
               <button
                 key={phrase}
@@ -158,7 +158,7 @@ export default function TextToSpeechPage() {
           <label className="block text-sm font-semibold text-black mb-3">
             Voice tone
           </label>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             {Object.entries(TONE_PRESETS).map(([key, value]) => (
               <button
                 key={key}
@@ -248,7 +248,7 @@ export default function TextToSpeechPage() {
         )}
 
         {/* Control Buttons */}
-        <div className="flex gap-3 mb-6">
+        <div className="flex flex-wrap gap-3 mb-6">
           <button
             onClick={() => handleSpeak()}
             disabled={!text.trim() || isSpeaking}
@@ -279,7 +279,7 @@ export default function TextToSpeechPage() {
         </div>
 
         {/* Utility Buttons */}
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <button
             onClick={copyToClipboard}
             disabled={!text.trim()}

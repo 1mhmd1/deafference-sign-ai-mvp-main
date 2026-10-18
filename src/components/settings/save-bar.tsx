@@ -31,7 +31,7 @@ export function SettingsSaveBar() {
   }
 
   return (
-    <div className="sticky bottom-0 z-10 -mx-4 border-t border-border bg-background/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+    <div className="sticky bottom-0 z-10 -mx-4 border-t border-border bg-background/95 px-4 pt-4 pb-24 backdrop-blur sm:-mx-6 sm:px-6 sm:pb-4 sm:pe-72 lg:-mx-8 lg:px-8 lg:pe-80">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p role="status" aria-live="polite" className="text-sm text-muted-foreground">
           {feedback ? m[feedback] : isDirty ? m.unsaved : m.allSaved}
