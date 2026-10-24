@@ -19,6 +19,7 @@ interface JudyChatPanelProps {
   onDraftChange: (value: string) => void
   onSend: () => void
   onPrompt: (value: string) => void
+  onExplain: (messageId: number) => void
   onToggleMic: () => void
   onClose: () => void
   onMinimize: () => void
@@ -39,6 +40,7 @@ export function JudyChatPanel({
   onDraftChange,
   onSend,
   onPrompt,
+  onExplain,
   onToggleMic,
   onClose,
   onMinimize
@@ -150,6 +152,18 @@ export function JudyChatPanel({
                   >
                     {item.role === 'judy' && <div className="judy-bubble-label">Judy</div>}
                     <div className={`bubble-core${item.streaming ? ' is-streaming' : ''}`}>{item.text}</div>
+                    {item.role === 'judy' && item.question && !item.streaming && (
+                      <button
+                        type="button"
+                        className="judy-explain"
+                        aria-label="Ask Judy to explain this more"
+                        title="Explain more"
+                        disabled={inputDisabled || listeningVisible}
+                        onClick={() => onExplain(item.id)}
+                      >
+                        ?
+                      </button>
+                    )}
                   </article>
                 </CSSTransition>
               )

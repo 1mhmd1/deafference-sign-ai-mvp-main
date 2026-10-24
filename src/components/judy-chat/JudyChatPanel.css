@@ -221,6 +221,36 @@
   animation-delay: 0.2s;
 }
 
+/* "?" under a Judy reply: asks her to explain that answer in more depth. */
+.judy-explain {
+  justify-self: start;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(87, 164, 249, 0.3);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(239, 246, 254, 0.75));
+  color: #f47c20;
+  font-family: Fraunces, serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 8px 18px -14px rgba(51, 42, 34, 0.45);
+  transition: transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1), border-color 180ms ease;
+}
+
+.judy-explain:hover:not(:disabled),
+.judy-explain:focus-visible:not(:disabled) {
+  transform: translateY(-2px) scale(1.06);
+  border-color: rgba(244, 124, 32, 0.55);
+}
+
+.judy-explain:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .judy-prompt-row {
   margin: 0.8rem 1rem 0;
   display: flex;
@@ -467,6 +497,7 @@
   .judy-message-enter-active,
   .judy-message-exit-active,
   .judy-chip,
+  .judy-explain,
   .judy-send,
   .judy-send svg,
   .judy-action,

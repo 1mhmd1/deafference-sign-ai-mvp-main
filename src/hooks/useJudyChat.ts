@@ -12,6 +12,8 @@ export interface JudyChatMessage {
   text: string
   createdAt: number
   streaming?: boolean
+  /** The user question this Judy reply answers; set when it can offer "explain more". */
+  question?: string
 }
 
 const QUICK_PROMPTS = [
@@ -23,6 +25,12 @@ const QUICK_PROMPTS = [
 
 const FALLBACK_RESPONSE = "I'm having a little trouble connecting right now. Could you try again? ✨"
 const MAX_HISTORY_TURNS = 16
+const EXPLAIN_QUESTION_MAX = 80
+
+function explainPrompt(question: string) {
+  const short = question.length > EXPLAIN_QUESTION_MAX ? `${question.slice(0, EXPLAIN_QUESTION_MAX).trimEnd()}…` : question
+  return `Can you explain more about "${short}"?`
+}
 
 type SpeechRecognitionCtor = new () => SpeechRecognitionLike
 
@@ -245,7 +253,8 @@ export function useJudyChat() {
       }))
   }
 
-  async function sendMessage(text?: string, fromVoice = false) {
+  // `topic` is the original question a reply should remember for "explain more" (defaults to the text sent).
+  async function sendMessage(text?: string, fromVoice = false, topic?: string) {
     if (stateRef.current === 'thinking' || stateRef.current === 'responding') return
 
     const raw = (text ?? draftRef.current).trim()
@@ -281,7 +290,7 @@ export function useJudyChat() {
         onDone: () => {
           if (requestId !== activeRequestId.current) return
           if (judyMessageIndex !== -1) {
-            updateMessageAt(judyMessageIndex, () => ({ streaming: false }))
+            updateMessageAt(judyMessageIndex, () => ({ streaming: false, question: topic ?? raw }))
           }
           setState('idle')
           setSrAnnouncement('Judy responded.')
@@ -304,6 +313,13 @@ export function useJudyChat() {
   function applyPrompt(prompt: string) {
     setDraft(prompt)
     void sendMessage(prompt)
+  }
+
+  /** The "?" on a Judy reply: ask her to go deeper on the question that reply answered. */
+  function explainMore(messageId: number) {
+    const question = messagesRef.current.find((message) => message.id === messageId)?.question
+    if (!question) return
+    void sendMessage(explainPrompt(question), false, question)
   }
 
   const quickPrompts = QUICK_PROMPTS
@@ -344,6 +360,7 @@ export function useJudyChat() {
     toggleListening,
     sendMessage,
     applyPrompt,
+    explainMore,
     prefersReducedMotion
   }
 }

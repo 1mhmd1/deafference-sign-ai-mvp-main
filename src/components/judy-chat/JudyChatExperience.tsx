@@ -27,6 +27,7 @@ export function JudyChatExperience() {
     toggleListening,
     sendMessage,
     applyPrompt,
+    explainMore,
     prefersReducedMotion
   } = useJudyChat()
 
@@ -89,6 +90,7 @@ export function JudyChatExperience() {
         onDraftChange={setDraft}
         onSend={() => void sendMessage()}
         onPrompt={applyPrompt}
+        onExplain={explainMore}
         onToggleMic={toggleListening}
         onClose={closePanel}
         onMinimize={minimizePanel}
