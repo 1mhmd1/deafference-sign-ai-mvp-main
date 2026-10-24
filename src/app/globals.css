@@ -13,13 +13,14 @@ html:not(.dark) .landing-pop {
   background-color: #ffffff !important;
 }
 
-/* The translate studio (.app-pop) sets its own text colours (white-on-blue buttons, status tones). */
-html:not(.dark) :is(p, span, h1, h2, h3, h4, h5, h6, li):not(.app-pop *) {
+/* The translate studio (.app-pop) and the Judy chat (.judy-chat-root) set their own text colours
+   (white-on-blue buttons, status tones, white "Send" on the orange button). */
+html:not(.dark) :is(p, span, h1, h2, h3, h4, h5, h6, li):not(.app-pop *, .judy-chat-root *) {
   color: #000000 !important;
 }
 
 /* Keep buttons and interactive elements their original colors */
-:is(button, a[class*="btn"], [class*="button"]):not(.app-pop *) {
+:is(button, a[class*="btn"], [class*="button"]):not(.app-pop *, .judy-chat-root *) {
   color: inherit;
 }
 

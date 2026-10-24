@@ -1,0 +1,479 @@
+.judy-panel {
+  position: fixed;
+  inset-inline-end: 1rem;
+  /* Opens just above the launcher row (launcher: bottom 1.5rem, 4rem tall). */
+  bottom: 6.25rem;
+  width: min(420px, calc(100vw - 1.4rem));
+  max-height: min(82vh, 760px, calc(100vh - 7.25rem));
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background:
+    radial-gradient(circle at 88% -8%, rgba(87, 164, 249, 0.17), transparent 48%),
+    radial-gradient(circle at 12% 110%, rgba(244, 124, 32, 0.2), transparent 48%),
+    linear-gradient(155deg, rgba(255, 255, 255, 0.86), rgba(252, 251, 249, 0.74));
+  box-shadow: 0 30px 70px -35px rgba(51, 42, 34, 0.42), 0 0 0 1px rgba(87, 164, 249, 0.18) inset;
+  backdrop-filter: blur(16px);
+  overflow: hidden;
+  z-index: 64;
+}
+
+.judy-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1rem 1rem 0.55rem;
+}
+
+.judy-head-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.judy-name {
+  font-family: Fraunces, serif;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: #332a22;
+}
+
+.judy-role {
+  margin-top: 0.18rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgba(51, 42, 34, 0.72);
+}
+
+.judy-status {
+  margin-top: 0.3rem;
+  font-size: 0.74rem;
+  color: rgba(51, 42, 34, 0.8);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background-color: #57a4f9;
+  box-shadow: 0 0 0 6px rgba(87, 164, 249, 0.18);
+}
+
+.status-dot.state-thinking {
+  background-color: #f47c20;
+}
+
+.status-dot.state-responding {
+  background-color: #e2432b;
+}
+
+.judy-controls {
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+.judy-icon-button {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(51, 42, 34, 0.12);
+  display: grid;
+  place-items: center;
+  color: rgba(51, 42, 34, 0.75);
+  transition: background-color 180ms ease, transform 180ms ease;
+}
+
+.judy-icon-button:hover,
+.judy-icon-button:focus-visible {
+  background-color: rgba(252, 251, 249, 0.92);
+  transform: translateY(-1px);
+}
+
+.ai-ribbon {
+  margin-inline: 1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(87, 164, 249, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+  padding: 0.35rem 0.75rem;
+}
+
+.ai-node {
+  width: 0.43rem;
+  height: 0.43rem;
+  border-radius: 999px;
+  background: #57a4f9;
+  box-shadow: 0 0 0 5px rgba(87, 164, 249, 0.15);
+}
+
+.ai-track {
+  width: 2.3rem;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(87, 164, 249, 0.8), rgba(244, 124, 32, 0.8));
+}
+
+.ai-copy {
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(51, 42, 34, 0.65);
+}
+
+.judy-intro {
+  margin: 0.72rem 1rem 0;
+  font-family: Fraunces, serif;
+  font-size: 1.06rem;
+  color: #332a22;
+}
+
+.judy-timeline {
+  margin-top: 0.6rem;
+  padding-inline: 1rem;
+  padding-bottom: 0.4rem;
+  overflow: auto;
+  max-height: 48vh;
+}
+
+.judy-message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.judy-message {
+  max-width: 88%;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.judy-message.is-user {
+  margin-inline-start: auto;
+}
+
+.judy-bubble-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(51, 42, 34, 0.56);
+}
+
+.bubble-core {
+  border-radius: 1rem 1rem 1rem 0.52rem;
+  padding: 0.65rem 0.78rem;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  border: 1px solid rgba(87, 164, 249, 0.2);
+  color: rgba(51, 42, 34, 0.9);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(239, 246, 254, 0.65));
+  box-shadow: 0 12px 25px -24px rgba(51, 42, 34, 0.4);
+}
+
+.is-user .bubble-core {
+  border-radius: 1rem 1rem 0.52rem 1rem;
+  background: linear-gradient(140deg, #f4a261 0%, #f47c20 55%, #e2432b 100%);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 14px 30px -24px rgba(226, 67, 43, 0.65);
+}
+
+.bubble-core.is-streaming::after {
+  content: '';
+  display: inline-block;
+  width: 0.42rem;
+  height: 0.95rem;
+  margin-inline-start: 0.2rem;
+  border-radius: 999px;
+  background-color: rgba(87, 164, 249, 0.75);
+  vertical-align: text-bottom;
+  animation: cursor-blink 0.8s ease-in-out infinite;
+}
+
+.bubble-thinking {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
+  width: fit-content;
+}
+
+.bubble-thinking span {
+  width: 0.34rem;
+  height: 0.34rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #57a4f9, #f47c20);
+  animation: judy-panel-thinking-dot 900ms ease-in-out infinite;
+}
+
+.bubble-thinking span:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.bubble-thinking span:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.judy-prompt-row {
+  margin: 0.8rem 1rem 0;
+  display: flex;
+  gap: 0.4rem;
+  overflow: auto;
+  padding-bottom: 0.1rem;
+}
+
+.judy-chip {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 1px solid rgba(87, 164, 249, 0.26);
+  background: rgba(255, 255, 255, 0.85);
+  color: rgba(51, 42, 34, 0.86);
+  font-size: 0.72rem;
+  line-height: 1;
+  font-weight: 600;
+  padding: 0.55rem 0.74rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  transition: transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1), border-color 180ms ease;
+}
+
+.judy-chip:hover,
+.judy-chip:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(244, 124, 32, 0.5);
+}
+
+.chip-mark {
+  width: 0.44rem;
+  height: 0.44rem;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #f47c20, #57a4f9);
+}
+
+.judy-composer {
+  margin: 0.9rem 1rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(87, 164, 249, 0.23);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 14px 30px -25px rgba(51, 42, 34, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 0.32rem;
+  padding: 0.34rem;
+}
+
+.judy-composer:focus-within {
+  box-shadow: 0 0 0 2px rgba(87, 164, 249, 0.2), 0 14px 30px -25px rgba(51, 42, 34, 0.35);
+  border-color: rgba(244, 124, 32, 0.42);
+}
+
+.judy-action {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: rgba(51, 42, 34, 0.62);
+  transition: transform 180ms ease, background-color 180ms ease;
+}
+
+.judy-action:hover,
+.judy-action:focus-visible {
+  transform: translateY(-1px);
+  background-color: rgba(220, 234, 253, 0.5);
+}
+
+.judy-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.judy-action.mic.active {
+  color: #1c5fc0;
+  background-color: rgba(87, 164, 249, 0.18);
+}
+
+.judy-input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: none;
+  padding-inline: 0.35rem;
+  padding-block: 0.5rem;
+  background: transparent;
+  color: #332a22;
+  font-size: 0.92rem;
+}
+
+.judy-input::placeholder {
+  color: rgba(51, 42, 34, 0.56);
+}
+
+.judy-send {
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  background: linear-gradient(135deg, #ffc145 0%, #f47c20 55%, #e2432b 100%);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding-inline: 0.78rem 0.82rem;
+  font-size: 0.71rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  transition: transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 180ms ease;
+}
+
+.judy-send svg {
+  transition: transform 180ms ease;
+}
+
+.judy-send:hover:not(:disabled),
+.judy-send:focus-visible:not(:disabled) {
+  transform: scale(1.03);
+  box-shadow: 0 12px 32px -16px rgba(244, 124, 32, 0.8);
+}
+
+.judy-send:hover:not(:disabled) svg,
+.judy-send:focus-visible:not(:disabled) svg {
+  transform: translateX(1px);
+}
+
+.judy-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.voice-mode {
+  display: grid;
+  gap: 0.4rem;
+  width: 100%;
+  margin-inline-start: 0.3rem;
+}
+
+.voice-mode p {
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(51, 42, 34, 0.76);
+}
+
+.voice-wave-shell {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 1.55rem;
+}
+
+.voice-wave-shell span {
+  width: 3px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(87, 164, 249, 0.95), rgba(244, 124, 32, 0.95));
+  transition: height 140ms ease;
+}
+
+.judy-message-enter,
+.judy-message-exit-active {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.judy-message-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.judy-message-enter-active,
+.judy-message-exit-active {
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+.judy-panel-enter,
+.judy-panel-exit-active {
+  opacity: 0;
+  transform: translateY(14px) scale(0.98);
+}
+
+.judy-panel-enter-active {
+  opacity: 1;
+  transform: none;
+}
+
+.judy-panel-enter-active,
+.judy-panel-exit-active {
+  transition: opacity 320ms ease, transform 380ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cursor-blink {
+  0%,
+  100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+
+@keyframes judy-panel-thinking-dot {
+  0%,
+  100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@media (max-width: 768px) {
+  .judy-panel {
+    inset-inline: 0.65rem;
+    bottom: 0.7rem;
+    width: auto;
+    max-height: min(88vh, 780px);
+  }
+}
+
+@media (max-width: 640px) {
+  .judy-panel {
+    inset-inline: 0;
+    inset-block: 0;
+    width: 100vw;
+    height: 100dvh;
+    max-height: none;
+    border-radius: 0;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .judy-timeline {
+    max-height: none;
+    flex: 1;
+  }
+
+  .judy-prompt-row {
+    margin-top: 0.6rem;
+  }
+
+  .judy-composer {
+    margin-bottom: max(0.85rem, env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .judy-panel-enter-active,
+  .judy-panel-exit-active,
+  .judy-message-enter-active,
+  .judy-message-exit-active,
+  .judy-chip,
+  .judy-send,
+  .judy-send svg,
+  .judy-action,
+  .voice-wave-shell span,
+  .bubble-thinking span,
+  .bubble-core.is-streaming::after {
+    transition: none;
+    animation: none;
+  }
+}

@@ -1,0 +1,273 @@
+.judy-portrait {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.88), rgba(252, 251, 249, 0.56));
+  box-shadow: 0 20px 46px -26px rgba(51, 42, 34, 0.45);
+  isolation: isolate;
+  animation: portrait-float 5.8s ease-in-out infinite;
+}
+
+.judy-portrait-sm {
+  width: 72px;
+  height: 72px;
+}
+
+.judy-portrait-md {
+  width: 108px;
+  height: 108px;
+}
+
+.judy-portrait-lg {
+  width: 132px;
+  height: 132px;
+}
+
+.judy-face-shell {
+  width: 88%;
+  height: 88%;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(220, 234, 253, 0.5));
+  box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.65);
+  overflow: hidden;
+}
+
+/* The image is a round badge on black with Judy's face in its upper third: zoom 1.5x and
+   offset so her face sits in the middle and the black corners never show. */
+.judy-face {
+  width: 150%;
+  height: 150%;
+  max-width: none;
+  margin-left: -25%;
+  margin-top: -4%;
+  display: block;
+  object-fit: cover;
+  animation: face-breathe 5.4s ease-in-out infinite;
+}
+
+.judy-aura,
+.judy-ring {
+  position: absolute;
+  inset: -8%;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.judy-aura {
+  z-index: -3;
+  background: radial-gradient(circle at 55% 30%, rgba(87, 164, 249, 0.2), rgba(244, 124, 32, 0.16), transparent 70%);
+  filter: blur(10px);
+  animation: aura-breathe 5.5s ease-in-out infinite;
+}
+
+.judy-ring {
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  opacity: 0.7;
+}
+
+.judy-ring-orange {
+  inset: -5%;
+  border-color: rgba(244, 124, 32, 0.38);
+  animation: orbit-orange 7s linear infinite;
+}
+
+.judy-ring-blue {
+  inset: -10%;
+  border-color: rgba(87, 164, 249, 0.34);
+  animation: orbit-blue 8.4s linear infinite reverse;
+}
+
+.judy-thinking-dots,
+.judy-wave,
+.judy-sparkles {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 260ms ease;
+}
+
+.judy-thinking-dots {
+  bottom: -13px;
+  display: inline-flex;
+  gap: 4px;
+}
+
+.judy-thinking-dots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #57a4f9, #f47c20);
+  animation: judy-portrait-thinking-dot 950ms ease-in-out infinite;
+}
+
+.judy-thinking-dots span:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.judy-thinking-dots span:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+.judy-wave {
+  bottom: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: end;
+  gap: 3px;
+}
+
+.judy-wave span {
+  width: 3px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(87, 164, 249, 0.95), rgba(244, 124, 32, 0.95));
+  animation: voice-wave 700ms ease-in-out infinite;
+}
+
+.judy-wave span:nth-child(2) {
+  animation-delay: 80ms;
+}
+
+.judy-wave span:nth-child(3) {
+  animation-delay: 140ms;
+}
+
+.judy-wave span:nth-child(4) {
+  animation-delay: 200ms;
+}
+
+.judy-wave span:nth-child(5) {
+  animation-delay: 260ms;
+}
+
+.judy-sparkles {
+  inset: -4px;
+}
+
+.judy-sparkles span {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background-color: rgba(244, 124, 32, 0.84);
+  animation: sparkle-float 1.3s ease-in-out infinite;
+}
+
+.judy-sparkles span:nth-child(1) {
+  top: 20%;
+  left: 6%;
+}
+
+.judy-sparkles span:nth-child(2) {
+  top: 7%;
+  right: 18%;
+  background-color: rgba(87, 164, 249, 0.84);
+  animation-delay: 180ms;
+}
+
+.judy-sparkles span:nth-child(3) {
+  bottom: 18%;
+  right: 2%;
+  animation-delay: 320ms;
+}
+
+.judy-portrait.is-listening .judy-mouth {
+  display: none;
+}
+
+.judy-portrait.is-listening .judy-mouth-listen {
+  display: block;
+}
+
+.judy-portrait.is-listening .judy-wave,
+.judy-portrait.is-responding .judy-sparkles,
+.judy-portrait.is-thinking .judy-thinking-dots {
+  opacity: 1;
+}
+
+.judy-portrait.is-thinking .judy-eyes {
+  opacity: 0.65;
+}
+
+.judy-portrait.is-responding .judy-eyes {
+  animation: blink 2.2s ease-in-out infinite;
+}
+
+.judy-portrait.is-listening .judy-ring-blue {
+  box-shadow: 0 0 0 8px rgba(87, 164, 249, 0.1);
+}
+
+.judy-portrait.reduce-motion,
+.judy-portrait.reduce-motion .judy-face,
+.judy-portrait.reduce-motion .judy-aura,
+.judy-portrait.reduce-motion .judy-ring-orange,
+.judy-portrait.reduce-motion .judy-ring-blue,
+.judy-portrait.reduce-motion .judy-thinking-dots span,
+.judy-portrait.reduce-motion .judy-wave span,
+.judy-portrait.reduce-motion .judy-sparkles span,
+.judy-portrait.reduce-motion .judy-eyes {
+  animation: none !important;
+}
+
+.judy-portrait.reduce-motion .judy-thinking-dots,
+.judy-portrait.reduce-motion .judy-wave,
+.judy-portrait.reduce-motion .judy-sparkles {
+  transition: none;
+}
+
+@keyframes portrait-float {
+  0%,
+  100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes face-breathe {
+  0%,
+  100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes aura-breathe {
+  0%,
+  100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+
+@keyframes orbit-orange {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes orbit-blue {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes voice-wave {
+  0%,
+  100% { height: 7px; }
+  45% { height: 15px; }
+}
+
+@keyframes judy-portrait-thinking-dot {
+  0%,
+  100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(-3px); opacity: 1; }
+}
+
+@keyframes sparkle-float {
+  0%,
+  100% { transform: scale(0.85); opacity: 0.45; }
+  50% { transform: scale(1.3); opacity: 1; }
+}
+
+@keyframes blink {
+  0%,
+  44%,
+  50%,
+  100% { transform: scaleY(1); }
+  47% { transform: scaleY(0.18); }
+}

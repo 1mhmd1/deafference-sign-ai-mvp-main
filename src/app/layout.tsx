@@ -6,6 +6,7 @@ import { AuthProvider, type AuthUser } from '@/components/auth/auth-provider'
 import { EmergencyQuickActions } from '@/components/deafference/emergency-quick-actions'
 import { SettingsProvider } from '@/components/deafference/settings-provider'
 import { FloatingJudy } from '@/components/judy/floating-judy'
+import { JudyChatExperience } from '@/components/judy-chat/JudyChatExperience'
 import { NavigationTracker } from '@/components/shared/back-button'
 import { getCurrentSession } from '@/lib/auth/current-user'
 import { parseSettingsCookie, SETTINGS_COOKIE_NAME } from '@/lib/settings'
@@ -63,11 +64,21 @@ export default async function RootLayout({
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
+      <head>
+        {/* Fraunces + Inter for the Judy chat (its CSS names these families directly). */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className="min-h-dvh bg-background font-sans antialiased text-foreground">
         <AuthProvider initialUser={initialUser}>
           <SettingsProvider initialSettings={initialSettings}>
             {children}
             <FloatingJudy />
+            <JudyChatExperience />
             <NavigationTracker />
             <EmergencyQuickActions />
           </SettingsProvider>

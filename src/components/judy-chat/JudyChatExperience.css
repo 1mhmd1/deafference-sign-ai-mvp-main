@@ -1,0 +1,45 @@
+.judy-chat-root {
+  position: relative;
+  z-index: 64;
+  /* The original inherited Inter from its body (Tailwind font-body); this app's body uses Geist. */
+  font-family: Inter, sans-serif;
+}
+
+.judy-backdrop {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 95% 92%, rgba(244, 124, 32, 0.16), transparent 45%),
+    radial-gradient(circle at 82% 84%, rgba(87, 164, 249, 0.18), transparent 40%),
+    rgba(252, 251, 249, 0.18);
+  backdrop-filter: blur(2px);
+  border: 0;
+  z-index: 62;
+}
+
+.judy-backdrop-enter,
+.judy-backdrop-exit-active {
+  opacity: 0;
+}
+
+.judy-backdrop-enter-active {
+  opacity: 1;
+}
+
+.judy-backdrop-enter-active,
+.judy-backdrop-exit-active {
+  transition: opacity 240ms ease;
+}
+
+@media (max-width: 640px) {
+  .judy-backdrop {
+    background: rgba(252, 251, 249, 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .judy-backdrop-enter-active,
+  .judy-backdrop-exit-active {
+    transition: none;
+  }
+}

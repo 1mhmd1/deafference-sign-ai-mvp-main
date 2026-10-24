@@ -1,0 +1,103 @@
+/* Sits on the same line as the Emergency circle (bottom-6 end-6, 4rem wide), with a 0.75rem gap. */
+.judy-launcher-wrap {
+  position: fixed;
+  inset-inline-end: 6.25rem;
+  bottom: 1.5rem;
+  z-index: 65;
+}
+
+.judy-launcher {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  padding: 0.25rem;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(252, 251, 249, 0.88));
+  color: #332a22;
+  box-shadow: 0 16px 42px -22px rgba(51, 42, 34, 0.35), 0 0 0 1px rgba(244, 124, 32, 0.16) inset;
+  transition: transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 180ms ease;
+}
+
+.judy-launcher::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: linear-gradient(140deg, rgba(244, 124, 32, 0.35), rgba(87, 164, 249, 0.3));
+  filter: blur(12px);
+  z-index: -2;
+  opacity: 0.65;
+}
+
+.judy-launcher:hover,
+.judy-launcher:focus-visible {
+  transform: translateY(-2px) scale(1.015);
+  box-shadow: 0 20px 48px -22px rgba(51, 42, 34, 0.42), 0 0 0 1px rgba(244, 124, 32, 0.22) inset;
+}
+
+/* Icon-only circle: 54px portrait + 0.25rem padding + 1px border = 64px, matching the Emergency circle. */
+.judy-launcher .judy-portrait-sm {
+  width: 54px;
+  height: 54px;
+}
+
+.judy-launcher-particles i {
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.judy-launcher-particles i:nth-child(1) {
+  width: 6px;
+  height: 6px;
+  top: -5px;
+  inset-inline-end: 14px;
+  background-color: rgba(244, 124, 32, 0.8);
+  animation: launcher-pulse 2.4s ease-in-out infinite;
+}
+
+.judy-launcher-particles i:nth-child(2) {
+  width: 5px;
+  height: 5px;
+  bottom: -4px;
+  inset-inline-start: 18px;
+  background-color: rgba(87, 164, 249, 0.8);
+  animation: launcher-pulse 2.8s ease-in-out infinite 0.2s;
+}
+
+.judy-launcher-particles i:nth-child(3) {
+  width: 3px;
+  height: 3px;
+  top: -8px;
+  inset-inline-start: 38px;
+  background-color: rgba(244, 124, 32, 0.7);
+  animation: launcher-pulse 2.1s ease-in-out infinite 0.5s;
+}
+
+.is-open .judy-launcher {
+  transform: scale(0.98);
+}
+
+@keyframes launcher-pulse {
+  0%,
+  100% { transform: scale(0.8); opacity: 0.4; }
+  50% { transform: scale(1.35); opacity: 1; }
+}
+
+/* Below Tailwind's sm breakpoint the Emergency circle moves to bottom-5 end-5. */
+@media (max-width: 639.98px) {
+  .judy-launcher-wrap {
+    inset-inline-end: 6rem;
+    bottom: 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .judy-launcher,
+  .judy-launcher-particles i {
+    transition: none;
+    animation: none;
+  }
+}

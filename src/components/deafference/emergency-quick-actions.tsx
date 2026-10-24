@@ -163,13 +163,14 @@ export function EmergencyQuickActions() {
         aria-controls="emergency-select-dialog"
         tabIndex={isSelectOpen || isFullscreen ? -1 : 0}
         className={cn(
-          "fixed bottom-5 end-5 z-50 flex min-h-12 items-center gap-2 rounded-full bg-gradient-to-r from-[#EE6C2B] to-[#F59E0B] px-4 py-3 sm:bottom-6 sm:end-6 sm:px-5 sm:py-4 font-extrabold text-white shadow-[0_10px_40px_-10px_rgba(238,108,43,0.7)] transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F59E0B]/60 active:scale-95",
+          // Icon-only circle; Judy's launcher sits beside it on the same line (JudyChatLauncher.css).
+          "fixed bottom-5 end-5 z-50 grid size-16 place-items-center rounded-full border border-white/80 bg-gradient-to-br from-[#EE6C2B] to-[#F59E0B] sm:bottom-6 sm:end-6 text-white shadow-[0_10px_40px_-10px_rgba(238,108,43,0.7)] transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F59E0B]/60 active:scale-95",
           "emergency-fab-pulse",
           (isSelectOpen || isFullscreen) && "pointer-events-none opacity-0",
         )}
       >
-        <AlertTriangle className="size-5 shrink-0" aria-hidden="true" />
-        <span className="text-sm tracking-wide uppercase sm:text-base">{copy.trigger}</span>
+        <AlertTriangle className="size-7 shrink-0" strokeWidth={2.4} aria-hidden="true" />
+        <span className="sr-only">{copy.trigger}</span>
       </button>
 
       {/* Select panel backdrop */}
