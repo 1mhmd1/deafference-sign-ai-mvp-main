@@ -4,16 +4,12 @@ import { Navbar } from "./navbar"
 import { Hero } from "./hero"
 import { AboutUs } from "./about-us"
 import { WhyChooseUs } from "./why-choose-us"
-import { HowItWorksVisual } from "./how-it-works-visual"
 import { Scenarios } from "./scenarios"
 import { DemoCenter } from "./demo-center"
-import { Features } from "./features"
-import { Performance } from "./performance"
 import { Pricing } from "./pricing"
-import { PrivacyPolicy } from "./privacy-policy"
 import { FAQ } from "./faq"
 import { Contact } from "./contact"
-import { CTA } from "./cta"
+import { LiveAppCta } from "./live-app-cta"
 import { Footer } from "./footer"
 import { useI18n } from "@/i18n/use-i18n"
 import { cn } from "@/lib/utils"
@@ -44,17 +40,12 @@ function LandingContent() {
       </a>
       <div aria-hidden="true" className="pop-particles pointer-events-none fixed inset-0 z-0 opacity-0" />
       <Navbar />
-      {/* Story order: the problem → how it works → Judy's everyday scenarios → try it →
-          what it does → trust (performance, team) → pricing → privacy → questions → contact. */}
+      {/* Story order: Judy's everyday scenarios → tutorials → the team → pricing → questions →
+          contact → why choose us → open the live app. How it works, features, performance and
+          privacy live on their own page (/how-it-works). */}
       <main id="main-content" tabIndex={-1} className="relative z-10 outline-none">
         <SectionTransition first>
           <Hero />
-        </SectionTransition>
-        <SectionTransition>
-          <WhyChooseUs />
-        </SectionTransition>
-        <SectionTransition>
-          <HowItWorksVisual />
         </SectionTransition>
         <SectionTransition>
           <Scenarios />
@@ -63,19 +54,10 @@ function LandingContent() {
           <DemoCenter />
         </SectionTransition>
         <SectionTransition>
-          <Features />
-        </SectionTransition>
-        <SectionTransition>
-          <Performance />
-        </SectionTransition>
-        <SectionTransition>
           <AboutUs />
         </SectionTransition>
         <SectionTransition>
           <Pricing />
-        </SectionTransition>
-        <SectionTransition>
-          <PrivacyPolicy />
         </SectionTransition>
         <SectionTransition>
           <FAQ />
@@ -84,7 +66,10 @@ function LandingContent() {
           <Contact />
         </SectionTransition>
         <SectionTransition>
-          <CTA />
+          <WhyChooseUs />
+        </SectionTransition>
+        <SectionTransition>
+          <LiveAppCta />
         </SectionTransition>
       </main>
       <Footer />

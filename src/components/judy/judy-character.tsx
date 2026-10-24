@@ -31,6 +31,7 @@ export type JudyPose =
   | "sleep"
   | "coy"
   | "love"
+  | "communicate"
 
 // Each pose turns on the same state classes the Vue file combined for it, and
 // the mood (face) the original paired it with. `mood` overrides the face.
@@ -57,6 +58,8 @@ const POSES: Record<JudyPose, { classes: string[]; mood: JudyMood }> = {
   coy: { classes: ["judy-coy"], mood: "happy" },
   // Signs I LOVE YOU (thumb, index and pinky up, palm out) while zoomed in so the handshape reads.
   love: { classes: ["judy-signing-love"], mood: "happy" },
+  // Signs COMMUNICATION / FOR / EVERYONE (ASL) over the 10s move, zoomed in, with every finger drawn.
+  communicate: { classes: ["judy-signing-communicate"], mood: "happy" },
 }
 
 const DRAG_THRESHOLD = 4
@@ -112,6 +115,7 @@ export const JUDY_AUTOPLAY_LINES = {
   yum: "Yum!",
   phone: "Hello! How are you?",
   loveYou: "I love you! 🤟",
+  communicate: ["Communication", " is ", "for", " ", "everyone."] as [string, string, string, string, string],
   tickle: "Hehe, that tickles!",
   tapHint1: "Psst… tap me!",
   tapHint2: "I'm ticklish. Try tapping me!",
@@ -130,6 +134,71 @@ const TAP_LAUGH_MS = 2_500
 const TAP_HINT_CHANCE = 0.7
 
 const toCss = (value: number | string) => (typeof value === "number" ? `${value}px` : value)
+
+/** One finger: a darker outline stroke under a skin stroke, so overlapping fingers stay separate. */
+function Digit({ d }: { d: string }) {
+  return (
+    <>
+      <path d={d} className="judy-sign-digit-edge" />
+      <path d={d} className="judy-sign-digit" />
+    </>
+  )
+}
+
+// Finger bases along the top of the palm, thumb side first (index → pinky), in a local box
+// whose origin is the wrist and whose fingers point up (-y).
+const KNUCKLES = [-5.4, -1.8, 1.8, 5.4]
+
+/**
+ * A palm-out hand with all five fingers drawn: "index" (index up, the rest folded, thumb
+ * across the palm), "a" (a fist with the thumb up along its side).
+ */
+function SignHand({ shape }: { shape: "index" | "a" }) {
+  return (
+    <>
+      {shape === "a" && <Digit d="M-7.5 -9 L-8.6 -21" />}
+      {shape === "index" && <Digit d="M-5.4 -14 L-6.4 -28" />}
+      <rect x="-8.5" y="-17" width="17" height="16" rx="5.5" className="judy-hand" />
+      {/* Folded fingers: knuckles bent over the top of the palm. */}
+      {KNUCKLES.map((kx, i) =>
+        shape === "index" && i === 0 ? null : (
+          <rect key={kx} x={kx - 1.9} y="-18.5" width="3.8" height="8" rx="1.9" className="judy-sign-folded" />
+        ),
+      )}
+      {/* Thumb folded across the curled fingers. */}
+      {shape === "index" && <Digit d="M-7 -6 L1.5 -10" />}
+    </>
+  )
+}
+
+/** A loose, resting hand (like her idle hands), fingers along -y. */
+function RelaxedHand() {
+  return (
+    <>
+      <circle cx="0" cy="-5" r="9" className="judy-hand" />
+      <g className="judy-fingers">
+        <path d="M-8 -8 L-12 -16" />
+        <path d="M-4 -13 L-7 -22" />
+        <path d="M0 -14 L0 -23" />
+        <path d="M4 -13 L7 -21" />
+      </g>
+    </>
+  )
+}
+
+/** A C handshape seen from the side: four curved fingers stacked over a curved thumb, opening toward +x. */
+function SignHandC() {
+  return (
+    <>
+      <ellipse cx="-2" cy="-8" rx="5.5" ry="8.5" className="judy-hand" />
+      {[3, 2, 1, 0].map((i) => {
+        const y = -16.5 + i * 2.6
+        return <Digit key={i} d={`M-2 ${y} Q9 ${y - 6} 11.5 ${y + 4.5}`} />
+      })}
+      <Digit d="M-2 -1 Q6.5 5 11 0.5" />
+    </>
+  )
+}
 
 export function JudyCharacter({
   pose: posePropValue = "idle",
@@ -156,6 +225,11 @@ export function JudyCharacter({
   useEffect(() => {
     linesRef.current = autoPlayLines
   }, [autoPlayLines])
+  // Her rendered width, so auto-play moves can centre her or start her just off-screen at any size.
+  const widthRef = useRef(size ?? 132)
+  useEffect(() => {
+    widthRef.current = size ?? 132
+  }, [size])
   const [tapLaugh, setTapLaugh] = useState(false)
   const tapLaughRef = useRef(false)
   useEffect(() => {
@@ -169,7 +243,6 @@ export function JudyCharacter({
     if (!autoPlay) return
     const timeouts = new Set<number>()
     const frames = new Set<number>()
-    let travel: number | undefined
     let bubble: number | undefined
 
     const later = (fn: () => void, ms: number) => {
@@ -199,24 +272,9 @@ export function JudyCharacter({
       setAutoAction(action)
       if (line) say(line)
     }
-    const randomSpot = () => {
-      // Don't walk her out from under the visitor's pointer while she's being dragged.
-      if (drag.current.pointerId !== -1) return
-      const maxLeft = Math.max(10, window.innerWidth - 152)
-      const maxBottom = Math.max(10, window.innerHeight - 250)
-      setAutoPos({
-        x: Math.round(10 + Math.random() * (maxLeft - 10)),
-        y: Math.round(10 + Math.random() * (maxBottom - 10)),
-      })
-    }
-    const roam = (run: boolean) => {
-      play({ pose: run ? "run" : "walk" })
-      randomSpot()
-      travel = window.setInterval(randomSpot, run ? 1300 : 2400)
-    }
     const drive = () => {
       play({ pose: "drive", mood: "happy" }, linesRef.current.roadTrip)
-      setAutoPos({ x: -142, y: 10 })
+      setAutoPos({ x: -widthRef.current - 10, y: 10 })
       // Two frames so the off-screen start is committed before she sets off.
       nextFrame(() => nextFrame(() => setAutoPos({ x: window.innerWidth + 12, y: 10 })))
     }
@@ -224,7 +282,15 @@ export function JudyCharacter({
     const signLove = () => {
       play({ pose: "love", mood: "happy" }, linesRef.current.loveYou)
       // Step to the middle of the screen so there is room to zoom in on the sign.
-      setAutoPos({ x: Math.round(window.innerWidth / 2 - 66), y: 10 })
+      setAutoPos({ x: Math.round(window.innerWidth / 2 - widthRef.current / 2), y: 10 })
+    }
+
+    const signCommunicate = () => {
+      setAutoAction({ pose: "communicate", mood: "happy" })
+      // The sentence stays up for the whole move (no 3.4s bubble timer) so each word can light up as it is signed.
+      if (bubble !== undefined) window.clearTimeout(bubble)
+      setAutoMessage(linesRef.current.communicate.join(""))
+      setAutoPos({ x: Math.round(window.innerWidth / 2 - widthRef.current / 2), y: 10 })
     }
 
     const moves: Array<() => void> = [
@@ -239,8 +305,7 @@ export function JudyCharacter({
       () => play({ pose: "eat", mood: "happy" }, linesRef.current.yum),
       () => play({ pose: "phone", mood: "happy" }, linesRef.current.phone),
       signLove,
-      () => roam(false),
-      () => roam(true),
+      signCommunicate,
       () => {
         play({ pose: "sleep" })
         setAutoPos((p) => ({ ...p, y: 10 }))
@@ -249,12 +314,9 @@ export function JudyCharacter({
 
     const finish = (goHome: boolean) =>
       later(() => {
-        if (travel !== undefined) window.clearInterval(travel)
-        travel = undefined
         setAutoAction(null)
         setAutoMessage("")
-        // Driving ends off-screen and signing ends mid-screen, so she comes home;
-        // roaming leaves her where she stopped.
+        // Driving ends off-screen and signing ends mid-screen, so she comes home.
         if (goHome) setAutoPos(null)
       }, MOVE_LASTS_MS)
 
@@ -274,12 +336,16 @@ export function JudyCharacter({
       later(tapHint, earliest + Math.random() * (latest - earliest))
     }
 
+    let first = true
     const idleMoment = () => {
       // Never yank her out of the visitor's hand mid-drag.
       if (drag.current.pointerId === -1) {
-        const move = moves[Math.floor(Math.random() * moves.length)]
+        // The signed sentence is never the first move after a page load; after that it is just one of the random moves.
+        const pool = first ? moves.filter((m) => m !== signCommunicate) : moves
+        first = false
+        const move = pool[Math.floor(Math.random() * pool.length)]
         move()
-        finish(move === drive || move === signLove)
+        finish(move === drive || move === signLove || move === signCommunicate)
       }
       scheduleTapHint()
       later(idleMoment, MOVE_LASTS_MS + REST_BETWEEN_MS)
@@ -290,7 +356,6 @@ export function JudyCharacter({
     return () => {
       timeouts.forEach((id) => window.clearTimeout(id))
       frames.forEach((id) => window.cancelAnimationFrame(id))
-      if (travel !== undefined) window.clearInterval(travel)
     }
   }, [autoPlay, draggable])
 
@@ -405,7 +470,18 @@ export function JudyCharacter({
           .filter(Boolean)
           .join(" ")}
       >
-        {bubbleText}
+        {pose === "communicate"
+          ? // <strong>, not <span>: globals.css forces every span black with !important, which would block the highlight.
+            autoPlayLines.communicate.map((part, i) =>
+              i % 2 === 0 ? (
+                <strong key={i} className={`judy-sign-word judy-sign-word-${i / 2}`}>
+                  {part}
+                </strong>
+              ) : (
+                part
+              ),
+            )
+          : bubbleText}
       </div>
       <div className="judy-sleep-zzz" aria-hidden="true">
         <span>Z</span>
@@ -742,6 +818,46 @@ export function JudyCharacter({
               <rect x="161" y="80" width="7" height="12" rx="3.5" className="judy-love-folded" />
             </g>
             <path d="M193 52c-4-5-12-1-9 5l9 9 9-9c3-6-5-10-9-5z" className="judy-love-heart" />
+          </g>
+
+          {/* "Communication is for everyone." in ASL: a jointed two-arm rig (shoulder → elbow →
+              wrist) driven by CSS keyframes (.judy-signing-communicate), so the arms travel
+              smoothly between signs; the handshape at each wrist changes as she moves. */}
+          <g className="judy-rig" aria-hidden="true">
+            <g className="judy-rig-l-upper">
+              <path d="M82 108 L82 150" className="judy-upperarm" />
+              <g className="judy-rig-l-fore">
+                <path d="M82 150 L82 192" className="judy-forearm judy-rig-l-forearm" />
+                <path d="M76 152 L88 152" className="judy-cuff" />
+                {/* Wrist slides along the forearm as it foreshortens. */}
+                <g className="judy-rig-l-wrist">
+                  <g transform="translate(82 192)">
+                    <g className="judy-rig-l-hand">
+                      <g className="judy-rig-shape judy-rig-l-relaxed"><RelaxedHand /></g>
+                      <g className="judy-rig-shape judy-rig-l-c" transform="scale(1.2)"><SignHandC /></g>
+                      <g className="judy-rig-shape judy-rig-l-a" transform="scale(1.2)"><SignHand shape="a" /></g>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </g>
+            <g className="judy-rig-r-upper">
+              <path d="M138 108 L138 150" className="judy-upperarm" />
+              <g className="judy-rig-r-fore">
+                <path d="M138 150 L138 192" className="judy-forearm judy-rig-r-forearm" />
+                <path d="M132 152 L144 152" className="judy-cuff" />
+                <g className="judy-rig-r-wrist">
+                  <g transform="translate(138 192)">
+                    <g className="judy-rig-r-hand">
+                      <g className="judy-rig-shape judy-rig-r-relaxed" transform="scale(-1 1)"><RelaxedHand /></g>
+                      <g className="judy-rig-shape judy-rig-r-c" transform="scale(-1.2 1.2)"><SignHandC /></g>
+                      <g className="judy-rig-shape judy-rig-r-index" transform="scale(1.2)"><SignHand shape="index" /></g>
+                      <g className="judy-rig-shape judy-rig-r-a" transform="scale(-1.2 1.2)"><SignHand shape="a" /></g>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </g>
           </g>
         </svg>
       </div>

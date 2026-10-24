@@ -101,8 +101,7 @@ export function WhyChooseUs() {
       <Container fluid>
         <SectionTitle
           eyebrow={why.eyebrow}
-          title={why.title}
-          description={why.description}
+          title={why.title}
         />
 
         <motion.div

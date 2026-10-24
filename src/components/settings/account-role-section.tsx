@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card"
 import { APP_ROUTES } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/components/auth/auth-provider"
+import { useProfilePhoto } from "@/components/profile/profile-photo"
 import { LogoutConfirmDialog } from "@/components/auth/logout-confirm-dialog"
 import { useI18n } from "@/i18n/use-i18n"
 
@@ -26,6 +27,7 @@ function initialsFor(name: string, email: string) {
  */
 export function AccountRoleSection() {
   const { user, role } = useAuth()
+  const photo = useProfilePhoto()
   const { t } = useI18n()
   const m = t.settings.account
   const idPrefix = useId()
@@ -73,9 +75,9 @@ export function AccountRoleSection() {
             <div className="flex min-w-0 items-center gap-3.5">
               <span
                 aria-hidden="true"
-                className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-base font-semibold text-primary"
+                className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-base font-semibold text-primary"
               >
-                {initialsFor(user.name, user.email)}
+                {photo ? <img src={photo} alt="" className="size-full object-cover" /> : initialsFor(user.name, user.email)}
               </span>
               <div className="flex min-w-0 flex-col">
                 <span className="truncate text-sm font-semibold text-foreground">{user.name || user.email}</span>

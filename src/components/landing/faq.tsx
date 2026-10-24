@@ -7,14 +7,26 @@ import { Container } from "@/components/shared/container"
 import { SectionTitle } from "@/components/shared/section-title"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
-import { GlassPanel, GlowOrb, focusRingPop, staggerContainer, staggerItem } from "./ui/pop"
+import { GlassPanel, GlowOrb, focusRingPop, popButtonSizes, popSecondaryButton, staggerContainer, staggerItem } from "./ui/pop"
 
-function FaqItem({ title, content }: { title: string; content: React.ReactNode }) {
+/**
+ * `revealDelay` is for questions added by "View more": they mount after the list's one-time
+ * in-view stagger has run, so they fade in on their own (staggered by this delay) instead.
+ */
+function FaqItem({ title, content, revealDelay }: { title: string; content: React.ReactNode; revealDelay?: number }) {
   const [open, setOpen] = useState(false)
   const panelId = useId()
 
   return (
-    <motion.div variants={staggerItem}>
+    <motion.div
+      {...(revealDelay === undefined
+        ? { variants: staggerItem }
+        : {
+            initial: { opacity: 0, y: 14 },
+            animate: { opacity: 1, y: 0 },
+            transition: { duration: 0.35, ease: "easeOut", delay: revealDelay },
+          })}
+    >
       <GlassPanel
         className={cn(
           "overflow-hidden transition-shadow duration-300",
@@ -68,9 +80,16 @@ function FaqItem({ title, content }: { title: string; content: React.ReactNode }
   )
 }
 
+/** How many questions show before "View more". */
+const INITIAL_COUNT = 2
+
 export function FAQ() {
-  const { t } = useI18n()
+  const { t, fmt } = useI18n()
   const copy = t.landing.faq
+  const [showAll, setShowAll] = useState(false)
+  const listId = useId()
+  const hiddenCount = Math.max(0, copy.items.length - INITIAL_COUNT)
+  const items = showAll ? copy.items : copy.items.slice(0, INITIAL_COUNT)
   return (
     <section
       id="faq"
@@ -85,7 +104,6 @@ export function FAQ() {
           headingId="faq-heading"
           eyebrow={copy.eyebrow}
           title={copy.title}
-          description={copy.description}
         />
 
         <motion.div
@@ -93,12 +111,33 @@ export function FAQ() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.2 }}
+          id={listId}
           className="mt-12 space-y-4"
         >
-          {copy.items.map((item) => (
-            <FaqItem key={item.question} title={item.question} content={item.answer} />
+          {items.map((item, i) => (
+            <FaqItem
+              key={item.question}
+              title={item.question}
+              content={item.answer}
+              revealDelay={i < INITIAL_COUNT ? undefined : (i - INITIAL_COUNT) * 0.06}
+            />
           ))}
         </motion.div>
+
+        {hiddenCount > 0 ? (
+          <div className="mt-6 flex justify-center">
+            <button
+              type="button"
+              aria-expanded={showAll}
+              aria-controls={listId}
+              onClick={() => setShowAll((value) => !value)}
+              className={cn(popSecondaryButton, popButtonSizes.md)}
+            >
+              {showAll ? copy.viewLess : fmt(copy.viewMore, { count: hiddenCount })}
+              <ChevronDown className={cn("size-4 transition-transform duration-300", showAll && "rotate-180")} aria-hidden="true" />
+            </button>
+          </div>
+        ) : null}
       </Container>
     </section>
   )

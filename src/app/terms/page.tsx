@@ -39,7 +39,7 @@ export default function TermsPage() {
           <p className="mt-3 text-sm text-muted-foreground">
             This is a placeholder overview — the full legal terms will be published before general availability. See
             also our{" "}
-            <Link href="/#privacy" className="font-medium text-primary underline-offset-4 hover:underline">
+            <Link href="/how-it-works#privacy" className="font-medium text-primary underline-offset-4 hover:underline">
               Privacy Policy
             </Link>
             .

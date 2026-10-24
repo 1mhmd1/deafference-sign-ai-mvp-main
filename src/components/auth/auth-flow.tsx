@@ -41,7 +41,7 @@ export function AuthFlow({
   const safeRedirect = redirectTo ? sanitizeRedirect(redirectTo) : null
 
   return (
-    <AuthShell aside={<JudyWelcome mode={defaultMode ?? "signin"} />} backgroundImage="/back2.jpg">
+    <AuthShell aside={<JudyWelcome mode={defaultMode ?? "signin"} />} backgroundImage="/login.jpg">
       {reason === "auth-required" ? (
         <div
           role="alert"

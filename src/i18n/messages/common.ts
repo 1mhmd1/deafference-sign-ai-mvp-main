@@ -30,6 +30,8 @@ const en = {
     yum: "Yum!",
     phone: "Hello! How are you?",
     loveYou: "I love you! 🤟",
+    // Bubble for the signed sentence; parts 0, 2 and 4 light up with COMMUNICATION, FOR and EVERYONE.
+    communicate: ["Communication", " is ", "for", " ", "everyone."] as [string, string, string, string, string],
     tickle: "Hehe, that tickles!",
     tapHint1: "Psst… tap me!",
     tapHint2: "I'm ticklish. Try tapping me!",
@@ -78,6 +80,7 @@ const ar: CommonMessages = {
     yum: "لذيذ!",
     phone: "مرحبًا! كيف حالك؟",
     loveYou: "أحبك! 🤟",
+    communicate: ["التواصل", " ", "من حقّ", " ", "الجميع."],
     tickle: "هههه، هذا يُدغدغني!",
     tapHint1: "بسّ… انقر عليّ!",
     tapHint2: "أنا أخاف من الدغدغة، جرّب النقر عليّ!",

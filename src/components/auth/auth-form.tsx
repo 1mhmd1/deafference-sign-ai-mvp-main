@@ -581,7 +581,7 @@ function SignUpForm({
                   {t.auth.signup.termsLink}
                 </Link>{' '}
                 {t.auth.signup.termsAnd}{' '}
-                <Link href="/#privacy" className="font-medium text-primary underline-offset-4 hover:underline">
+                <Link href="/how-it-works#privacy" className="font-medium text-primary underline-offset-4 hover:underline">
                   {t.auth.signup.privacyLink}
                 </Link>
               </label>

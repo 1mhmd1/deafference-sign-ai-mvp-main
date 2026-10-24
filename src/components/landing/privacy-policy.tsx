@@ -29,7 +29,6 @@ export function PrivacyPolicy() {
           headingId="privacy-heading"
           eyebrow={copy.eyebrow}
           title={copy.title}
-          description={copy.description}
         />
 
         {/* Trust hub: a pulsing shield with a small "verified" accent, gesturing at a
@@ -96,11 +95,11 @@ export function PrivacyPolicy() {
             <p className="text-sm leading-7 text-black">
               {copy.contact}{" "}
               <a
-                href="mailto:privacy@deafference.ai"
+                href="mailto:fatima@deafference.com"
                 dir="ltr"
                 className={cn("rounded-sm font-semibold text-[#1D4ED8] underline-offset-4 hover:underline", focusRingPop)}
               >
-                privacy@deafference.ai
+                fatima@deafference.com
               </a>
             </p>
           </GlassPanel>

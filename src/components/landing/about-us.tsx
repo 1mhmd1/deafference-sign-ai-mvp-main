@@ -2,8 +2,10 @@
 
 import type { ReactNode } from "react"
 import { motion } from "framer-motion"
+import Link from "next/link"
 import {
   Accessibility,
+  ArrowRight,
   Building2,
   CodeXml,
   Compass,
@@ -20,7 +22,6 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { Container } from "@/components/shared/container"
-import { SectionTitle } from "@/components/shared/section-title"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
 import {
@@ -317,8 +318,9 @@ function Team() {
                 <p className="mt-1 max-w-xl text-sm leading-6 text-black">{about.hiring.body}</p>
               </div>
             </div>
+            {/* The team part lives on /about, and the contact form on the home page. */}
             <a
-              href="#contact"
+              href="/#contact"
               onClick={() => requestContactTopic("general")}
               className={cn(popSecondaryButton, popButtonSizes.sm, "w-fit shrink-0")}
             >
@@ -381,6 +383,7 @@ function Roadmap() {
   )
 }
 
+/** Home page: "Our story" only, with a link to the full About us page. */
 export function AboutUs() {
   const { t } = useI18n()
   const about = t.landing.about
@@ -389,14 +392,47 @@ export function AboutUs() {
     <section id="about" aria-labelledby="about-heading" className="relative overflow-hidden py-24 sm:py-28">
       <div className="pop-grid pointer-events-none absolute inset-0 -z-10 opacity-[0.05]" aria-hidden="true" />
       <GlowOrb className="-top-32 -right-24 size-[26rem] pop-float" color="rgba(59,130,246,0.16)" />
+      <GlowOrb className="bottom-0 -left-32 size-96 pop-float-delay" color="rgba(255,138,61,0.12)" />
+
+      <Container fluid>
+        {/* No visible title: the section opens straight on "Our story". */}
+        <h2 id="about-heading" className="sr-only">
+          {about.eyebrow}
+        </h2>
+
+        <div>
+          <Story />
+          <Reveal className="mt-10">
+            <Link href="/about" className={cn(popSecondaryButton, popButtonSizes.md, "w-fit")}>
+              {about.moreLink}
+              <ArrowRight className="size-4 rtl:-scale-x-100" aria-hidden="true" />
+            </Link>
+          </Reveal>
+        </div>
+      </Container>
+    </section>
+  )
+}
+
+/** /about page: mission and vision, values, team and future goals (the story stays on the home page). */
+export function AboutUsDetails() {
+  const { t } = useI18n()
+  const about = t.landing.about
+
+  return (
+    <section id="about-us" aria-labelledby="about-us-heading" className="relative overflow-hidden py-24 sm:py-28">
+      <div className="pop-grid pointer-events-none absolute inset-0 -z-10 opacity-[0.05]" aria-hidden="true" />
+      <GlowOrb className="-top-32 -right-24 size-[26rem] pop-float" color="rgba(59,130,246,0.16)" />
       <GlowOrb className="top-1/3 -left-32 size-96 pop-float-delay" color="rgba(255,138,61,0.12)" />
       <GlowOrb className="bottom-0 right-1/4 size-80 pop-float" color="rgba(167,180,255,0.16)" />
 
       <Container fluid>
-        <SectionTitle headingId="about-heading" eyebrow={about.eyebrow} title={about.title} description={about.description} />
+        {/* No visible title on this page: it opens straight on mission and vision. */}
+        <h1 id="about-us-heading" className="sr-only">
+          {about.eyebrow}
+        </h1>
 
-        <div className="mt-14 space-y-20 lg:mt-20 lg:space-y-28">
-          <Story />
+        <div className="space-y-20 lg:space-y-28">
           <MissionVision />
           <Values />
           <Team />

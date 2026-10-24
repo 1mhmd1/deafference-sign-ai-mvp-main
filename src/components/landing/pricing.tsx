@@ -302,7 +302,8 @@ function PersonalDetails({ onBack }: { onBack: () => void }) {
 function IndustriesDetails({ onBack }: { onBack: () => void }) {
   const { t } = useI18n()
   const paths = t.landing.pricing.paths
-  const [track, setTrack] = useState<Track | null>(null)
+  // Opens on Subscription, so the plans show straight away (one track is always shown).
+  const [track, setTrack] = useState<Track | null>("subscription")
   const regionId = useId()
   const enterprise = t.landing.pricing.plans[ENTERPRISE_PLAN]
 
@@ -325,7 +326,7 @@ function IndustriesDetails({ onBack }: { onBack: () => void }) {
               type="button"
               aria-pressed={selected}
               aria-controls={regionId}
-              onClick={() => setTrack(selected ? null : id)}
+              onClick={() => setTrack(id)}
               className={cn(
                 "group relative flex items-start gap-4 overflow-hidden rounded-2xl border p-5 text-start transition-[border-color,background-color,box-shadow] duration-300",
                 selected
@@ -486,7 +487,6 @@ export function Pricing() {
           headingId="pricing-heading"
           eyebrow={copy.eyebrow}
           title={copy.title}
-          description={copy.description}
           align="center"
         />
 

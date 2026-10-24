@@ -38,8 +38,8 @@ html:not(.dark) .landing-pop:not(.app-pop) li {
   }
 }
 
-/* Paper-texture page background (public/back.avif). It sits on a fixed layer
-   behind every section so the content scrolls over a still sheet of paper;
+/* Page background (public/back 1.jpg, a soft white geometric pattern). It sits on a fixed
+   layer behind every section so the content scrolls over a still backdrop;
    `isolation` keeps the -1 layer above the wrapper's own background colour. */
 .landing-pop {
   isolation: isolate;
@@ -50,7 +50,7 @@ html:not(.dark) .landing-pop:not(.app-pop) li {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: url("/back.avif") center / cover no-repeat;
+  background: url("/back%201.jpg") center / cover no-repeat;
 }
 
 /* Sections (and section backdrops) that paint their own colour wash: make the
@@ -58,6 +58,48 @@ html:not(.dark) .landing-pop:not(.app-pop) li {
    behind them too. Doubled class beats globals.css regardless of load order. */
 .landing-pop .pop-atmosphere.pop-atmosphere {
   background-color: rgba(246, 250, 255, 0.35);
+}
+
+/* Section sheets (ui/section-transition.tsx): each section is an opaque sheet that slides
+   over the one before it, so it carries the page background itself, plus a soft shadow on
+   its top edge that reads as the sheet's thickness. */
+.landing-sheet {
+  background-color: var(--background);
+  background-image: url("/back%201.jpg");
+  background-size: 100% auto;
+  background-repeat: repeat-y;
+  box-shadow: 0 -18px 50px -24px rgba(15, 23, 42, 0.35), 0 -1px 0 rgba(255, 255, 255, 0.9);
+}
+.dark .landing-sheet {
+  background-image: linear-gradient(rgba(8, 13, 26, 0.86), rgba(8, 13, 26, 0.86)), url("/back%201.jpg");
+  box-shadow: 0 -18px 50px -24px rgba(0, 0, 0, 0.7), 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Clickable road markers on the scenarios map (scenarios.tsx). The red rings are part of
+   the artwork; these buttons add a soft pulse so they read as clickable, a glow on hover,
+   and a steady highlight on the one Judy is talking about. */
+.scenario-ring {
+  background: transparent;
+  box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.45);
+  animation: scenario-ring-pulse 2.4s ease-out infinite;
+  transition: background-color 200ms, box-shadow 200ms, scale 200ms;
+}
+.scenario-ring:nth-of-type(3n + 1) { animation-delay: 0.8s; }
+.scenario-ring:nth-of-type(3n + 2) { animation-delay: 1.6s; }
+.scenario-ring:hover,
+.scenario-ring-active {
+  animation: none;
+  background-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.55), 0 0 18px 4px rgba(45, 212, 191, 0.55);
+  /* `scale`, not `transform`: Tailwind's -translate-* centring uses the separate `translate` property. */
+  scale: 1.15;
+}
+@keyframes scenario-ring-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.45); }
+  70%, 100% { box-shadow: 0 0 0 10px rgba(225, 29, 72, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scenario-ring { animation: none; }
 }
 
 /* Navbar logo (navbar.tsx): warm glow behind the ear mark, a glint across the

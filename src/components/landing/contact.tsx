@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useId, useState, type FormEvent, type ReactNode } from "react"
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react"
 import { motion } from "framer-motion"
-import { Check, Copy, HeadphonesIcon, Mail, Send, Users, type LucideIcon } from "lucide-react"
+import { Check, Copy, HeadphonesIcon, Mail, RefreshCw, Send, Users, Video, X, type LucideIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Container } from "@/components/shared/container"
@@ -27,16 +27,19 @@ import { CONTACT_TOPICS, TOPIC_EMAIL, onContactTopic, type ContactTopic } from "
 const CONTACT_METHODS = ["email", "video", "chat"] as const
 type ContactMethod = (typeof CONTACT_METHODS)[number]
 const MESSAGE_MIN_LENGTH = 10
+/** Most email apps refuse attachments over ~25 MB. */
+const VIDEO_MAX_BYTES = 25 * 1024 * 1024
+const toMb = (bytes: number) => (bytes / (1024 * 1024)).toFixed(1)
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 /** Addresses/icons zipped by index with `t.landing.contact.channels`. */
 const CHANNELS: { icon: LucideIcon; email: string }[] = [
-  { icon: Mail, email: "hello@deafference.ai" },
-  { icon: Users, email: "partners@deafference.ai" },
-  { icon: HeadphonesIcon, email: "support@deafference.ai" },
+  { icon: Mail, email: "fatima@deafference.com" },
+  { icon: Users, email: "fatima@deafference.com" },
+  { icon: HeadphonesIcon, email: "fatima@deafference.com" },
 ]
 
-type Field = "name" | "email" | "message"
+type Field = "name" | "email" | "message" | "video"
 type Errors = Partial<Record<Field, string>>
 
 /** Floating-label field: label shrinks/lifts and the border glows soft blue on focus or when filled. */
@@ -111,6 +114,13 @@ export function Contact() {
   const [errors, setErrors] = useState<Errors>({})
   const [submitted, setSubmitted] = useState(false)
   const [copied, setCopied] = useState(false)
+  // "Attach a sign-language video": the chosen file and a preview URL for it.
+  const [video, setVideo] = useState<File | null>(null)
+  const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  // What the status box says after sending: share sheet used, or attach-it-yourself reminder.
+  const [sendNote, setSendNote] = useState<"shared" | "attach" | null>(null)
+  const videoInputRef = useRef<HTMLInputElement>(null)
+  const videoInputId = useId()
   const nameId = useId()
   const emailId = useId()
   const messageId = useId()
@@ -121,6 +131,33 @@ export function Contact() {
   // "Contact sales", "Plan an integration", etc. pre-select the matching topic.
   useEffect(() => onContactTopic(setTopic), [])
 
+  useEffect(() => {
+    if (!video) {
+      setVideoUrl(null)
+      return
+    }
+    const url = URL.createObjectURL(video)
+    setVideoUrl(url)
+    return () => URL.revokeObjectURL(url)
+  }, [video])
+
+  function videoError(file: File | null) {
+    if (!file) return copy.errors.videoRequired
+    if (file.size > VIDEO_MAX_BYTES) return fmt(copy.errors.videoTooBig, { size: toMb(file.size) })
+    return undefined
+  }
+
+  function pickVideo(file: File) {
+    setVideo(file)
+    // A too-big file is flagged straight away; a missing one only once the visitor has tried to send.
+    setErrors((prev) => ({ ...prev, video: videoError(file) }))
+  }
+
+  function chooseMethod(value: ContactMethod) {
+    setMethod(value)
+    if (value !== "video") setErrors((prev) => ({ ...prev, video: undefined }))
+  }
+
   function validate(): Errors {
     const next: Errors = {}
     if (!name.trim()) next.name = copy.errors.nameRequired
@@ -128,6 +165,7 @@ export function Contact() {
     else if (!EMAIL_PATTERN.test(email.trim())) next.email = copy.errors.emailInvalid
     if (!message.trim()) next.message = copy.errors.messageRequired
     else if (message.trim().length < MESSAGE_MIN_LENGTH) next.message = copy.errors.messageShort
+    if (method === "video") next.video = videoError(video)
     return next
   }
 
@@ -138,27 +176,44 @@ export function Contact() {
     setErrors((prev) => ({ ...prev, [field]: next[field] }))
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const next = validate()
     setErrors(next)
-    const firstInvalid = (["name", "email", "message"] as const).find((field) => next[field])
+    const firstInvalid = (["name", "email", "message", "video"] as const).find((field) => next[field])
     if (firstInvalid) {
       setSubmitted(false)
-      const ids: Record<Field, string> = { name: nameId, email: emailId, message: messageId }
+      const ids: Record<Field, string> = { name: nameId, email: emailId, message: messageId, video: videoInputId }
       document.getElementById(ids[firstInvalid])?.focus()
       return
     }
     // There's no contact API: hand the message to the visitor's email app.
-    const subject = encodeURIComponent(fmt(copy.mailSubject, { name: name.trim() }))
+    const subjectText = fmt(copy.mailSubject, { name: name.trim() })
+    const attached = method === "video" ? video : null
     const details = [
       `${copy.mailTopic}: ${copy.topics[topic]}`,
       organization.trim() ? `${copy.mailOrganization}: ${organization.trim()}` : null,
       `${copy.mailMethod}: ${copy.methods[method]}`,
+      attached ? `${copy.mailVideo}: ${attached.name}` : null,
     ].filter(Boolean)
-    const body = encodeURIComponent(`${message.trim()}\n\n${details.join("\n")}\n\n— ${name.trim()} (${email.trim()})`)
+    const bodyText = `${message.trim()}\n\n${details.join("\n")}\n\n— ${name.trim()} (${email.trim()})`
+
+    // A mailto: link can't carry files. Where the device can share files (most phones), open the
+    // share sheet with the video attached; otherwise open the email app and remind them to attach it.
+    if (attached && typeof navigator.canShare === "function" && navigator.canShare({ files: [attached] })) {
+      try {
+        await navigator.share({ title: subjectText, text: `${contactEmail}\n\n${bodyText}`, files: [attached] })
+        setSendNote("shared")
+        setSubmitted(true)
+        return
+      } catch (error) {
+        // Closing the share sheet means "not now"; any other failure falls back to email below.
+        if (error instanceof DOMException && error.name === "AbortError") return
+      }
+    }
+    setSendNote(attached ? "attach" : null)
     setSubmitted(true)
-    window.location.href = `mailto:${contactEmail}?subject=${subject}&body=${body}`
+    window.location.href = `mailto:${contactEmail}?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`
   }
 
   async function copyAddress() {
@@ -186,7 +241,7 @@ export function Contact() {
       <GlowOrb className="pop-float top-1/3 right-[8%] size-40" color="rgba(255,138,61,0.14)" />
 
       <Container fluid className="relative">
-        <SectionTitle headingId="contact-heading" eyebrow={copy.eyebrow} title={copy.title} description={copy.description} />
+        <SectionTitle headingId="contact-heading" eyebrow={copy.eyebrow} title={copy.title} />
 
         {/* Form + channel cards: stacked on mobile, side by side (in normal flow) on large screens. */}
         <div className="relative mt-16 grid gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] lg:items-start lg:gap-8">
@@ -302,7 +357,7 @@ export function Contact() {
                           name="method"
                           value={value}
                           checked={method === value}
-                          onChange={() => setMethod(value)}
+                          onChange={() => chooseMethod(value)}
                           className="size-3.5 accent-[#2563EB]"
                         />
                         {copy.methods[value]}
@@ -310,6 +365,89 @@ export function Contact() {
                     ))}
                   </div>
                 </fieldset>
+
+                {method === "video" ? (
+                  <div>
+                    {/* Visually hidden file input; the styled labels open it. On phones the picker also offers to record. */}
+                    <input
+                      ref={videoInputRef}
+                      id={videoInputId}
+                      type="file"
+                      accept="video/*"
+                      className="peer sr-only"
+                      aria-invalid={errors.video ? true : undefined}
+                      aria-describedby={errors.video ? `${videoInputId}-hint ${videoInputId}-error` : `${videoInputId}-hint`}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] ?? null
+                        // Reset so choosing the same file again still fires a change.
+                        e.target.value = ""
+                        if (file) pickVideo(file)
+                      }}
+                    />
+                    {video && videoUrl ? (
+                      <div className="flex flex-col gap-4 rounded-2xl border border-[color:var(--primary)]/20 bg-[color:var(--primary)]/6 p-4 sm:flex-row sm:items-center">
+                        <video
+                          src={videoUrl}
+                          controls
+                          playsInline
+                          preload="metadata"
+                          aria-label={fmt(copy.video.previewLabel, { file: video.name })}
+                          className="aspect-video w-full rounded-xl bg-black object-contain sm:w-56"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-foreground" dir="ltr">
+                            {video.name}
+                          </p>
+                          <p className="mt-0.5 text-xs text-black">{toMb(video.size)} MB</p>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <label
+                              htmlFor={videoInputId}
+                              className={cn(popSecondaryButton, popButtonSizes.sm, "cursor-pointer peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--primary)]")}
+                            >
+                              <RefreshCw className="size-4" aria-hidden="true" />
+                              {copy.video.change}
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setVideo(null)
+                                setErrors((prev) => ({ ...prev, video: undefined }))
+                                videoInputRef.current?.focus()
+                              }}
+                              className={cn(popSecondaryButton, popButtonSizes.sm)}
+                            >
+                              <X className="size-4" aria-hidden="true" />
+                              {copy.video.remove}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <label
+                        htmlFor={videoInputId}
+                        className={cn(
+                          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--primary)] peer-focus-visible:ring-offset-2",
+                          errors.video
+                            ? "border-[#B91C1C]/60 bg-[#B91C1C]/5"
+                            : "border-[color:var(--primary)]/30 bg-background/60 hover:border-[color:var(--primary)]/60 hover:bg-[color:var(--primary)]/5",
+                        )}
+                      >
+                        <span className="flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] text-white">
+                          <Video className="size-5" aria-hidden="true" />
+                        </span>
+                        <span className="text-sm font-semibold text-[#1D4ED8]">{copy.video.choose}</span>
+                      </label>
+                    )}
+                    <p id={`${videoInputId}-hint`} className="mt-2 text-xs leading-5 text-black">
+                      {copy.video.hint}
+                    </p>
+                    {errors.video ? (
+                      <p id={`${videoInputId}-error`} className="mt-1.5 text-sm font-medium text-[#B91C1C]">
+                        {errors.video}
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
 
                 <FloatingField id={messageId} label={copy.message} value={message} error={errors.message} multiline>
                   {({ onFocus, onBlur, describedBy }) => (
@@ -343,7 +481,10 @@ export function Contact() {
                 <div role="status" aria-live="polite">
                   {submitted ? (
                     <div className="rounded-2xl border border-[color:var(--primary)]/20 bg-[color:var(--primary)]/6 p-4 text-sm leading-6 text-black">
-                      <p className="font-semibold">{copy.statusTitle}</p>
+                      <p className="font-semibold">{sendNote === "shared" ? copy.statusShared : copy.statusTitle}</p>
+                      {sendNote === "attach" && video ? (
+                        <p className="mt-1 font-semibold text-[#C2410C]">{fmt(copy.statusAttach, { file: video.name })}</p>
+                      ) : null}
                       <p className="mt-1">
                         {copy.statusBody}{" "}
                         <a
@@ -377,7 +518,8 @@ export function Contact() {
               const Icon = channel.icon
               const text = copy.channels[i]
               return (
-                <motion.div key={channel.email} variants={staggerItem} className={i === 2 ? "sm:col-span-2 lg:col-span-1" : undefined}>
+                // Keyed by position: the channels can share one address, so the email isn't unique.
+                <motion.div key={i} variants={staggerItem} className={i === 2 ? "sm:col-span-2 lg:col-span-1" : undefined}>
                   <GlassPanel className="p-5" tilt>
                     <div className="flex items-start gap-4">
                       <IconBadge icon={Icon} size="compact" />

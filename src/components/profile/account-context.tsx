@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth/auth-provider"
 import { APP_ROUTES } from "@/lib/constants"
 import { ApiError } from "./api-error"
+import { PROFILE_STORAGE_KEY, notifyProfileChanged } from "./profile-photo"
 import type { PersonalInfoValues } from "./personal-info-form"
 import type { PasswordChangeValues } from "./security-form"
 
@@ -39,7 +40,7 @@ interface StoredProfile {
   passwordHash: string | null
 }
 
-const STORAGE_KEY = "deafference.profile"
+const STORAGE_KEY = PROFILE_STORAGE_KEY
 const EMPTY_PROFILE: StoredProfile = {
   name: "",
   email: "",
@@ -130,6 +131,8 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     const next = { ...readProfile(), ...patch }
     writeProfile(next)
     setState({ kind: "loaded", account: toAccount(next) })
+    // Lets the navbars and headers show the new (or removed) photo right away.
+    notifyProfileChanged()
     return next
   }, [])
 
@@ -167,6 +170,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
         } catch {
           // Nothing stored to remove.
         }
+        notifyProfileChanged()
         setState({ kind: "loaded", account: toAccount(EMPTY_PROFILE) })
         router.push(APP_ROUTES.home)
       },

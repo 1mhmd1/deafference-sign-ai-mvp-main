@@ -1,21 +1,34 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, type MouseEvent } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ArrowRight, Menu, UserCircle2, X } from "lucide-react"
+import { Menu, UserCircle2, X } from "lucide-react"
 import { Container } from "@/components/shared/container"
 import { Wordmark } from "@/components/shared/wordmark"
 import { LanguageToggle } from "@/components/shared/language-toggle"
-import { APP_ROUTES, LANDING_NAV } from "@/lib/constants"
+import { APP_ROUTES } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
 import { AuthNavActions, initialsFor } from "@/components/auth/auth-nav-actions"
 import { useAuth } from "@/components/auth/auth-provider"
+import { useProfilePhoto } from "@/components/profile/profile-photo"
 import { ThemeToggle } from "./theme-toggle"
-import { navLabel, resolveLandingHref } from "./nav-links"
-import { Magnetic, focusRingPop, popArrowIcon, popButtonSizes, popPrimaryButton } from "./ui/pop"
+import { resolveLandingHref, smoothScrollToTop } from "./nav-links"
+import { focusRingPop } from "./ui/pop"
+import type { LandingMessages } from "@/i18n/messages/landing"
+
+// The navbar's own list and order (the footer keeps using LANDING_NAV from lib/constants).
+// Hrefs go through resolveLandingHref: anchors point back to "/" off the home page, and
+// #how-it-works opens /how-it-works.
+const NAV_ITEMS: { href: string; label: keyof LandingMessages["nav"]["links"] }[] = [
+  { href: "#top", label: "homeLink" },
+  { href: "#about", label: "about" },
+  { href: "#how-it-works", label: "howItWorks" },
+  { href: "#scenarios", label: "scenarios" },
+  { href: "#pricing", label: "pricing" },
+]
 
 function NavLink({
   href,
@@ -26,7 +39,7 @@ function NavLink({
 }: {
   href: string
   label: string
-  onClick?: () => void
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void
   onHover?: (hovering: boolean) => void
   isActive?: boolean
 }) {
@@ -61,13 +74,15 @@ export function Navbar() {
   const pathname = usePathname()
   const { t } = useI18n()
   const { user } = useAuth()
+  const photo = useProfilePhoto()
   const nav = t.landing.nav
-  const navItems = LANDING_NAV.map((item) => ({
+  const navItems = NAV_ITEMS.map((item) => ({
     key: item.href,
     href: resolveLandingHref(item.href, pathname),
-    label: navLabel(nav.links, item.href, item.label),
+    label: nav.links[item.label],
   }))
-  const demoHref = resolveLandingHref("#demo", pathname)
+  // "#top" only appears on the home page itself (elsewhere Home and the logo link to "/").
+  const topClick = (href: string) => (href === "#top" ? smoothScrollToTop : undefined)
 
   useEffect(() => {
     function handleScroll() {
@@ -119,6 +134,7 @@ export function Navbar() {
         <Container fluid className="flex h-16 min-w-0 items-center justify-between gap-2 sm:h-[4.25rem] sm:gap-4">
           <a
             href={pathname === "/" ? "#top" : "/"}
+            onClick={pathname === "/" ? smoothScrollToTop : undefined}
             aria-label={nav.home}
             className={cn("nav-logo flex shrink-0 items-center rounded-lg", focusRingPop)}
           >
@@ -146,6 +162,7 @@ export function Navbar() {
                   <NavLink
                     href={item.href}
                     label={item.label}
+                    onClick={topClick(item.href)}
                     isActive={hovered === item.href}
                     onHover={(hovering) =>
                       setHovered((prev) => {
@@ -165,12 +182,6 @@ export function Navbar() {
               <LanguageToggle />
             </div>
 
-            <Magnetic className="hidden 2xl:inline-block">
-              <a href={demoHref} className={cn(popPrimaryButton, popButtonSizes.sm, "whitespace-nowrap")}>
-                {nav.requestDemo}
-                <ArrowRight className={popArrowIcon} aria-hidden="true" />
-              </a>
-            </Magnetic>
 
             <LanguageToggle className="xl:hidden" />
 
@@ -181,11 +192,14 @@ export function Navbar() {
               aria-label={user ? `${user.name || user.email}, ${t.profile.hub.tabs.profile.label}` : t.profile.hub.tabs.profile.label}
               title={t.profile.hub.tabs.profile.label}
               className={cn(
-                "inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-[color:var(--primary)]/20 bg-white/80 text-black transition-colors hover:bg-[color:var(--primary)]/10",
+                "inline-flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[color:var(--primary)]/20 bg-white/80 text-black transition-colors hover:bg-[color:var(--primary)]/10",
                 focusRingPop,
               )}
             >
-              {user ? (
+              {/* The profile picture from /profile when there is one; otherwise initials, or the icon when signed out. */}
+              {photo ? (
+                <img src={photo} alt="" className="size-full object-cover" />
+              ) : user ? (
                 <span aria-hidden="true" className="text-xs font-bold text-[color:var(--primary)]">
                   {initialsFor(user.name, user.email)}
                 </span>
@@ -235,7 +249,10 @@ export function Navbar() {
                       <NavLink
                         href={item.href}
                         label={item.label}
-                        onClick={() => setIsMenuOpen(false)}
+                        onClick={(event) => {
+                          topClick(item.href)?.(event)
+                          setIsMenuOpen(false)
+                        }}
                       />
                     </motion.li>
                   ))}
@@ -245,14 +262,6 @@ export function Navbar() {
               <div className="mt-3 flex flex-col gap-3 border-t border-[color:var(--primary)]/12 pt-3">
                 <ThemeToggle className="self-start" />
                 <AuthNavActions hideAccount className="self-start" signupClassName="border border-[color:var(--primary)]/20 bg-white font-semibold text-[#1D4ED8] shadow-sm [a]:hover:bg-[#EFF6FF]" />
-                <a
-                  href={demoHref}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={cn(popPrimaryButton, popButtonSizes.md, "w-full")}
-                >
-                  {nav.requestDemo}
-                  <ArrowRight className={popArrowIcon} aria-hidden="true" />
-                </a>
               </div>
             </Container>
           </motion.div>

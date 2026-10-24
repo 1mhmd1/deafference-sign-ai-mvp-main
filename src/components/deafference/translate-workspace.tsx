@@ -2,29 +2,28 @@
 
 import { useRef } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { AudioLines, Hand, MessageSquareText } from "lucide-react"
+import { Hand, MessageSquareText } from "lucide-react"
 import { Container } from "@/components/shared/container"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
 import { DeafferenceApp } from "./deafference-app"
 import { AvatarStudio } from "./avatar-studio"
-import { SpeechStudio } from "./speech-studio"
 import { TranslateHeader } from "./translate-header"
 import "@/components/shared/app-pop.css"
 
-export type TranslateMode = "sign" | "avatar" | "speech"
+// The Text → Speech mode was removed; an old `?mode=speech` link falls back to sign.
+export type TranslateMode = "sign" | "avatar"
 
 const MODES: { id: TranslateMode; icon: typeof Hand }[] = [
   { id: "sign", icon: Hand },
   { id: "avatar", icon: MessageSquareText },
-  { id: "speech", icon: AudioLines },
 ]
 
 export function parseTranslateMode(value: string | null): TranslateMode {
-  return value === "avatar" || value === "speech" ? value : "sign"
+  return value === "avatar" ? value : "sign"
 }
 
-/** /translate: one route, three modes, synced to `?mode=sign|avatar|speech`. */
+/** /translate: one route, two modes, synced to `?mode=sign|avatar`. */
 export function TranslateWorkspace() {
   const { t, dir } = useI18n()
   const s = t.studio.modes
@@ -33,7 +32,7 @@ export function TranslateWorkspace() {
   const searchParams = useSearchParams()
   const mode = parseTranslateMode(searchParams.get("mode"))
   const initialText = mode === "avatar" ? searchParams.get("text") ?? "" : ""
-  const tabRefs = useRef<Record<TranslateMode, HTMLButtonElement | null>>({ sign: null, avatar: null, speech: null })
+  const tabRefs = useRef<Record<TranslateMode, HTMLButtonElement | null>>({ sign: null, avatar: null })
 
   function select(next: TranslateMode) {
     if (next === mode) return
@@ -56,9 +55,9 @@ export function TranslateWorkspace() {
     tabRefs.current[MODES[(next + MODES.length) % MODES.length].id]?.focus()
   }
 
-  const label = { sign: s.sign, avatar: s.avatar, speech: s.speech }
-  const hint = { sign: s.signHint, avatar: s.avatarHint, speech: s.speechHint }
-  const title = { sign: t.app.header.title, avatar: s.avatar, speech: s.speech }
+  const label = { sign: s.sign, avatar: s.avatar }
+  const hint = { sign: s.signHint, avatar: s.avatarHint }
+  const title = { sign: t.app.header.title, avatar: s.avatar }
 
   return (
     <div className="landing-pop app-pop relative min-h-dvh text-foreground">
@@ -69,7 +68,7 @@ export function TranslateWorkspace() {
           <div
             role="tablist"
             aria-label={s.label}
-            className="glass-pop grid w-full max-w-3xl grid-cols-1 gap-1.5 rounded-3xl p-1.5 sm:grid-cols-3 sm:rounded-full"
+            className="glass-pop grid w-full max-w-2xl grid-cols-1 gap-1.5 rounded-3xl p-1.5 sm:grid-cols-2 sm:rounded-full"
           >
             {MODES.map(({ id, icon: Icon }, index) => {
               const selected = id === mode
@@ -110,7 +109,9 @@ export function TranslateWorkspace() {
           <DeafferenceApp />
         ) : (
           <main className="py-6 sm:py-8">
-            <Container fluid>{mode === "avatar" ? <AvatarStudio key={initialText} initialText={initialText} /> : <SpeechStudio />}</Container>
+            <Container fluid>
+              <AvatarStudio key={initialText} initialText={initialText} />
+            </Container>
           </main>
         )}
       </div>

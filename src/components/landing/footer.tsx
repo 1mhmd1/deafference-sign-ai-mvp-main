@@ -1,6 +1,6 @@
 "use client"
 
-import type { ReactNode } from "react"
+import type { MouseEvent, ReactNode } from "react"
 import { motion } from "framer-motion"
 import { usePathname } from "next/navigation"
 import { Accessibility, ArrowUp, Mail } from "lucide-react"
@@ -9,13 +9,14 @@ import { FOOTER_EXPLORE_NAV, FOOTER_COMPANY_NAV } from "@/lib/constants"
 import { Logo } from "@/components/deafference/logo"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
-import { navLabel, resolveLandingHref } from "./nav-links"
+import { navLabel, resolveLandingHref, smoothScrollToTop } from "./nav-links"
 import { ConnectorPath, GlowOrb, focusRingPop } from "./ui/pop"
 
-function FooterLink({ href, children }: { href: string; children: ReactNode }) {
+function FooterLink({ href, children, onClick }: { href: string; children: ReactNode; onClick?: (event: MouseEvent<HTMLAnchorElement>) => void }) {
   return (
     <a
       href={href}
+      onClick={onClick}
       className={cn(
         "group relative inline-flex w-fit items-center gap-2 rounded-sm text-sm text-black transition-all duration-200 hover:translate-x-0.5 hover:text-[#1D4ED8] rtl:hover:-translate-x-0.5",
         focusRingPop,
@@ -85,7 +86,7 @@ export function Footer() {
         <div>
           <h2 className="text-xs font-semibold tracking-[0.2em] text-foreground uppercase">{copy.contactHeading}</h2>
           <div className="mt-5 flex flex-col gap-3.5">
-            <FooterLink href="mailto:hello@deafference.ai">
+            <FooterLink href="mailto:fatima@deafference.com">
               <Mail className="size-4" aria-hidden="true" />
               {copy.email}
             </FooterLink>
@@ -108,11 +109,11 @@ export function Footer() {
             <p className="mt-2 text-sm leading-6 text-black">
               {copy.a11yContact}{" "}
               <a
-                href="mailto:hello@deafference.ai"
+                href="mailto:fatima@deafference.com"
                 dir="ltr"
                 className={cn("rounded-sm font-semibold text-[#1D4ED8] underline-offset-4 hover:underline", focusRingPop)}
               >
-                hello@deafference.ai
+                fatima@deafference.com
               </a>
             </p>
           </div>
@@ -121,7 +122,8 @@ export function Footer() {
 
       <Container fluid className="relative mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[color:var(--primary)]/10 pt-6">
         <p className="text-xs text-black">{fmt(copy.rights, { year: new Date().getFullYear() })}</p>
-        <FooterLink href={resolveLandingHref("#top", pathname)}>
+        {/* Back to top of whichever page you're on, gliding up. */}
+        <FooterLink href="#top" onClick={smoothScrollToTop}>
           <ArrowUp className="size-4" aria-hidden="true" />
           {copy.backToTop}
         </FooterLink>

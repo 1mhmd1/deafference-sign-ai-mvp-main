@@ -8,11 +8,11 @@ export type ContactTopic = (typeof CONTACT_TOPICS)[number]
 
 /** Where each topic's email goes; matches the channel cards in contact.tsx. */
 export const TOPIC_EMAIL: Record<ContactTopic, string> = {
-  general: "hello@deafference.ai",
-  demo: "hello@deafference.ai",
-  sales: "partners@deafference.ai",
-  partnership: "partners@deafference.ai",
-  support: "support@deafference.ai",
+  general: "fatima@deafference.com",
+  demo: "fatima@deafference.com",
+  sales: "fatima@deafference.com",
+  partnership: "fatima@deafference.com",
+  support: "fatima@deafference.com",
 }
 
 const EVENT = "landing:contact-topic"

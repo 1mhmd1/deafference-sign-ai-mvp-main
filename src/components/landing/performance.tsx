@@ -52,8 +52,7 @@ export function Performance() {
         <SectionTitle
           headingId="performance-heading"
           eyebrow={copy.eyebrow}
-          title={copy.title}
-          description={copy.description}
+          title={copy.title}
         />
 
         <div className="mt-12 grid gap-4 lg:grid-cols-[1fr_1.1fr]">

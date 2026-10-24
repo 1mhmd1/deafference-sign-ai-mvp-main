@@ -4,6 +4,7 @@ import Link from "next/link"
 import { UserCircle2 } from "lucide-react"
 import { initialsFor } from "@/components/auth/auth-nav-actions"
 import { useAuth } from "@/components/auth/auth-provider"
+import { useProfilePhoto } from "@/components/profile/profile-photo"
 import { BackButton } from "@/components/shared/back-button"
 import { LanguageToggle } from "@/components/shared/language-toggle"
 import { APP_ROUTES } from "@/lib/constants"
@@ -17,6 +18,7 @@ const FOCUS_RING =
 /** Top bar for /translate: logo (home), page title, language and the profile icon. */
 export function TranslateHeader({ title }: { title: string }) {
   const { user } = useAuth()
+  const photo = useProfilePhoto()
   const { t } = useI18n()
   const profileLabel = t.profile.hub.tabs.profile.label
 
@@ -42,11 +44,14 @@ export function TranslateHeader({ title }: { title: string }) {
             aria-label={user ? `${user.name || user.email}, ${profileLabel}` : profileLabel}
             title={profileLabel}
             className={cn(
-              "inline-flex size-11 items-center justify-center rounded-full border border-[color:var(--primary)]/20 bg-white/80 text-brand-navy transition-colors hover:bg-[color:var(--primary)]/10",
+              "inline-flex size-11 items-center justify-center overflow-hidden rounded-full border border-[color:var(--primary)]/20 bg-white/80 text-brand-navy transition-colors hover:bg-[color:var(--primary)]/10",
               FOCUS_RING,
             )}
           >
-            {user ? (
+            {/* The profile picture from /profile when there is one; otherwise initials, or the icon when signed out. */}
+            {photo ? (
+              <img src={photo} alt="" className="size-full object-cover" />
+            ) : user ? (
               <span aria-hidden="true" className="text-xs font-bold text-[#1D4ED8]">
                 {initialsFor(user.name, user.email)}
               </span>

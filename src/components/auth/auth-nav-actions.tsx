@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { APP_ROUTES } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
+import { useProfilePhoto } from "@/components/profile/profile-photo"
 import { useAuth } from "./auth-provider"
 import { LogoutConfirmDialog } from "./logout-confirm-dialog"
 
@@ -31,6 +32,7 @@ export function AuthNavActions({
   signupClassName?: string
 }) {
   const { user, role } = useAuth()
+  const photo = useProfilePhoto()
   const { t } = useI18n()
   const [confirmOpen, setConfirmOpen] = useState(false)
 
@@ -64,9 +66,9 @@ export function AuthNavActions({
         >
           <span
             aria-hidden="true"
-            className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary"
+            className="flex size-8 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-xs font-semibold text-primary"
           >
-            {initialsFor(user.name, user.email)}
+            {photo ? <img src={photo} alt="" className="size-full object-cover" /> : initialsFor(user.name, user.email)}
           </span>
           <span className="hidden font-medium text-foreground sm:inline">{user.name || user.email}</span>
           {role === "admin" ? (

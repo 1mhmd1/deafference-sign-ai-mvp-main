@@ -594,11 +594,11 @@ html[data-text-size='xlarge'] {
   color: #e6edf8;
 }
 
-/* Paper texture stays (landing page only), dimmed under a deep-navy veil. */
+/* Page background stays (landing page only), dimmed under a deep-navy veil. */
 .dark .landing-pop.landing-home::before {
   background:
     linear-gradient(rgba(8, 13, 26, 0.86), rgba(8, 13, 26, 0.86)),
-    url("/back.avif") center / cover no-repeat !important;
+    url("/back%201.jpg") center / cover no-repeat !important;
 }
 
 .dark .landing-pop .pop-atmosphere.pop-atmosphere {

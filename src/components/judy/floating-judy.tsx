@@ -20,7 +20,7 @@ export function FloatingJudy() {
   // Where the visitor last dropped Judy; she returns here after her auto-play moves.
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null)
   const isPhone = useMobile(640)
-  const size = isPhone ? 76 : 132
+  const size = isPhone ? 66 : 112
 
   if (HIDDEN_ON.some((path) => pathname === path || pathname.startsWith(`${path}/`))) return null
 

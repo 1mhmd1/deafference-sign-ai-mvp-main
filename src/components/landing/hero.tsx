@@ -2,13 +2,13 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { ArrowRight, Check, Play } from "lucide-react"
+import { ArrowRight, Check } from "lucide-react"
 import { Container } from "@/components/shared/container"
 import { APP_ROUTES } from "@/lib/constants"
 import { useI18n } from "@/i18n/use-i18n"
 import { cn } from "@/lib/utils"
 import { HeroIllustration } from "./hero-illustration"
-import { GlowOrb, Magnetic, popArrowIcon, popButtonSizes, popPrimaryButton, popSecondaryButton } from "./ui/pop"
+import { GlowOrb, Magnetic, popArrowIcon, popButtonSizes, popPrimaryButton } from "./ui/pop"
 
 const headlineContainer = {
   hidden: {},
@@ -33,7 +33,14 @@ export function Hero() {
           The section is pulled up under the sticky navbar (76px tall, 84px from `sm`: its top
           padding + bar height in navbar.tsx) so the photo also fills the area behind the navbar. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20">
-        <img src="/hero.jpg" alt="" className="h-full w-full object-cover" />
+        {/* hero3.webp is a wide photo: show it whole (contain) over a blurred copy that fills
+            the rest of the tall hero, with its top and bottom edges faded into the blur. */}
+        <img src="/hero3.webp" alt="" className="absolute inset-0 h-full w-full scale-105 object-cover blur-lg" />
+        <img
+          src="/hero3.webp"
+          alt=""
+          className="absolute inset-x-0 top-1/2 h-auto w-full -translate-y-1/2 [mask-image:linear-gradient(to_bottom,transparent,black_12%,black_88%,transparent)]"
+        />
         <div className="absolute inset-0 bg-background/60" />
       </div>
       <div className="pop-grid pointer-events-none absolute inset-0 -z-10 opacity-[0.05]" aria-hidden="true" />
@@ -97,13 +104,6 @@ export function Hero() {
                   <ArrowRight className={popArrowIcon} aria-hidden="true" />
                 </Link>
               </Magnetic>
-              <a href="#demo" className={cn(popSecondaryButton, popButtonSizes.lg)}>
-                <Play className="size-4 fill-current text-[#C2410C] rtl:-scale-x-100" aria-hidden="true" />
-                {hero.secondaryCta}
-              </a>
-              <a href="#scenarios" className={cn(popSecondaryButton, popButtonSizes.lg)}>
-                {hero.scenariosCta}
-              </a>
             </motion.div>
 
             <motion.div
@@ -130,31 +130,6 @@ export function Hero() {
             transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
             className="relative"
           >
-            {/* Chips sit centred above/below the illustration so they never cover its corner cards (in either text direction). */}
-            <div className="pointer-events-none absolute inset-x-0 -top-6 z-40 hidden justify-center sm:flex">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.85, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut", delay: 1.1 }}
-              className="glass-pop pop-float pointer-events-auto rounded-2xl px-3.5 py-2"
-            >
-              <p className="text-xs font-semibold tracking-[0.08em] text-black uppercase">{hero.modeLabel}</p>
-              <p className="text-sm font-bold text-black">
-                {hero.modeValue} <span className="text-[#C2410C]">{hero.modeAccent}</span>
-              </p>
-            </motion.div>
-            </div>
-            <div className="pointer-events-none absolute inset-x-0 -bottom-6 z-40 hidden justify-center sm:flex">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.85, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut", delay: 1.3 }}
-              className="glass-pop pop-float-delay pointer-events-auto rounded-2xl px-3.5 py-2"
-            >
-              <p className="text-xs font-semibold tracking-[0.08em] text-black uppercase">{hero.privacyLabel}</p>
-              <p className="text-sm font-bold text-black">{hero.privacyValue}</p>
-            </motion.div>
-            </div>
             <HeroIllustration />
           </motion.div>
         </div>

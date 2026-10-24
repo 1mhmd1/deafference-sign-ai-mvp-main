@@ -2,6 +2,8 @@ const en = {
   nav: {
     /** Keyed by section; the landing components map LANDING_NAV / FOOTER_*_NAV hrefs onto these keys. */
     links: {
+      homeLink: "Home",
+      scenarios: "Scenarios",
       howItWorks: "How it works",
       forYou: "For you",
       forOrganisations: "For organisations",
@@ -58,6 +60,8 @@ const en = {
   },
   about: {
     eyebrow: "About us",
+    /** Home page link from "Our story" to the full /about page. */
+    moreLink: "More about us",
     title: "A small team building the bridge between spoken and signed language",
     description:
       "Deafference started from a simple observation: everyday spoken interactions still leave Deaf and hard-of-hearing people waiting on an interpreter who isn't always there. We're building the software that closes that gap.",
@@ -196,6 +200,21 @@ const en = {
       { title: "AI processing", caption: "The AI recognises the phrase and converts it into sign language structure.", tag: "Sign structure" },
       { title: "Sign output", caption: "An animated signer shows the message, with text captions alongside.", tag: "Ready to watch" },
     ],
+    // The other direction, shown when the visitor flips the direction switch.
+    titleReverse: "3 steps from visual sign to text and speech.",
+    stagesReverse: [
+      { title: "Sign capture", caption: "The camera follows the Deaf person's hands, face and movement.", tag: "Camera input" },
+      { title: "AI processing", caption: "The AI reads the signs and turns them into a natural sentence.", tag: "Sentence structure" },
+      { title: "Text & speech output", caption: "The hearing person reads the words on screen and hears them spoken aloud.", tag: "Ready to read & hear" },
+    ],
+    direction: {
+      label: "Translation direction",
+      speech: "Speech",
+      sign: "Sign",
+      textSpeech: "Text & speech",
+      /** Button name; {from} and {to} are the chip labels of the direction it switches to. */
+      switchTo: "Switch to {from} to {to}",
+    },
   },
   scenarios: {
     eyebrow: "Scenarios",
@@ -215,49 +234,37 @@ const en = {
       { label: "Services & Public", message: "Paperwork, made simple." },
       { label: "Education", message: "Learn live, in sign language." },
     ],
+    /** Accessible name for each clickable road marker; {place} is the room's label. */
+    askJudy: "Ask Judy about {place}",
+    // What Judy says at each clickable road marker, in the order of RINGS in scenarios.tsx.
+    rings: [
+      "I sign how I feel, and the doctor understands me right away.",
+      "At the hotel desk, check-in is quick — no notes on paper.",
+      "In meetings, my team hears me and I see what they say.",
+      "Job interviews are fair when both sides understand each other.",
+      "In an emergency every second counts — I can explain fast.",
+      "Paramedics understand me, and I understand them.",
+      "Tip: the Emergency Phrases button has ready-made messages.",
+      "At the airport, I'll know about a gate change right away.",
+      "Lost on a trip? I can ask anyone for directions.",
+      "At public offices, I don't have to wait for an interpreter.",
+      "Questions at the counter go both ways: signed and spoken.",
+      "Banks, post offices, city hall — Deafference comes with me.",
+      "In class, the teacher's words reach me live.",
+      "I can ask a question in sign, and the whole class hears it.",
+    ],
   },
   demo: {
     eyebrow: "Demo center",
     title: "See it in action, then explore how to set it up.",
-    description: "An animated walkthrough of a translation, plus the product videos and tutorials we're preparing — no microphone or account needed to preview.",
-    tabsLabel: "Demo center categories",
-    tabs: { demos: "Product demos", tutorials: "Video & interactive tutorials" },
-    flagship: {
-      title: "Real-time sign translation",
-      badge: "Animated walkthrough",
-      note: "This is a simulated walkthrough of the steps, not live translation. Try the live app for the real thing.",
-      progressLabel: "Walkthrough progress",
-      stepsLabel: "Walkthrough steps",
-      current: "Current",
-      play: "Play walkthrough",
-      pause: "Pause",
-      replay: "Replay",
-      restart: "Restart",
-      captions: "Captions",
-      previewTitle: "Sign output preview",
-      captionsHidden: "Captions hidden",
-      steps: [
-        { label: "Speech detected", caption: "“Where is the nearest exit?”" },
-        { label: "Phrase recognised", caption: "Meaning converted into sign language structure" },
-        { label: "Sign playing", caption: "The signer shows the message, with captions" },
-      ],
-    },
+    description: "Video and interactive tutorials we're preparing to help you set up and use Deafference — and the live app, ready whenever you are.",
+    tutorialsTitle: "Video & interactive tutorials",
     media: {
       comingSoon: "Video coming soon",
       preview: "Preview",
       previewAria: "Preview: {title}",
       comingSoonNote: "This video isn't available yet. In the meantime, try the live app.",
     },
-    productDemos: [
-      {
-        title: "Emergency quick actions",
-        description: "One-tap presets for common emergency phrases, signed instantly without typing or speaking a full sentence.",
-      },
-      {
-        title: "Text-to-sign",
-        description: "Type or paste a phrase and watch it shown in animated sign language.",
-      },
-    ],
     tutorials: [
       {
         title: "Getting started for Deaf users",
@@ -339,18 +346,6 @@ const en = {
           "AI models focused on sign recognition, with extra care for everyday and medical vocabulary. For critical decisions, always confirm with a qualified interpreter.",
       },
     ],
-    integrations: {
-      heading: "Built to integrate",
-      description: "Planned integrations that fit the tools organisations already use.",
-      items: [
-        { title: "Health records (EHR)", text: "Bring translation into clinical workflows." },
-        { title: "Video calls", text: "Add sign and captions to remote appointments and meetings." },
-        { title: "Intercoms & front desks", text: "Help at reception desks and hospital intercoms." },
-        { title: "Custom APIs", text: "Connect Deafference to your own systems." },
-      ],
-      note: "These integrations are on our roadmap and are set up with each organisation.",
-      cta: "Plan an integration",
-    },
   },
   performance: {
     eyebrow: "Performance",
@@ -486,6 +481,9 @@ const en = {
   faq: {
     eyebrow: "FAQ",
     title: "Common questions, answered simply",
+    /** Shown under the first two questions; {count} is how many more there are. */
+    viewMore: "View more questions ({count})",
+    viewLess: "Show fewer questions",
     description: "Everything you need to know before trying Deafference. Can't find your answer? Get in touch below.",
     items: [
       {
@@ -548,25 +546,39 @@ const en = {
       partnership: "Partnership",
       support: "Support",
     },
-    method: "Preferred way to reply",
+    method: "How you'd like to get in touch",
     methods: {
       email: "Email",
-      video: "Video call in sign language",
+      video: "Attach a sign-language video",
       chat: "Text chat",
+    },
+    /** The video picker shown when "Attach a sign-language video" is chosen. */
+    video: {
+      choose: "Choose or record a video",
+      change: "Change video",
+      remove: "Remove video",
+      hint: "MP4, MOV or WebM, up to 25 MB (most email apps can't send larger files).",
+      previewLabel: "Preview of your video: {file}",
     },
     mailTopic: "Topic",
     mailOrganization: "Organisation",
-    mailMethod: "Preferred reply",
+    mailMethod: "Contact preference",
+    mailVideo: "Video",
     errors: {
       nameRequired: "Please enter your name.",
       emailRequired: "Please enter your email address.",
       emailInvalid: "Please enter a valid email address, like name@example.com.",
       messageRequired: "Please write a message.",
       messageShort: "Please write at least 10 characters.",
+      videoRequired: "Please choose a video to attach, or pick another way to get in touch.",
+      videoTooBig: "This video is {size} MB. Most email apps can't send files over 25 MB, so please choose a shorter clip.",
       summary: "Please fix the highlighted fields.",
     },
     statusTitle: "Your email app should open with your message.",
     statusBody: "If it didn't open, email us directly at",
+    /** Shown after sending when the browser can't attach the video itself (mailto can't carry files). */
+    statusAttach: "Before you send, attach your video ({file}) to the email. Browsers can't attach it for you.",
+    statusShared: "Your video and message are ready in the app you chose. Send them from there.",
     copy: "Copy address",
     copied: "Copied",
     mailSubject: "Website inquiry from {name}",
@@ -605,6 +617,8 @@ export type LandingMessages = typeof en
 const ar: LandingMessages = {
   nav: {
     links: {
+      homeLink: "الرئيسية",
+      scenarios: "السيناريوهات",
       howItWorks: "كيف يعمل",
       forYou: "لك",
       forOrganisations: "للمؤسسات",
@@ -661,6 +675,7 @@ const ar: LandingMessages = {
   },
   about: {
     eyebrow: "من نحن",
+    moreLink: "المزيد عنّا",
     title: "فريق صغير يبني جسرًا بين اللغة المنطوقة ولغة الإشارة",
     description:
       "بدأ Deafference من ملاحظة بسيطة: ما زالت التعاملات اليومية المنطوقة تترك الصمّ وضعاف السمع في انتظار مترجم لا يكون متاحًا دائمًا. نحن نبني البرنامج الذي يسدّ هذه الفجوة.",
@@ -789,6 +804,19 @@ const ar: LandingMessages = {
       { title: "المعالجة بالذكاء الاصطناعي", caption: "يتعرّف الذكاء الاصطناعي على العبارة ويحوّلها إلى بنية لغة الإشارة.", tag: "بنية الإشارة" },
       { title: "عرض الإشارة", caption: "يعرض مؤشّر متحرك الرسالة، مع نص مكتوب إلى جانبها.", tag: "جاهز للمشاهدة" },
     ],
+    titleReverse: "3 خطوات من الإشارة المرئية إلى النص والكلام.",
+    stagesReverse: [
+      { title: "التقاط الإشارة", caption: "تتابع الكاميرا يدي الشخص الأصم ووجهه وحركته.", tag: "إدخال بالكاميرا" },
+      { title: "المعالجة بالذكاء الاصطناعي", caption: "يقرأ الذكاء الاصطناعي الإشارات ويحوّلها إلى جملة طبيعية.", tag: "بنية الجملة" },
+      { title: "عرض النص والكلام", caption: "يقرأ الشخص السامع الكلمات على الشاشة ويسمعها بصوت مسموع.", tag: "جاهز للقراءة والاستماع" },
+    ],
+    direction: {
+      label: "اتجاه الترجمة",
+      speech: "الكلام",
+      sign: "الإشارة",
+      textSpeech: "النص والكلام",
+      switchTo: "التبديل إلى: من {from} إلى {to}",
+    },
   },
   scenarios: {
     eyebrow: "السيناريوهات",
@@ -808,49 +836,35 @@ const ar: LandingMessages = {
       { label: "الخدمات العامة", message: "معاملاتك أصبحت أسهل." },
       { label: "التعليم", message: "تعلّم مباشرة بلغة الإشارة." },
     ],
+    askJudy: "اسأل جودي عن {place}",
+    rings: [
+      "أشرح بالإشارة ما أشعر به، فيفهمني الطبيب فورًا.",
+      "عند مكتب الفندق، تسجيل الوصول سريع، بلا أوراق وملاحظات.",
+      "في الاجتماعات، يسمعني فريقي وأرى ما يقولونه.",
+      "مقابلات العمل عادلة عندما يفهم الطرفان بعضهما.",
+      "في الطوارئ كل ثانية مهمة، وأستطيع الشرح بسرعة.",
+      "المسعفون يفهمونني، وأنا أفهمهم.",
+      "نصيحة: زر «عبارات الطوارئ» فيه رسائل جاهزة.",
+      "في المطار، أعرف بتغيير البوابة فورًا.",
+      "ضعت في رحلة؟ أستطيع أن أسأل أي أحد عن الطريق.",
+      "في الدوائر الحكومية، لا أحتاج لانتظار مترجم.",
+      "الأسئلة عند الشبّاك تسير في الاتجاهين: بالإشارة وبالصوت.",
+      "البنوك والبريد والبلدية، Deafference معي في كل مكان.",
+      "في الصف، تصلني كلمات المعلّم مباشرة.",
+      "أستطيع أن أطرح سؤالًا بالإشارة، فيسمعه الصف كله.",
+    ],
   },
   demo: {
     eyebrow: "مركز العروض",
     title: "شاهده أثناء العمل، ثم تعرّف على طريقة إعداده.",
-    description: "عرض متحرك لخطوات الترجمة، إضافة إلى مقاطع الفيديو والدروس التي نُعدّها — دون الحاجة إلى ميكروفون أو حساب للمعاينة.",
-    tabsLabel: "فئات مركز العروض",
-    tabs: { demos: "عروض المنتج", tutorials: "دروس مرئية وتفاعلية" },
-    flagship: {
-      title: "ترجمة الإشارة في الوقت الفعلي",
-      badge: "عرض متحرك",
-      note: "هذا عرض محاكى للخطوات وليس ترجمة مباشرة. جرّب التطبيق المباشر للتجربة الفعلية.",
-      progressLabel: "تقدّم العرض",
-      stepsLabel: "خطوات العرض",
-      current: "الحالية",
-      play: "تشغيل العرض",
-      pause: "إيقاف مؤقت",
-      replay: "إعادة التشغيل",
-      restart: "البدء من جديد",
-      captions: "النص المكتوب",
-      previewTitle: "معاينة مخرجات الإشارة",
-      captionsHidden: "النص المكتوب مخفي",
-      steps: [
-        { label: "رُصد كلام", caption: "«أين أقرب مخرج؟»" },
-        { label: "تم التعرّف على العبارة", caption: "تحويل المعنى إلى بنية لغة الإشارة" },
-        { label: "عرض الإشارة", caption: "يعرض المؤشّر الرسالة مع النص المكتوب" },
-      ],
-    },
+    description: "دروس مرئية وتفاعلية نُعدّها لمساعدتك على إعداد Deafference واستخدامه — والتطبيق المباشر جاهز متى شئت.",
+    tutorialsTitle: "دروس مرئية وتفاعلية",
     media: {
       comingSoon: "الفيديو قريبًا",
       preview: "معاينة",
       previewAria: "معاينة: {title}",
       comingSoonNote: "هذا الفيديو غير متاح بعد. يمكنك في الأثناء تجربة التطبيق المباشر.",
     },
-    productDemos: [
-      {
-        title: "إجراءات الطوارئ السريعة",
-        description: "عبارات طوارئ جاهزة بلمسة واحدة، تُعرض بالإشارة فورًا دون كتابة أو نطق جملة كاملة.",
-      },
-      {
-        title: "من النص إلى الإشارة",
-        description: "اكتب عبارة أو الصقها وشاهدها بلغة إشارة متحركة.",
-      },
-    ],
     tutorials: [
       {
         title: "البدء للمستخدمين الصمّ",
@@ -930,18 +944,6 @@ const ar: LandingMessages = {
         description: "نماذج ذكاء اصطناعي تركّز على التعرّف على الإشارة، مع عناية خاصة بالمفردات اليومية والطبية. في القرارات الحرجة، تحقّق دائمًا مع مترجم مؤهل.",
       },
     ],
-    integrations: {
-      heading: "مصمَّم للتكامل",
-      description: "تكاملات مخطَّط لها لتناسب الأدوات التي تستخدمها المؤسسات بالفعل.",
-      items: [
-        { title: "السجلات الصحية الإلكترونية", text: "إدخال الترجمة في سير العمل السريري." },
-        { title: "مكالمات الفيديو", text: "إضافة الإشارة والترجمة النصية إلى المواعيد والاجتماعات عن بُعد." },
-        { title: "الاتصال الداخلي ومكاتب الاستقبال", text: "المساعدة عند مكاتب الاستقبال وأنظمة الاتصال الداخلي في المستشفيات." },
-        { title: "واجهات برمجة مخصّصة", text: "ربط Deafference بأنظمتك الخاصة." },
-      ],
-      note: "هذه التكاملات ضمن خطتنا القادمة، ويتم إعدادها مع كل مؤسسة.",
-      cta: "خطّط لتكاملك",
-    },
   },
   performance: {
     eyebrow: "الأداء",
@@ -1073,6 +1075,8 @@ const ar: LandingMessages = {
   faq: {
     eyebrow: "الأسئلة الشائعة",
     title: "أسئلة شائعة بإجابات بسيطة",
+    viewMore: "عرض المزيد من الأسئلة ({count})",
+    viewLess: "عرض أسئلة أقل",
     description: "كل ما تحتاج معرفته قبل تجربة Deafference. لم تجد إجابتك؟ تواصل معنا أدناه.",
     items: [
       {
@@ -1132,25 +1136,37 @@ const ar: LandingMessages = {
       partnership: "شراكة",
       support: "الدعم",
     },
-    method: "طريقة الرد المفضّلة",
+    method: "طريقة التواصل المفضّلة",
     methods: {
       email: "البريد الإلكتروني",
-      video: "مكالمة فيديو بلغة الإشارة",
+      video: "إرفاق فيديو بلغة الإشارة",
       chat: "محادثة نصية",
+    },
+    video: {
+      choose: "اختر فيديو أو سجّل واحدًا",
+      change: "تغيير الفيديو",
+      remove: "إزالة الفيديو",
+      hint: "بصيغة MP4 أو MOV أو WebM، بحجم 25 ميغابايت كحد أقصى (معظم تطبيقات البريد لا ترسل ملفات أكبر).",
+      previewLabel: "معاينة الفيديو: {file}",
     },
     mailTopic: "الموضوع",
     mailOrganization: "المؤسسة",
-    mailMethod: "طريقة الرد المفضّلة",
+    mailMethod: "طريقة التواصل المفضّلة",
+    mailVideo: "الفيديو",
     errors: {
       nameRequired: "يُرجى إدخال اسمك.",
       emailRequired: "يُرجى إدخال بريدك الإلكتروني.",
       emailInvalid: "يُرجى إدخال بريد إلكتروني صالح، مثل name@example.com.",
       messageRequired: "يُرجى كتابة رسالة.",
       messageShort: "يُرجى كتابة 10 أحرف على الأقل.",
+      videoRequired: "يُرجى اختيار فيديو لإرفاقه، أو اختيار طريقة تواصل أخرى.",
+      videoTooBig: "حجم هذا الفيديو {size} ميغابايت. معظم تطبيقات البريد لا ترسل ملفات أكبر من 25 ميغابايت، لذا اختر مقطعًا أقصر.",
       summary: "يُرجى تصحيح الحقول المميزة.",
     },
     statusTitle: "من المفترض أن يفتح تطبيق البريد لديك ومعه رسالتك.",
     statusBody: "إن لم يفتح، راسلنا مباشرة على",
+    statusAttach: "قبل الإرسال، أرفق الفيديو ({file}) بالرسالة. لا يستطيع المتصفح إرفاقه نيابةً عنك.",
+    statusShared: "الفيديو والرسالة جاهزان في التطبيق الذي اخترته. أرسلهما من هناك.",
     copy: "نسخ العنوان",
     copied: "تم النسخ",
     mailSubject: "استفسار من الموقع من {name}",
