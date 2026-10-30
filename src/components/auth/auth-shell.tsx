@@ -39,7 +39,7 @@ export function AuthShell({
 
       <header className="flex items-center justify-between gap-3 px-4 pt-5 sm:px-8 sm:pt-6">
         <Link href={APP_ROUTES.home} className={cn("min-w-0 rounded-lg", FOCUS_RING)}>
-          <img src="/deafference-wordmark.png" alt={t.auth.shell.homeLogoAlt} className="h-9 w-auto max-w-full object-contain object-left rtl:object-right sm:h-12" />
+          <img src="/deafference-wordmark.webp" width={525} height={229} alt={t.auth.shell.homeLogoAlt} className="h-9 w-auto max-w-full object-contain object-left rtl:object-right sm:h-12" />
         </Link>
         <BackButton />
       </header>

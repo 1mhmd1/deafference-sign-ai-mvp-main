@@ -7,7 +7,8 @@ import { Container } from "@/components/shared/container"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
 import { useLandingReducedMotion } from "./calm-mode"
-import { GlowOrb, PopEyebrow, Reveal } from "./ui/pop"
+import { PopEyebrow, Reveal } from "./ui/pop"
+import { SignVideoButton } from "./sign-video"
 
 // Shared look for the three step diagrams: hairline strokes, neutral ink for structure,
 // and a colour story: orange is speech, blue is sign. Step 1 is orange, step 2 turns
@@ -479,30 +480,35 @@ function SignStreamVisual({ active }: { active: boolean }) {
   )
 }
 
-type Stage = { Icon: LucideIcon; index: string; Visual: (props: { active: boolean }) => ReactNode; terminal: boolean; tile: string }
+export type Stage = { Icon: LucideIcon; index: string; Visual: (props: { active: boolean }) => ReactNode; terminal: boolean; tile: string }
+
+// Tile colours from the logo: speech at its orange end, sign at its crimson → plum end.
+const SPEECH_TILE = "from-[#E0601A] to-[#C0341B]"
+const SIGN_TILE = "from-[#B01030] to-[#5E0F45]"
 
 /** Speech → sign. Visuals zipped by index with `t.landing.howItWorks.stages`. */
-const STAGES: Stage[] = [
-  { Icon: AudioLines, index: "01", Visual: SpeechCaptureVisual, terminal: false, tile: "from-[#F97316] to-[#C2410C]" },
-  { Icon: Cpu, index: "02", Visual: AIProcessingVisual, terminal: false, tile: "from-[#F97316] to-[#2563EB]" },
-  { Icon: MonitorPlay, index: "03", Visual: SignStreamVisual, terminal: true, tile: "from-[#2563EB] to-[#1D4ED8]" },
+export const STAGES: Stage[] = [
+  { Icon: AudioLines, index: "01", Visual: SpeechCaptureVisual, terminal: false, tile: SPEECH_TILE },
+  { Icon: Cpu, index: "02", Visual: AIProcessingVisual, terminal: false, tile: "from-[#E0601A] to-[#B01030]" },
+  { Icon: MonitorPlay, index: "03", Visual: SignStreamVisual, terminal: true, tile: SIGN_TILE },
 ]
 
-/** Sign → text & speech: the colour story runs the other way (blue in, orange out). Zipped with `stagesReverse`. */
-const STAGES_REVERSE: Stage[] = [
-  { Icon: Hand, index: "01", Visual: SignCaptureVisual, terminal: false, tile: "from-[#2563EB] to-[#1D4ED8]" },
-  { Icon: Cpu, index: "02", Visual: AIProcessingReverseVisual, terminal: false, tile: "from-[#2563EB] to-[#F97316]" },
-  { Icon: MessageSquareText, index: "03", Visual: TextSpeechVisual, terminal: true, tile: "from-[#F97316] to-[#C2410C]" },
+/** Sign → text & speech: the colour story runs the other way (sign in, speech out). Zipped with `stagesReverse`. */
+export const STAGES_REVERSE: Stage[] = [
+  { Icon: Hand, index: "01", Visual: SignCaptureVisual, terminal: false, tile: SIGN_TILE },
+  { Icon: Cpu, index: "02", Visual: AIProcessingReverseVisual, terminal: false, tile: "from-[#B01030] to-[#E0601A]" },
+  { Icon: MessageSquareText, index: "03", Visual: TextSpeechVisual, terminal: true, tile: SPEECH_TILE },
 ]
 
-const STEP_MS = 2800
+export const STEP_MS = 2800
 
 type DirectionCopy = { label: string; speech: string; sign: string; textSpeech: string; switchTo: string }
 
 /**
- * The direction switch: two chips (speech, orange; sign, blue) with a swap button between
- * them. Pressing it slides the chips past each other into their new order and spins the
+ * The direction switch: two chips (speech, flame red; sign, crimson → plum) with a swap button
+ * between them. Pressing it slides the chips past each other into their new order and spins the
  * arrows, and the whole section flips direction. The full pill is one button.
+ * `on-brand` keeps the chip text white (the landing forces span text dark in the light theme).
  */
 function DirectionSwitch({ reverse, onToggle, copy }: { reverse: boolean; onToggle: () => void; copy: DirectionCopy }) {
   const speechChip = (
@@ -510,7 +516,7 @@ function DirectionSwitch({ reverse, onToggle, copy }: { reverse: boolean; onTogg
       key="speech"
       layout
       transition={{ type: "spring", stiffness: 380, damping: 30 }}
-      className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-[#F97316] to-[#C2410C] px-3.5 py-2 text-sm font-semibold whitespace-nowrap text-white shadow-[0_8px_18px_-10px_rgba(234,88,12,0.7)]"
+      className="on-brand inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-[#D63C1A] to-[#B01030] px-3.5 py-2 text-sm font-semibold whitespace-nowrap text-white shadow-[0_8px_18px_-10px_rgba(214,60,26,0.7)]"
     >
       {reverse ? <MessageSquareText className="size-4" aria-hidden="true" /> : <Mic className="size-4" aria-hidden="true" />}
       {reverse ? copy.textSpeech : copy.speech}
@@ -521,7 +527,7 @@ function DirectionSwitch({ reverse, onToggle, copy }: { reverse: boolean; onTogg
       key="sign"
       layout
       transition={{ type: "spring", stiffness: 380, damping: 30 }}
-      className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] px-3.5 py-2 text-sm font-semibold whitespace-nowrap text-white shadow-[0_8px_18px_-10px_rgba(37,99,235,0.7)]"
+      className="on-brand inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-[#8E1243] to-[#5E0F45] px-3.5 py-2 text-sm font-semibold whitespace-nowrap text-white shadow-[0_8px_18px_-10px_rgba(94,15,69,0.7)]"
     >
       <Hand className="size-4" aria-hidden="true" />
       {copy.sign}
@@ -531,7 +537,7 @@ function DirectionSwitch({ reverse, onToggle, copy }: { reverse: boolean; onTogg
     <motion.span
       key="swap"
       layout
-      className="relative flex size-9 shrink-0 items-center justify-center rounded-full bg-card text-black ring-1 ring-[color:var(--primary)]/20 transition-shadow group-hover:shadow-[0_0_0_4px_rgba(37,99,235,0.12)]"
+      className="relative flex size-9 shrink-0 items-center justify-center rounded-full bg-card text-black ring-1 ring-[color:var(--primary)]/20 transition-shadow group-hover:shadow-[0_0_0_4px_rgba(214,60,26,0.12)]"
     >
       <motion.span animate={{ rotate: reverse ? 180 : 0 }} transition={{ type: "spring", stiffness: 260, damping: 18 }} className="flex">
         <ArrowLeftRight className="size-4" aria-hidden="true" />
@@ -550,7 +556,7 @@ function DirectionSwitch({ reverse, onToggle, copy }: { reverse: boolean; onTogg
         type="button"
         onClick={onToggle}
         aria-label={copy.switchTo.replace("{from}", nextFrom).replace("{to}", nextTo)}
-        className="group inline-flex items-center gap-2 rounded-full border border-[color:var(--primary)]/15 bg-card/80 p-1.5 shadow-[0_1px_2px_rgba(16,24,40,0.05),0_14px_30px_-20px_rgba(30,64,175,0.45)] backdrop-blur transition-transform active:scale-[0.97] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
+        className="group inline-flex items-center gap-2 rounded-full border border-[color:var(--primary)]/15 bg-card p-1.5 shadow-[0_1px_2px_rgba(16,24,40,0.05),0_14px_30px_-20px_rgba(15,23,42,0.3)] transition-transform active:scale-[0.97] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--primary)]"
       >
         <LayoutGroup>{reverse ? [signChip, swap, speechChip] : [speechChip, swap, signChip]}</LayoutGroup>
       </button>
@@ -599,9 +605,6 @@ export function HowItWorksVisual() {
       aria-labelledby="how-it-works-heading"
       className="pop-atmosphere relative overflow-hidden py-24 sm:py-28"
     >
-      <div className="pop-grid pointer-events-none absolute inset-0 -z-10 opacity-[0.05]" aria-hidden="true" />
-      <GlowOrb className="-top-20 -left-16 size-[24rem] pop-float" color="rgba(59,130,246,0.16)" />
-      <GlowOrb className="top-24 -right-24 size-[26rem] pop-float-delay" color="rgba(167,180,255,0.18)" />
 
       <Container fluid>
         <Reveal className="max-w-2xl">
@@ -621,6 +624,7 @@ export function HowItWorksVisual() {
             </AnimatePresence>
           </h2>
           <DirectionSwitch reverse={reverse} onToggle={toggleDirection} copy={copy.direction} />
+          <SignVideoButton videoKey="howItWorks" className="mt-6" />
         </Reveal>
 
         <div
@@ -654,7 +658,7 @@ export function HowItWorksVisual() {
                     className={cn(
                       "relative flex gap-4 rounded-2xl border p-4 text-start transition-[background-color,border-color,box-shadow] duration-300",
                       isActive
-                        ? "border-brand-orange/25 bg-card bg-gradient-to-r from-brand-orange/[0.06] to-transparent shadow-[0_1px_2px_rgba(16,24,40,0.05),0_16px_36px_-24px_rgba(234,88,12,0.3)] rtl:bg-gradient-to-l"
+                        ? "glass-pop border-brand-orange/30"
                         : "border-transparent hover:bg-card/60",
                     )}
                   >
@@ -671,7 +675,7 @@ export function HowItWorksVisual() {
                       className={cn(
                         "relative z-10 flex size-11 shrink-0 items-center justify-center rounded-xl transition-colors duration-300",
                         isActive
-                          ? cn("bg-gradient-to-br text-white shadow-[0_10px_22px_-10px_rgba(234,88,12,0.55)]", stage.tile)
+                          ? cn("on-brand bg-gradient-to-br text-white shadow-[0_10px_22px_-10px_rgba(176,16,48,0.5)]", stage.tile)
                           : "bg-card text-[#1D4ED8] ring-1 ring-[color:var(--primary)]/20",
                       )}
                     >
@@ -700,12 +704,12 @@ export function HowItWorksVisual() {
           <Reveal delay={0.1} className="lg:col-span-7">
             <div
               aria-hidden="true"
-              className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(16,24,40,0.05),0_30px_60px_-30px_rgba(30,64,175,0.3)]"
+              className="glass-pop relative flex h-full flex-col overflow-hidden rounded-2xl border"
             >
-              <span className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-brand-orange via-[#F59E0B] to-[color:var(--primary)] rtl:bg-gradient-to-l" />
+              <span className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-[#F28C1A] via-[#D63C1A] to-[#B01030] rtl:bg-gradient-to-l" />
               <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-3.5 sm:px-6">
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-white", current.tile)}>
+                  <span className={cn("on-brand flex size-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-white", current.tile)}>
                     <current.Icon className="size-4" strokeWidth={1.75} />
                   </span>
                   <span className="truncate text-sm font-semibold text-black">{currentText?.title}</span>
@@ -720,9 +724,7 @@ export function HowItWorksVisual() {
                 </span>
               </div>
 
-              <div className="relative min-h-64 flex-1 overflow-hidden bg-[radial-gradient(circle,rgba(37,99,235,0.14)_1px,transparent_1px)] [background-size:18px_18px] sm:min-h-72">
-                <span className="pointer-events-none absolute -top-24 -start-24 size-72 rounded-full bg-[radial-gradient(circle,rgba(249,115,22,0.18),transparent_70%)]" />
-                <span className="pointer-events-none absolute -bottom-24 -end-24 size-72 rounded-full bg-[radial-gradient(circle,rgba(37,99,235,0.14),transparent_70%)]" />
+              <div className="relative min-h-64 flex-1 overflow-hidden sm:min-h-72">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={`${reverse ? "r" : "f"}-${active}`}

@@ -9,9 +9,13 @@ import {
   Building,
   Building2,
   Check,
+  GraduationCap,
+  Hand,
   Handshake,
   HeartPulse,
+  Landmark,
   RefreshCw,
+  Stethoscope,
   UserRound,
   type LucideIcon,
 } from "lucide-react"
@@ -20,8 +24,9 @@ import { SectionTitle } from "@/components/shared/section-title"
 import { APP_ROUTES } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
-import { GlowOrb, focusRingPop, popButtonSizes, popPrimaryButton, popSecondaryButton } from "./ui/pop"
-import { requestContactTopic, type ContactTopic } from "./contact-intent"
+import { focusRingPop, popBrandTile, popButtonSizes, popPrimaryButton, popSecondaryButton, popStage, popTile } from "./ui/pop"
+import { contactHref } from "./contact-intent"
+import { SignVideoButton } from "./sign-video"
 
 /**
  * Pricing as a guided choice: Personal use or Industries. Opening one widens it and folds
@@ -30,11 +35,12 @@ import { requestContactTopic, type ContactTopic } from "./contact-intent"
  *
  * Plan copy and prices live in `t.landing.pricing.plans`, zipped by index with PLAN_META.
  */
-const PLAN_META: { id: string; icon: LucideIcon; href: string; highlighted?: boolean; topic?: ContactTopic }[] = [
+const PLAN_META: { id: string; icon: LucideIcon; href: string; highlighted?: boolean }[] = [
   { id: "free", icon: UserRound, href: APP_ROUTES.translate },
   { id: "pro", icon: Building, href: APP_ROUTES.signup },
   { id: "premium", icon: HeartPulse, href: APP_ROUTES.signup, highlighted: true },
-  { id: "enterprise", icon: Building2, href: "#contact", topic: "sales" },
+  // Opens the contact form on /contact with "Sales" already chosen.
+  { id: "enterprise", icon: Building2, href: contactHref("sales") },
 ]
 const PERSONAL_PLAN = 0
 const SUBSCRIPTION_PLANS = [1, 2]
@@ -43,20 +49,60 @@ const ENTERPRISE_PLAN = 3
 type Audience = "personal" | "industries"
 type Track = "subscription" | "enterprise"
 
-// Personal leans warm (orange), Industries leans cool (blue).
-const AUDIENCE_STYLE: Record<Audience, { Icon: LucideIcon; tile: string; wash: string; ring: string }> = {
+// Both from the logo: Personal at its orange end, Industries at its crimson → plum end.
+const AUDIENCE_STYLE: Record<Audience, { Icon: LucideIcon; tile: string; ring: string }> = {
   personal: {
     Icon: UserRound,
-    tile: "from-[#F97316] to-[#C2410C]",
-    wash: "from-brand-orange/[0.08]",
+    tile: "from-[#E0601A] to-[#C0341B]",
     ring: "hover:border-brand-orange/40",
   },
   industries: {
     Icon: Building2,
-    tile: "from-[#2563EB] to-[#1E3A8A]",
-    wash: "from-[color:var(--primary)]/[0.08]",
+    tile: "from-[#B01030] to-[#5E0F45]",
     ring: "hover:border-[color:var(--primary)]/40",
   },
+}
+
+/**
+ * The picture on each starting box. Personal: one person with Deafference on their phone, signing.
+ * Industries: an organisation over the places it runs (clinic, school, public office).
+ * Spans, not divs: these sit inside the box's <button>.
+ */
+function AudienceVisual({ audience }: { audience: Audience }) {
+  if (audience === "personal") {
+    return (
+      <span className="flex items-center gap-4">
+        <span className={cn(popBrandTile, "size-14 rounded-2xl")}>
+          <UserRound className="size-7" />
+        </span>
+        {/* A phone with the app open. */}
+        <span className="flex h-28 w-16 flex-col items-center justify-center gap-2 rounded-[1.1rem] border-[3px] border-[#282838] bg-[#fff] dark:border-[#f3e9ec] dark:bg-[#211620]">
+          <img src="/deafference-mark.png" alt="" className="size-7 object-contain" />
+          <span className="h-1 w-8 rounded-full bg-[color:var(--primary)]/30" />
+          <span className="h-1 w-5 rounded-full bg-[color:var(--primary)]/20" />
+        </span>
+        <span className={cn(popTile, "size-11")}>
+          <Hand className="size-5" />
+        </span>
+      </span>
+    )
+  }
+  const places: LucideIcon[] = [Stethoscope, GraduationCap, Landmark]
+  return (
+    <span className="flex flex-col items-center gap-2.5">
+      <span className={cn(popBrandTile, "size-14 rounded-2xl bg-gradient-to-br from-[#B01030] to-[#5E0F45]")}>
+        <Building2 className="size-7" />
+      </span>
+      <span className="h-3 w-px bg-[color:var(--primary)]/35" />
+      <span className="flex gap-2.5">
+        {places.map((Icon, i) => (
+          <span key={i} className={cn(popTile, "size-11")}>
+            <Icon className="size-5" />
+          </span>
+        ))}
+      </span>
+    </span>
+  )
 }
 
 const fade = {
@@ -88,7 +134,7 @@ function FeatureList({ features, columns = false }: { features: readonly string[
     <ul className={cn("space-y-3 text-sm leading-6 text-black", columns && "sm:grid sm:grid-cols-2 sm:gap-x-6 sm:space-y-0 sm:gap-y-3")}>
       {features.map((feature) => (
         <li key={feature} className="flex gap-3">
-          <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-[color:var(--primary)]/10 text-[#2563EB]" aria-hidden="true">
+          <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-[color:var(--primary)]/10 text-[color:var(--primary)]" aria-hidden="true">
             <Check className="size-3" strokeWidth={3} />
           </span>
           <span>{feature}</span>
@@ -106,7 +152,6 @@ function PlanCta({ index, className }: { index: number; className?: string }) {
   return (
     <Link
       href={meta.href}
-      onClick={meta.topic ? () => requestContactTopic(meta.topic!) : undefined}
       className={cn(meta.highlighted ? popPrimaryButton : popSecondaryButton, popButtonSizes.md, className)}
     >
       {plan.cta}
@@ -194,7 +239,7 @@ function AudienceIntro({
           focusRingPop,
         )}
       >
-        <span className={cn("flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white", style.tile)} aria-hidden="true">
+        <span className={cn("on-brand flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white", style.tile)} aria-hidden="true">
           <style.Icon className="size-5" />
         </span>
         <span className="flex-1 text-sm font-semibold text-black lg:flex-none lg:[writing-mode:vertical-rl]">
@@ -216,26 +261,17 @@ function AudienceIntro({
       aria-expanded={false}
       aria-controls={controls}
       className={cn(
-        "group relative flex h-full min-h-72 w-full flex-col overflow-hidden rounded-3xl border border-border bg-card bg-gradient-to-br to-transparent p-8 text-start shadow-[0_1px_2px_rgba(16,24,40,0.05),0_24px_50px_-30px_rgba(16,24,40,0.3)] transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-1 sm:p-10",
-        style.wash,
+        "glass-pop group relative flex h-full w-full flex-col rounded-3xl border p-5 text-start transition-[border-color,transform] duration-300 hover:-translate-y-1 sm:p-6",
         style.ring,
         focusRingPop,
       )}
     >
-      {/* Oversized faded icon as the box's artwork. */}
-      <style.Icon aria-hidden="true" className="pointer-events-none absolute -end-8 -bottom-10 size-56 text-black opacity-[0.04]" />
-      <span
-        className={cn(
-          "flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-[0_14px_28px_-14px_rgba(37,99,235,0.6)] transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105",
-          style.tile,
-        )}
-        aria-hidden="true"
-      >
-        <style.Icon className="size-7" />
+      <span aria-hidden="true" className={cn("flex h-44 items-center justify-center transition-transform duration-300", popStage)}>
+        <AudienceVisual audience={audience} />
       </span>
-      <span className="mt-6 text-2xl font-bold tracking-tight text-black sm:text-3xl">{copy.title}</span>
-      <span className="mt-3 max-w-md text-sm leading-7 text-muted-foreground sm:text-base">{copy.body}</span>
-      <span className="mt-auto inline-flex items-center gap-2 pt-8 text-sm font-semibold text-[#1D4ED8]">
+      <span className="mt-6 px-2 text-2xl font-bold tracking-tight text-black sm:px-4 sm:text-3xl">{copy.title}</span>
+      <span className="mt-3 max-w-md px-2 text-sm leading-7 text-muted-foreground sm:px-4 sm:text-base">{copy.body}</span>
+      <span className="mt-auto inline-flex items-center gap-2 px-2 pt-6 pb-2 text-sm font-semibold text-[#1D4ED8] sm:px-4">
         {copy.cta}
         <ArrowRight className="size-4 transition-transform group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1" aria-hidden="true" />
       </span>
@@ -252,7 +288,7 @@ function OpenHeader({ audience, onBack }: { audience: Audience; onBack: () => vo
   return (
     <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-start sm:justify-between">
       <div className="flex items-start gap-4">
-        <span className={cn("flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-white", style.tile)} aria-hidden="true">
+        <span className={cn("on-brand flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-white", style.tile)} aria-hidden="true">
           <style.Icon className="size-6" />
         </span>
         <div>
@@ -291,7 +327,7 @@ function PersonalDetails({ onBack }: { onBack: () => void }) {
           <p className="mt-4 text-sm leading-6 text-muted-foreground">{plan.audience}</p>
           <PlanCta index={PERSONAL_PLAN} className="mt-6 w-full sm:w-auto" />
         </div>
-        <div className="rounded-2xl border border-border bg-muted/30 p-6 lg:col-span-3">
+        <div className={cn("p-6 lg:col-span-3", popStage)}>
           <FeatureList features={plan.features} />
         </div>
       </div>
@@ -330,7 +366,7 @@ function IndustriesDetails({ onBack }: { onBack: () => void }) {
               className={cn(
                 "group relative flex items-start gap-4 overflow-hidden rounded-2xl border p-5 text-start transition-[border-color,background-color,box-shadow] duration-300",
                 selected
-                  ? "border-[color:var(--primary)]/45 bg-[color:var(--primary)]/[0.06] shadow-[0_18px_40px_-28px_rgba(30,64,175,0.5)]"
+                  ? "border-[color:var(--primary)]/45 bg-[color:var(--primary)]/[0.06] shadow-[0_18px_40px_-28px_rgba(94,15,69,0.45)]"
                   : "border-border bg-card hover:border-[color:var(--primary)]/30",
                 focusRingPop,
               )}
@@ -343,13 +379,7 @@ function IndustriesDetails({ onBack }: { onBack: () => void }) {
                   selected ? "opacity-100" : "opacity-0",
                 )}
               />
-              <span
-                className={cn(
-                  "flex size-11 shrink-0 items-center justify-center rounded-xl transition-colors duration-300",
-                  selected ? "bg-[#2563EB] text-white" : "bg-[color:var(--primary)]/10 text-[#1D4ED8]",
-                )}
-                aria-hidden="true"
-              >
+              <span className={cn(selected ? popBrandTile : popTile, "size-11 transition-colors duration-300")} aria-hidden="true">
                 <Icon className="size-5" />
               </span>
               <span className="min-w-0 flex-1">
@@ -381,7 +411,7 @@ function IndustriesDetails({ onBack }: { onBack: () => void }) {
               key="enterprise"
               {...fade}
               aria-labelledby="plan-enterprise-heading"
-              className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-[0_24px_48px_-30px_rgba(30,64,175,0.45)] sm:p-8"
+              className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-[0_24px_48px_-30px_rgba(15,23,42,0.3)] sm:p-8"
             >
               <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-orange to-[color:var(--primary)] rtl:bg-gradient-to-l" />
               <div className="grid gap-8 lg:grid-cols-5 lg:gap-10">
@@ -399,7 +429,7 @@ function IndustriesDetails({ onBack }: { onBack: () => void }) {
                   </div>
                   <PlanCta index={ENTERPRISE_PLAN} className="mt-6 w-full sm:w-auto" />
                 </div>
-                <div className="rounded-2xl border border-border bg-muted/30 p-6 lg:col-span-3">
+                <div className={cn("p-6 lg:col-span-3", popStage)}>
                   <FeatureList features={enterprise.features} />
                 </div>
               </div>
@@ -457,7 +487,7 @@ function AudienceSlot({
           tabIndex={-1}
           aria-label={t.landing.pricing.paths[audience].title}
           {...fade}
-          className="h-full rounded-3xl outline-none border border-border bg-card p-6 shadow-[0_1px_2px_rgba(16,24,40,0.05),0_30px_60px_-34px_rgba(30,64,175,0.4)] sm:p-8"
+          className="glass-pop h-full rounded-3xl border p-6 outline-none sm:p-8"
         >
           {children}
         </motion.div>
@@ -477,9 +507,6 @@ export function Pricing() {
     <section id="pricing" aria-labelledby="pricing-heading" className="relative border-y border-border/60 py-24 sm:py-28">
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
         <div className="pop-atmosphere absolute inset-0" />
-        <div className="pop-grid absolute inset-0 opacity-30" />
-        <GlowOrb className="left-[-10%] top-10 size-80" color="rgba(249,115,22,0.12)" />
-        <GlowOrb className="right-[-8%] bottom-10 size-72" color="rgba(59,130,246,0.16)" />
       </div>
 
       <Container fluid className="relative">
@@ -489,6 +516,7 @@ export function Pricing() {
           title={copy.title}
           align="center"
         />
+        <SignVideoButton videoKey="pricing" className="mt-6 flex justify-center" />
 
         <div role="group" aria-label={copy.paths.label} className="mt-14 flex flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-5">
           <AudienceSlot audience="personal" open={open} setOpen={setOpen}>

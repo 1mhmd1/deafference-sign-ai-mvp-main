@@ -1,239 +1,402 @@
 "use client"
 
-import { useRef } from "react"
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
+import { useEffect, useRef, useState } from "react"
+import { motion, useInView } from "framer-motion"
+import { AudioLines, Hand } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
+import { useLandingReducedMotion } from "./calm-mode"
 
-const CONNECTIONS = [
-  "M118 119 C82 99 63 73 49 45",
-  "M119 119 C152 97 180 78 202 64",
-  "M118 119 C83 141 66 165 51 191",
-  "M119 119 C158 141 183 159 205 188",
-] as const
-
-/** Rounds trig output so the server (Node) and the browser render identical attributes; their sin/cos can differ in the last digit, which breaks hydration. */
-const round = (v: number, places = 3) => Math.round(v * 10 ** places) / 10 ** places
-
-/** Front-facing half of a Fibonacci sphere, projected into the 240×240 globe: denser toward the rim, so it reads as 3D. */
-const NODES = Array.from({ length: 130 }, (_, i) => {
-  const y = 1 - (2 * (i + 0.5)) / 130
-  const radius = Math.sqrt(1 - y * y)
-  const theta = i * Math.PI * (3 - Math.sqrt(5))
-  return { x: round(120 + Math.cos(theta) * radius * 104, 2), y: round(120 + y * 104, 2), z: round(Math.sin(theta) * radius) }
-}).filter((n) => n.z > 0)
-/** Links between nearby nodes: the "plexus" web inside the globe. */
-const LINKS = NODES.flatMap((a, i) => NODES.slice(i + 1).filter((b) => Math.hypot(a.x - b.x, a.y - b.y) < 30).map((b) => [a, b] as const))
-/** Every 7th link carries a travelling spark of current. */
-const LIVE_LINKS = LINKS.filter((_, i) => i % 7 === 0).slice(0, 18)
-/** Jagged lightning bolts from just outside the logo to the rim, at fixed angles with deterministic jitter. */
-const BOLTS = [15, 75, 140, 200, 255, 320].map((deg, b) => {
-  const a = (deg * Math.PI) / 180
-  // Point at radius r with a sideways offset, in globe coordinates.
-  const at = (r: number, side: number, angle = a) => `${(120 + Math.cos(angle) * r - Math.sin(angle) * side).toFixed(1)} ${(120 + Math.sin(angle) * r + Math.cos(angle) * side).toFixed(1)}`
-  // Irregular, mostly-drifting jitter (a cheap deterministic noise) reads as lightning rather than a zig-zag.
-  const noise = (s: number) => Math.sin(b * 12.9898 + s * 78.233) * 43758.5453 % 1
-  let side = 0
-  const trunk = Array.from({ length: 13 }, (_, s) => {
-    side = s === 0 ? 0 : side * 0.55 + noise(s) * 9
-    return { r: 44 + s * 5.8 + noise(s + 40) * 1.5, side }
-  })
-  const fork = trunk[5]
-  const forkAngle = a + (b % 2 ? 0.32 : -0.32)
-  return {
-    trunk: `M${trunk.map((p) => at(p.r, p.side)).join("L")}`,
-    branch: `M${at(fork.r, fork.side)}L${at(fork.r + 8, fork.side + noise(90) * 5, forkAngle)}L${at(fork.r + 15, fork.side + noise(91) * 6, forkAngle)}L${at(fork.r + 22, fork.side + noise(92) * 4, forkAngle)}`,
-  }
-})
-/** Tilted orbits (degrees) that electrons travel along. */
-const ORBITS = [-24, 32, 78] as const
-const ORBIT_PATH = "M14 120a106 34 0 1 0 212 0a106 34 0 1 0 -212 0"
-
-/** `tint` is the light panel behind each card's illustration. */
-const CARD_DATA = [
-  { id: "sign", className: "left-3 top-4 sm:left-4 sm:top-8", delay: 0, tint: "bg-[linear-gradient(135deg,#eff6ff,#dbeafe)]" },
-  { id: "understands", className: "right-3 top-12 sm:right-4 sm:top-16", delay: 0.75, tint: "bg-[linear-gradient(135deg,#f5f3ff,#e7e2ff)]" },
-  { id: "hear", className: "bottom-16 left-3 sm:bottom-8 sm:left-4", delay: 1.5, tint: "bg-[linear-gradient(135deg,#fff7ed,#ffe6cc)]" },
-  { id: "connect", className: "right-3 bottom-3 sm:right-4 sm:bottom-6", delay: 2.25, tint: "bg-[linear-gradient(135deg,#f0fdfa,#ccf5ec)]" },
-] as const
-
-/** MediaPipe-style hand landmarks (wrist, then thumb → pinky, 4 joints each) for an open palm in a 48×48 box. */
-const HAND = [
-  [22, 44], [15.5, 40.5], [11, 35.5], [8, 30.5], [5.5, 26],
-  [16.5, 27], [15, 19.5], [14, 13.5], [13.3, 8.5],
-  [22, 25.5], [22, 17], [22, 10.5], [22, 5],
-  [27.5, 26.5], [29, 19], [30, 13.5], [30.8, 9],
-  [32, 30], [35, 24.5], [36.8, 20.8], [38.4, 17],
-] as const
-const FINGERS = [[0, 1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16], [17, 18, 19, 20]] as const
-const PALM = [0, 1, 5, 9, 13, 17] as const
-const TIPS: readonly number[] = [4, 8, 12, 16, 20]
-const pts = (ids: readonly number[]) => ids.map((i) => HAND[i].join(",")).join(" ")
-
-/** Solid hand shape built from thick rounded bones over a filled palm (48×48 box). */
-function HandShape({ fill }: { fill: string }) {
-  return <g stroke={fill} strokeLinecap="round" strokeLinejoin="round">
-    <polygon points={pts(PALM)} fill={fill} strokeWidth="6" />
-    {FINGERS.map((f) => <polyline key={f[0]} points={pts(f)} strokeWidth={f[0] === 0 ? 6.2 : 5.4} />)}
-  </g>
-}
-
-function Sparkle({ x, y, size, color, delay = 0 }: { x: number; y: number; size: number; color: string; delay?: number }) {
-  const s = size
-  return <motion.path d={`M${x} ${y - s}C${x + s * 0.15} ${y - s * 0.15} ${x + s * 0.15} ${y - s * 0.15} ${x + s} ${y}C${x + s * 0.15} ${y + s * 0.15} ${x + s * 0.15} ${y + s * 0.15} ${x} ${y + s}C${x - s * 0.15} ${y + s * 0.15} ${x - s * 0.15} ${y + s * 0.15} ${x - s} ${y}C${x - s * 0.15} ${y - s * 0.15} ${x - s * 0.15} ${y - s * 0.15} ${x} ${y - s}Z`} fill={color} animate={{ opacity: [0.25, 1, 0.25], scale: [0.7, 1.1, 0.7] }} transition={{ duration: 2.4, delay, repeat: Infinity, ease: "easeInOut" }} />
-}
-
-/** You sign: a hand in a camera viewfinder, tracked by landmarks while a scan line sweeps over it. */
-function SignScan() {
-  return <svg viewBox="0 0 120 48" className="h-12 w-full" fill="none" aria-hidden="true">
-    <defs>
-      <linearGradient id="hero-hand" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse"><stop stopColor="#60a5fa" /><stop offset="1" stopColor="#4f46e5" /></linearGradient>
-      <linearGradient id="hero-scan" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#fb923c" stopOpacity="0" /><stop offset="1" stopColor="#fb923c" stopOpacity=".45" /></linearGradient>
-    </defs>
-    <path d="M40 11V5h6M74 5h6v6M80 37v6h-6M46 43h-6v-6" stroke="#3b82f6" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    <g transform="translate(41 4.5) scale(.82)">
-      <HandShape fill="url(#hero-hand)" />
-      <g stroke="#ffffff" strokeOpacity=".85" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points={pts([0, 5, 9, 13, 17, 0])} />
-        {FINGERS.map((f) => <polyline key={f[0]} points={pts(f)} />)}
-      </g>
-      {HAND.map(([x, y], i) => <circle key={i} cx={x} cy={y} r={TIPS.includes(i) ? 1.9 : 1.2} fill={TIPS.includes(i) ? "#fb923c" : "#ffffff"} />)}
-    </g>
-    <motion.g animate={{ y: [0, 30, 0] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}>
-      <rect x="42" y="2" width="36" height="7" fill="url(#hero-scan)" />
-      <rect x="42" y="8.4" width="36" height="1.3" rx=".65" fill="#f97316" />
-    </motion.g>
-    <Sparkle x={22} y={14} size={4} color="#93c5fd" />
-    <Sparkle x={28} y={34} size={2.6} color="#fb923c" delay={0.8} />
-    <motion.g animate={{ scale: [0.9, 1, 0.9] }} transition={{ duration: 2.4, repeat: Infinity }} style={{ transformOrigin: "100px 24px" }}>
-      <circle cx="100" cy="24" r="8" fill="#ffffff" stroke="#3b82f6" strokeWidth="1.4" />
-      <path d="m96.4 24.2 2.5 2.5 4.8-5" stroke="#3b82f6" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </motion.g>
-  </svg>
-}
-
-const LAYERS: ReadonlyArray<{ x: number; ys: readonly number[]; fill: string; r: number }> = [
-  { x: 14, ys: [12, 24, 36], fill: "#60a5fa", r: 2.8 },
-  { x: 42, ys: [7, 18, 30, 41], fill: "#8b5cf6", r: 2.6 },
-  { x: 73, ys: [7, 18, 30, 41], fill: "#8b5cf6", r: 2.6 },
-  { x: 104, ys: [17, 31], fill: "#f97316", r: 3.4 },
+/* ----------------------------------------------------------------------------------------------
+ * The Earth: simplified continent outlines as [longitude, latitude] rings, sampled into dots and
+ * drawn on a canvas as a slowly turning globe (orthographic projection, tilted 15° toward us).
+ * -------------------------------------------------------------------------------------------- */
+const LAND: [number, number][][] = [
+  // North America (with Alaska and Central America)
+  [[-168, 66], [-162, 70], [-140, 70], [-120, 72], [-95, 72], [-80, 68], [-65, 60], [-55, 52], [-66, 45], [-70, 42], [-76, 35], [-81, 25], [-82, 30], [-90, 29], [-97, 26], [-97, 20], [-90, 16], [-84, 10], [-80, 8], [-87, 14], [-95, 16], [-105, 20], [-110, 23], [-117, 32], [-124, 40], [-124, 48], [-135, 58], [-150, 60], [-165, 60]],
+  // Baffin Island, Greenland, Iceland, Cuba
+  [[-90, 72], [-80, 73], [-68, 70], [-62, 66], [-72, 64], [-80, 64]],
+  [[-50, 82], [-30, 83], [-20, 75], [-22, 70], [-40, 62], [-50, 64], [-55, 72], [-60, 78]],
+  [[-24, 64], [-14, 64], [-14, 66], [-22, 66.5]],
+  [[-85, 22], [-80, 23], [-74, 20], [-78, 20]],
+  // South America
+  [[-80, 9], [-75, 11], [-62, 10], [-50, 0], [-35, -6], [-38, -13], [-40, -22], [-48, -28], [-58, -38], [-65, -42], [-68, -52], [-74, -52], [-73, -40], [-71, -30], [-70, -18], [-76, -14], [-81, -5], [-80, 0]],
+  // Europe and Great Britain
+  [[-10, 36], [-9, 43], [-2, 44], [-4, 48], [-5, 51], [2, 51], [5, 53], [8, 57], [5, 62], [10, 64], [15, 69], [25, 71], [30, 70], [40, 67], [45, 60], [40, 48], [35, 45], [28, 41], [25, 37], [20, 40], [15, 38], [12, 44], [8, 44], [3, 43], [-5, 36]],
+  [[-6, 50], [1, 51], [0, 53], [-2, 55], [-5, 58], [-6, 56], [-4, 54], [-5, 52]],
+  // Africa, Madagascar, Arabia
+  [[-17, 21], [-16, 28], [-10, 30], [-6, 36], [10, 37], [11, 33], [20, 31], [30, 31], [33, 28], [37, 22], [43, 12], [51, 12], [48, 5], [40, -3], [40, -15], [35, -25], [32, -29], [27, -34], [20, -35], [18, -30], [12, -17], [13, -8], [9, -1], [9, 4], [4, 6], [-5, 5], [-8, 4], [-13, 8], [-17, 14]],
+  [[44, -25], [47, -25], [50, -16], [49, -12], [44, -17]],
+  [[35, 30], [39, 22], [43, 13], [52, 16], [59, 22], [56, 26], [50, 28], [48, 30]],
+  // Asia
+  [[30, 70], [60, 70], [70, 73], [80, 73], [100, 77], [115, 73], [130, 72], [140, 72], [160, 70], [175, 68], [180, 66], [170, 60], [163, 57], [156, 51], [150, 59], [142, 54], [140, 48], [132, 43], [129, 40], [129, 35], [126, 35], [126, 38], [122, 40], [121, 32], [122, 28], [117, 23], [108, 21], [106, 17], [109, 12], [105, 9], [100, 13], [99, 8], [103, 2], [98, 8], [97, 16], [92, 22], [88, 22], [82, 16], [80, 9], [77, 8], [73, 16], [72, 21], [67, 24], [62, 25], [57, 26], [50, 30], [48, 30], [44, 37], [36, 37], [35, 40], [40, 42], [50, 45], [52, 42], [54, 37], [60, 40], [50, 47], [45, 48], [40, 48], [45, 60], [40, 67]],
+  // Japan, Sumatra, Borneo, New Guinea
+  [[130, 31], [135, 34], [140, 36], [142, 40], [141, 45], [139, 41], [136, 36], [131, 34]],
+  [[95, 5], [98, 4], [104, -3], [106, -6], [102, -5], [96, 2]],
+  [[109, 1], [113, -3], [117, -4], [119, 1], [117, 6], [113, 4]],
+  [[131, -1], [141, -3], [150, -10], [143, -9], [138, -7], [132, -3]],
+  // Australia and New Zealand
+  [[114, -22], [114, -34], [118, -35], [124, -33], [131, -31], [138, -35], [141, -38], [147, -39], [150, -37], [153, -30], [153, -25], [146, -19], [142, -11], [141, -15], [136, -12], [131, -11], [125, -14], [122, -18]],
+  [[172, -34], [175, -37], [178, -38], [175, -41], [170, -46], [167, -46], [172, -41]],
+  // Antarctica
+  [[-180, -78], [-150, -76], [-120, -73], [-90, -72], [-60, -64], [-55, -66], [-30, -76], [0, -70], [30, -69], [60, -67], [90, -66], [120, -67], [150, -69], [180, -78], [180, -90], [-180, -90]],
 ]
-/** Each route is one node index per layer; a glowing signal travels along it. */
-const ROUTES = [[0, 1, 2, 0], [2, 3, 1, 1], [1, 0, 3, 1], [1, 2, 0, 0]] as const
 
-/** AI understands: a small neural network with signals flowing from input to output. */
-function NeuralNet() {
-  return <svg viewBox="0 0 120 48" className="h-12 w-full" fill="none" aria-hidden="true">
-    <g stroke="#a78bfa" strokeOpacity=".35" strokeWidth=".7">
-      {LAYERS.slice(1).map((layer, li) => LAYERS[li].ys.flatMap((y1) => layer.ys.map((y2) => <line key={`${li}-${y1}-${y2}`} x1={LAYERS[li].x} y1={y1} x2={layer.x} y2={y2} />)))}
-    </g>
-    {ROUTES.map((route, i) => <motion.circle key={i} r="2.1" fill="#fb923c" animate={{ cx: route.map((n, li) => LAYERS[li].x), cy: route.map((n, li) => LAYERS[li].ys[n]), opacity: [0, 1, 1, 0] }} transition={{ duration: 2.4, delay: i * 0.6, repeat: Infinity, ease: "easeInOut" }} />)}
-    {LAYERS.map((layer, li) => layer.ys.map((y, ni) => <motion.circle key={`${li}-${y}`} cx={layer.x} cy={y} r={layer.r} fill={layer.fill} stroke="#ffffff" strokeWidth="1.2" animate={li === 1 || li === 2 ? { opacity: [0.65, 1, 0.65] } : undefined} transition={{ duration: 1.8, delay: (li + ni) * 0.2, repeat: Infinity }} />))}
-    <Sparkle x={113} y={8} size={3.2} color="#f97316" delay={0.4} />
-  </svg>
+/** The world map as a flat (equirectangular) land mask, drawn once with rounded coastlines. */
+const MAP_W = 2048
+const MAP_H = 1024
+let landMaskCache: Uint8Array | null = null
+
+function landMask(): Uint8Array {
+  if (landMaskCache) return landMaskCache
+  const canvas = document.createElement("canvas")
+  canvas.width = MAP_W
+  canvas.height = MAP_H
+  const ctx = canvas.getContext("2d")!
+  ctx.fillStyle = "#000"
+  for (const ring of LAND) {
+    const pts = ring.map(([lon, lat]) => [((lon + 180) / 360) * MAP_W, ((90 - lat) / 180) * MAP_H])
+    const mid = (a: number[], b: number[]) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]
+    // Curve through each edge's midpoint so coastlines come out smooth instead of angular.
+    const start = mid(pts[pts.length - 1], pts[0])
+    ctx.beginPath()
+    ctx.moveTo(start[0], start[1])
+    pts.forEach((p, i) => {
+      const m = mid(p, pts[(i + 1) % pts.length])
+      ctx.quadraticCurveTo(p[0], p[1], m[0], m[1])
+    })
+    ctx.closePath()
+    ctx.fill()
+  }
+  const alpha = ctx.getImageData(0, 0, MAP_W, MAP_H).data
+  const mask = new Uint8Array(MAP_W * MAP_H)
+  for (let i = 0; i < mask.length; i++) mask[i] = alpha[i * 4 + 3] > 127 ? 1 : 0
+  landMaskCache = mask
+  return mask
 }
 
-/** They hear you: a glowing voice orb sending out rings, flanked by a speech waveform. */
-function VoiceOrb() {
-  const bars = [5, 9, 15, 11, 20, 14, 8]
-  return <svg viewBox="0 0 120 48" className="h-12 w-full" fill="none" aria-hidden="true">
-    <defs>
-      <radialGradient id="hero-orb" cx=".35" cy=".3" r=".8"><stop stopColor="#fed7aa" /><stop offset=".45" stopColor="#fb923c" /><stop offset="1" stopColor="#ea580c" /></radialGradient>
-    </defs>
-    {[0, 1, 2].map((i) => <motion.circle key={i} cx="60" cy="24" stroke="#fb923c" strokeWidth="1.2" animate={{ r: [12, 23], opacity: [0.55, 0] }} transition={{ duration: 2.4, delay: i * 0.8, repeat: Infinity, ease: "easeOut" }} />)}
-    {[-1, 1].map((side) => bars.map((h, i) => {
-      const x = 60 + side * (21 + i * 5.2)
-      return <motion.rect key={`${side}-${i}`} x={x - 1.3} y={24 - h / 2} width="2.6" height={h} rx="1.3" fill={i % 2 ? "#f59e0b" : "#fb923c"} fillOpacity={1 - i * 0.1} animate={{ scaleY: [0.55, 1.15, 0.6] }} style={{ originY: "50%" }} transition={{ duration: 1.2, delay: i * 0.09, repeat: Infinity, ease: "easeInOut" }} />
-    }))}
-    <circle cx="60" cy="24" r="12" fill="url(#hero-orb)" />
-    <circle cx="60" cy="24" r="12" stroke="#ffffff" strokeOpacity=".6" strokeWidth="1" />
-    <path d="M53.5 21.5h2.5l4-3.4v11.8l-4-3.4h-2.5a.8.8 0 0 1-.8-.8v-3.4a.8.8 0 0 1 .8-.8Z" fill="#ffffff" />
-    <path d="M63 21.2a4 4 0 0 1 0 5.6M65.4 18.8a7.4 7.4 0 0 1 0 10.4" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
-  </svg>
+/** The logo's gradient (gold → orange → flame → red → crimson → plum), used for the oceans from the lit side outward. */
+const OCEAN_STOPS: [number, [number, number, number]][] = [
+  [0, [245, 180, 0]],
+  [0.25, [242, 140, 26]],
+  [0.45, [238, 75, 28]],
+  [0.62, [215, 26, 31]],
+  [0.8, [176, 16, 48]],
+  [1, [94, 15, 69]],
+]
+
+function oceanColor(t: number): [number, number, number] {
+  for (let s = 1; s < OCEAN_STOPS.length; s++) {
+    const [t1, c1] = OCEAN_STOPS[s]
+    if (t <= t1) {
+      const [t0, c0] = OCEAN_STOPS[s - 1]
+      const k = (t - t0) / (t1 - t0)
+      return [c0[0] + (c1[0] - c0[0]) * k, c0[1] + (c1[1] - c0[1]) * k, c0[2] + (c1[2] - c0[2]) * k]
+    }
+  }
+  return OCEAN_STOPS[OCEAN_STOPS.length - 1][1]
 }
 
-/** Everyone connects: a sign bubble and a voice bubble trading messages both ways. */
-function SignVoiceBubbles() {
-  const wave = [6, 11, 16, 9, 14, 7, 4]
-  return <svg viewBox="0 0 120 48" className="h-12 w-full" fill="none" aria-hidden="true">
-    <defs>
-      <linearGradient id="hero-bubble-sign" x1="6" y1="4" x2="46" y2="36" gradientUnits="userSpaceOnUse"><stop stopColor="#60a5fa" /><stop offset="1" stopColor="#4f46e5" /></linearGradient>
-      <linearGradient id="hero-bubble-voice" x1="74" y1="12" x2="114" y2="44" gradientUnits="userSpaceOnUse"><stop stopColor="#fdba74" /><stop offset="1" stopColor="#ea580c" /></linearGradient>
-    </defs>
-    <motion.g animate={{ y: [0, -1.5, 0] }} transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}>
-      <rect x="6" y="3" width="40" height="30" rx="10" fill="url(#hero-bubble-sign)" />
-      <path d="M13 32.5 10 40l9-7.5Z" fill="#4f46e5" />
-      <g transform="translate(14.5 5.5) scale(.52)"><HandShape fill="#ffffff" /></g>
-    </motion.g>
-    <motion.g animate={{ y: [0, -1.5, 0] }} transition={{ duration: 2.6, delay: 1.3, repeat: Infinity, ease: "easeInOut" }}>
-      <rect x="74" y="12" width="40" height="30" rx="10" fill="url(#hero-bubble-voice)" />
-      <path d="M107 41.5 110 47.5l-9.5-6Z" fill="#ea580c" />
-      {wave.map((h, i) => <motion.rect key={i} x={81.5 + i * 4} y={27 - h / 2} width="2.4" height={h} rx="1.2" fill="#ffffff" animate={{ scaleY: [0.6, 1.1, 0.6] }} style={{ originY: "50%" }} transition={{ duration: 1.1, delay: i * 0.08, repeat: Infinity, ease: "easeInOut" }} />)}
-    </motion.g>
-    <g stroke="#0d9488" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <motion.path d="M52 19h14m-3-3 3 3-3 3" animate={{ x: [-1.5, 1.5, -1.5] }} transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }} />
-      <motion.path d="M68 29H54m3-3-3 3 3 3" animate={{ x: [1.5, -1.5, 1.5] }} transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }} />
-    </g>
-  </svg>
+const pack = (r: number, g: number, b: number, a: number) => ((a << 24) | (Math.round(b) << 16) | (Math.round(g) << 8) | Math.round(r)) >>> 0
+
+const TILT = 15 * (Math.PI / 180)
+const START_LON = 25 * (Math.PI / 180) // start facing Europe, Africa and the Middle East
+
+/**
+ * Per-pixel lookup for one canvas size: where each pixel of the disc lands on the flat map (an
+ * orthographic projection tilted 15° toward us), plus its ocean and land colours with the shading
+ * already applied. Turning the globe is then just a horizontal shift into the map.
+ */
+type Sphere = { size: number; disc: Int32Array; row: Int32Array; col: Int32Array; ocean: Uint32Array; land: Uint32Array; image: ImageData; out: Uint32Array }
+
+function buildSphere(ctx: CanvasRenderingContext2D, size: number): Sphere {
+  const image = ctx.createImageData(size, size)
+  const out = new Uint32Array(image.data.buffer)
+  const n = size * size
+  const discList: number[] = []
+  const row = new Int32Array(n)
+  const col = new Int32Array(n)
+  const ocean = new Uint32Array(n)
+  const land = new Uint32Array(n)
+  const r = size / 2
+  const sinT = Math.sin(TILT)
+  const cosT = Math.cos(TILT)
+  for (let py = 0; py < size; py++) {
+    for (let px = 0; px < size; px++) {
+      const dx = (px + 0.5 - r) / r
+      const dy = (r - py - 0.5) / r
+      const rho = Math.sqrt(dx * dx + dy * dy)
+      if (rho >= 1) continue
+      const i = py * size + px
+      discList.push(i)
+      const z = Math.sqrt(1 - rho * rho)
+      const lat = Math.asin(Math.min(1, Math.max(-1, z * sinT + dy * cosT)))
+      const lon = Math.atan2(dx, z * cosT - dy * sinT)
+      row[i] = Math.min(MAP_H - 1, Math.floor((0.5 - lat / Math.PI) * MAP_H)) * MAP_W
+      col[i] = Math.floor((lon / (2 * Math.PI) + 0.5) * MAP_W) % MAP_W
+      const a = Math.round(Math.min(1, (1 - rho) * r) * 255) // soft rim
+      const [or, og, ob] = oceanColor(Math.min(1, Math.hypot(dx + 0.38, dy - 0.42) / 1.6))
+      const shade = 0.8 + 0.2 * z
+      ocean[i] = pack(or * shade, og * shade, ob * shade, a)
+      const k = 1 - z // land: warm cream, a touch deeper toward the rim
+      land[i] = pack(255 - 9 * k, 246 - 34 * k, 234 - 46 * k, a)
+    }
+  }
+  return { size, disc: Int32Array.from(discList), row, col, ocean, land, image, out }
 }
 
-function StoryCard({ card, label }: { card: (typeof CARD_DATA)[number]; label: string }) {
-  return <motion.div className={`absolute z-30 w-[46%] max-w-[150px] rounded-[18px] border border-white/80 bg-white/82 px-3 py-2.5 shadow-[0_16px_30px_-18px_rgba(72,72,140,0.42)] backdrop-blur-md ${card.className}`} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1, y: [0, -5, 0] }} transition={{ opacity: { duration: 0.55, delay: card.delay * 0.12 }, scale: { duration: 0.55, delay: card.delay * 0.12 }, y: { duration: 4.6, delay: card.delay, repeat: Infinity, ease: "easeInOut" } }}>
-    <p className="mb-1 text-xs leading-tight font-bold text-[#3f4263]">{label}</p>
-    <div className={`flex h-12 items-center justify-center overflow-hidden rounded-xl shadow-[inset_0_0_0_1px_rgba(255,255,255,.8)] ${card.tint}`}>
-      {card.id === "sign" && <SignScan />}{card.id === "understands" && <NeuralNet />}{card.id === "hear" && <VoiceOrb />}{card.id === "connect" && <SignVoiceBubbles />}
+function drawEarth(ctx: CanvasRenderingContext2D, s: Sphere, rotation: number) {
+  const mask = landMask()
+  const shift = Math.round((rotation / (2 * Math.PI)) * MAP_W)
+  for (let d = 0; d < s.disc.length; d++) {
+    const i = s.disc[d]
+    let c = (s.col[i] + shift) % MAP_W
+    if (c < 0) c += MAP_W
+    s.out[i] = mask[s.row[i] + c] ? s.land[i] : s.ocean[i]
+  }
+  ctx.putImageData(s.image, 0, 0)
+  // Night side and a soft highlight, painted only onto the globe itself.
+  const size = s.size
+  ctx.globalCompositeOperation = "source-atop"
+  const night = ctx.createLinearGradient(size * 0.15, size * 0.1, size, size)
+  night.addColorStop(0.5, "rgba(40, 6, 30, 0)")
+  night.addColorStop(1, "rgba(40, 6, 30, 0.45)")
+  ctx.fillStyle = night
+  ctx.fillRect(0, 0, size, size)
+  const shine = ctx.createRadialGradient(size * 0.32, size * 0.26, 0, size * 0.32, size * 0.26, size * 0.45)
+  shine.addColorStop(0, "rgba(255, 255, 255, 0.28)")
+  shine.addColorStop(1, "rgba(255, 255, 255, 0)")
+  ctx.fillStyle = shine
+  ctx.fillRect(0, 0, size, size)
+  ctx.globalCompositeOperation = "source-over"
+}
+
+/** Canvas globe that turns slowly (west to east) while on screen; one still frame when motion is reduced. */
+function Earth({ spinning }: { spinning: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const rotationRef = useRef(START_LON)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas?.getContext("2d")
+    if (!canvas || !ctx) return
+    let sphere: Sphere | null = null
+    const resize = () => {
+      // At least 1.5x the CSS size so coastlines stay smooth, capped so the per-frame work stays small; CSS scales it to fit.
+      const size = Math.min(Math.round(canvas.clientWidth * Math.min(Math.max(window.devicePixelRatio || 1, 1.5), 2)), 720)
+      if (!size || sphere?.size === size) return
+      canvas.width = size
+      canvas.height = size
+      sphere = buildSphere(ctx, size)
+      drawEarth(ctx, sphere, rotationRef.current)
+    }
+    resize()
+    const observer = new ResizeObserver(resize)
+    observer.observe(canvas)
+    if (!spinning) return () => observer.disconnect()
+
+    // A full turn every 60s, redrawn at about 25fps.
+    let frame = 0
+    let last = performance.now()
+    const tick = (now: number) => {
+      frame = requestAnimationFrame(tick)
+      if (now - last < 40 || !sphere) return
+      rotationRef.current -= ((now - last) / 60000) * Math.PI * 2
+      last = now
+      drawEarth(ctx, sphere, rotationRef.current)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => {
+      cancelAnimationFrame(frame)
+      observer.disconnect()
+    }
+  }, [spinning])
+
+  return <canvas ref={canvasRef} className="absolute inset-0 size-full rounded-full" />
+}
+
+/* ----------------------------------------------------------------------------------------------
+ * The three stages on the Earth, wired together. A current runs along the wires in order:
+ * stage 1 lights → spark travels to stage 2 → stage 2 lights → spark to stage 3 → stage 3 lights.
+ * -------------------------------------------------------------------------------------------- */
+
+/** Node positions, in % of the illustration (the Earth fills its middle 84%). */
+const STAGES = [
+  { id: "sign", x: 29, y: 30, labelBelow: false },
+  { id: "understands", x: 50, y: 50, labelBelow: true },
+  { id: "hear", x: 76, y: 78, labelBelow: true },
+] as const
+
+/** The wires between consecutive stages, in the same 0–100 space, arching over the surface. */
+const WIRES = ["M29 30 C 28 41, 36 49, 50 50", "M50 50 C 65 50, 77 62, 76 78"] as const
+
+/** The cycle: which stage is lit or which wire carries the current, and for how long. */
+const PHASES: { lit: number | null; wire: number | null; ms: number }[] = [
+  { lit: 0, wire: null, ms: 1300 },
+  { lit: null, wire: 0, ms: 1100 },
+  { lit: 1, wire: null, ms: 1300 },
+  { lit: null, wire: 1, ms: 1100 },
+  { lit: 2, wire: null, ms: 1700 },
+]
+
+/** Numbered dot for a stage (a <b>, so the landing's forced dark span colour doesn't reach the white digit). */
+function StepNumber({ n }: { n: number }) {
+  return (
+    <b className="grid size-6 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D63C1A] to-[#B01030] text-xs leading-none font-bold text-white">
+      {n}
+    </b>
+  )
+}
+
+function StageNode({ index, lit, label, pulse }: { index: number; lit: boolean; label: string; pulse: boolean }) {
+  const stage = STAGES[index]
+  const icon =
+    index === 0 ? <Hand className="size-7 sm:size-8" /> : index === 1 ? (
+      <img src="/deafference-mark.png" alt="" className={cn("size-9 object-contain transition-[filter,opacity] duration-300 sm:size-10", !lit && "opacity-60 grayscale")} />
+    ) : (
+      <AudioLines className="size-7 sm:size-8" />
+    )
+  return (
+    <div className="absolute z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center" style={{ left: `${stage.x}%`, top: `${stage.y}%` }}>
+      {/* The label sits above stage 1 and below the others, so none of them covers a wire. */}
+      {!stage.labelBelow ? <StageLabel n={index + 1} label={label} lit={lit} className="mb-2" /> : null}
+      <div className="relative">
+        {lit && pulse ? (
+          <motion.div
+            className="absolute inset-0 rounded-full border-[3px] border-[#fff]"
+            initial={{ scale: 1, opacity: 0.95 }}
+            animate={{ scale: 1.75, opacity: 0 }}
+            transition={{ duration: 1.1, repeat: Infinity, ease: "easeOut" }}
+          />
+        ) : null}
+        {/* Lit: a crimson ring inside a bright white halo, so it stands out on the warm planet; it also grows a little. */}
+        <div
+          className={cn(
+            "rounded-full transition-all duration-300",
+            lit
+              ? "scale-110 bg-gradient-to-br from-[#F28C1A] via-[#D63C1A] to-[#B01030] p-1.5 shadow-[0_0_0_5px_rgba(255,255,255,0.85),0_0_40px_16px_rgba(255,255,255,0.75)]"
+              : "bg-[rgba(255,255,255,0.6)] p-1 shadow-[0_10px_24px_-10px_rgba(40,6,30,0.7)]",
+          )}
+        >
+          <div
+            className={cn(
+              "grid size-14 place-items-center rounded-full bg-[#fff] transition-colors duration-300 sm:size-16",
+              lit ? "text-[#C0341B]" : "text-[#8a93a6]",
+            )}
+          >
+            {icon}
+          </div>
+        </div>
+      </div>
+      {stage.labelBelow ? <StageLabel n={index + 1} label={label} lit={lit} className="mt-2" /> : null}
     </div>
-  </motion.div>
+  )
+}
+
+function StageLabel({ n, label, lit, className }: { n: number; label: string; lit: boolean; className?: string }) {
+  // Arbitrary white (not bg-white/…), so dark mode's surface remap leaves this light chip and its dark text alone.
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-2 rounded-full bg-[rgba(255,255,255,0.96)] py-1 ps-1 pe-3 text-xs leading-tight font-bold whitespace-nowrap text-[#25242f] shadow-[0_10px_24px_-14px_rgba(40,6,30,0.7)] transition-shadow duration-300 sm:text-sm",
+        lit && "shadow-[0_0_0_2px_rgba(214,60,26,0.9),0_10px_24px_-14px_rgba(40,6,30,0.7)]",
+        className,
+      )}
+    >
+      <StepNumber n={n} />
+      {label}
+    </div>
+  )
 }
 
 export function HeroIllustration() {
   const { t } = useI18n()
   const cards = t.landing.hero.cards
+  const labels = [cards.sign, cards.understands, cards.hear]
   const wrapRef = useRef<HTMLDivElement>(null)
-  const mx = useMotionValue(0)
-  const my = useMotionValue(0)
-  const rotateX = useSpring(useTransform(my, [-0.5, 0.5], [5, -5]), { stiffness: 80, damping: 18 })
-  const rotateY = useSpring(useTransform(mx, [-0.5, 0.5], [-5, 5]), { stiffness: 80, damping: 18 })
-  const updatePointer = (e: React.PointerEvent<HTMLDivElement>) => { const rect = wrapRef.current?.getBoundingClientRect(); if (rect) { mx.set((e.clientX - rect.left) / rect.width - 0.5); my.set((e.clientY - rect.top) / rect.height - 0.5) } }
+  const inView = useInView(wrapRef, { amount: 0.2 })
+  const reduced = useLandingReducedMotion()
+  const animate = inView && !reduced
+  const [phaseIndex, setPhaseIndex] = useState(0)
+  // Bumps every cycle so a wire's current starts again from its beginning.
+  const [cycle, setCycle] = useState(0)
 
-  return <div ref={wrapRef} onPointerMove={updatePointer} onPointerLeave={() => { mx.set(0); my.set(0) }} className="relative mx-auto aspect-square w-full max-w-[460px] select-none" style={{ perspective: 1000 }} role="img" aria-label={t.landing.hero.illustrationLabel}>
-    <div className="absolute inset-[8%] rounded-full bg-[#b9c9ff]/30 blur-3xl" />
-    <motion.div className="absolute inset-[10%]" style={{ rotateX, rotateY }}>
-      <motion.div className="absolute inset-0" animate={{ y: [0, -8, 0] }} transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}>
-        <div className="absolute inset-[9%] overflow-hidden rounded-full border border-white/80 bg-[radial-gradient(circle_at_38%_30%,rgba(255,255,255,.98),rgba(222,224,255,.68)_42%,rgba(163,171,232,.52))] shadow-[inset_-18px_-14px_35px_rgba(92,100,181,.18),0_24px_60px_-28px_rgba(73,84,167,.6)]" />
-        <motion.svg viewBox="0 0 240 240" className="absolute inset-[9%] h-[82%] w-[82%]" animate={{ rotate: 360 }} transition={{ duration: 110, repeat: Infinity, ease: "linear" }} aria-hidden="true">
-          <g fill="none" stroke="#7d86cc" strokeOpacity=".25" strokeWidth=".7"><ellipse cx="120" cy="120" rx="108" ry="38" /><ellipse cx="120" cy="120" rx="108" ry="69" /><ellipse cx="120" cy="120" rx="52" ry="108" /><ellipse cx="120" cy="120" rx="81" ry="108" /><path d="M12 120h216M21 76h198M21 164h198" /></g>
-          {[...Array(18)].map((_, i) => <motion.circle key={i} cx={30 + ((i * 47) % 180)} cy={25 + ((i * 71) % 185)} r={i % 3 === 0 ? 2.1 : 1.25} fill={i % 4 === 0 ? "#e8a13b" : "#7b85cf"} animate={{ opacity: [.25, 1, .25], scale: [.8, 1.35, .8] }} transition={{ duration: 2.6 + (i % 3) * .5, delay: i * .12, repeat: Infinity }} />)}
-          {/* Plexus web: glowing particles linked to their neighbours, fading toward the back of the sphere. */}
-          <g stroke="#8b8fe8" strokeWidth=".45">{LINKS.map(([a, b], i) => <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} strokeOpacity={round(0.12 + Math.min(a.z, b.z) * 0.3)} />)}</g>
-          {/* Current running along the web: a short bright dash sweeping each live link. */}
-          <g stroke="#fff7e6" strokeWidth="1.1" strokeLinecap="round" filter="url(#node-glow)">{LIVE_LINKS.map(([a, b], i) => <motion.line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} pathLength={1} strokeDasharray="0.25 1" animate={{ strokeDashoffset: [1.25, 0], opacity: [0, 1, 0] }} transition={{ duration: 1.1, delay: (i * 0.37) % 3.2, repeat: Infinity, repeatDelay: 1.6 + (i % 4) * 0.5, ease: "easeInOut" }} />)}</g>
-          <g filter="url(#node-glow)">{NODES.map((n, i) => i % 5 === 0
-            ? <motion.circle key={i} cx={n.x} cy={n.y} r={round(1.2 + n.z * 1.1)} fill={i % 10 === 0 ? "#f5a742" : "#ffffff"} animate={{ opacity: [0.35, 1, 0.35] }} transition={{ duration: 2.2 + (i % 4) * 0.4, delay: (i % 7) * 0.3, repeat: Infinity }} />
-            : <circle key={i} cx={n.x} cy={n.y} r={round(0.7 + n.z * 0.9)} fill={i % 3 === 0 ? "#a5a9f5" : "#ffffff"} fillOpacity={round(0.45 + n.z * 0.5)} />)}</g>
-          <defs><filter id="node-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.1" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
-        </motion.svg>
-        {/* Soft inner light, like a glowing glass core. */}
-        <div className="pointer-events-none absolute inset-[22%] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,.75),rgba(196,190,255,.35)_45%,transparent_70%)] blur-md" />
-        {/* Electrons on tilted orbits. */}
-        <svg viewBox="0 0 240 240" className="pointer-events-none absolute inset-[9%] h-[82%] w-[82%]" fill="none" aria-hidden="true">
-          {ORBITS.map((angle, i) => <g key={angle} transform={`rotate(${angle} 120 120)`}>
-            <path d={ORBIT_PATH} stroke={i === 1 ? "#f5a742" : "#8b8fe8"} strokeOpacity=".35" strokeWidth=".7" />
-            <motion.circle r="2.6" fill={i === 1 ? "#f59e0b" : "#6366f1"} filter="url(#node-glow-2)" animate={{ offsetDistance: ["0%", "100%"] }} transition={{ duration: 7 + i * 2.5, delay: i * 1.2, repeat: Infinity, ease: "linear" }} style={{ offsetPath: `path('${ORBIT_PATH}')` }} />
-          </g>)}
-          {/* Lightning: each bolt flashes and flickers out, staggered so only one or two fire at a time. */}
-          {BOLTS.map((bolt, i) => <motion.g key={bolt.trunk} initial={{ opacity: 0 }} animate={{ opacity: [0, 1, 0.25, 0.9, 0] }} transition={{ duration: 0.6, times: [0, 0.15, 0.35, 0.55, 1], delay: i * 0.9, repeat: Infinity, repeatDelay: 4.8 }} filter="url(#bolt-glow)" strokeLinejoin="round" strokeLinecap="round">
-            <path d={bolt.trunk} stroke={i % 2 ? "#a78bfa" : "#fb923c"} strokeWidth="2.6" strokeOpacity=".55" />
-            <path d={bolt.branch} stroke={i % 2 ? "#a78bfa" : "#fb923c"} strokeWidth="1.6" strokeOpacity=".45" />
-            <path d={bolt.trunk} stroke="#ffffff" strokeWidth=".9" />
-            <path d={bolt.branch} stroke="#ffffff" strokeWidth=".55" />
-          </motion.g>)}
-          <defs><filter id="bolt-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
-          <defs><filter id="node-glow-2" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="1.6" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
-        </svg>
-        <svg viewBox="0 0 240 240" className="absolute inset-0 size-full" fill="none" aria-hidden="true">{CONNECTIONS.map((path, i) => <g key={path}><path d={path} stroke="#f1aa45" strokeOpacity=".38" strokeWidth="1.2" /><motion.circle r="2.8" fill="#f0a53a" filter="url(#glow)" animate={{ offsetDistance: ["0%", "100%"], opacity: [0, 1, 0] }} transition={{ duration: 2.7, delay: i * .55, repeat: Infinity, ease: "easeOut" }} style={{ offsetPath: `path('${path}')` }} /></g>)}<defs><filter id="glow"><feGaussianBlur stdDeviation="1.2" /></filter></defs></svg>
-        <div className="absolute inset-0 flex items-center justify-center"><motion.div className="relative flex size-[84px] items-center justify-center rounded-full border border-[rgba(255,255,255,0.8)] bg-[rgba(255,255,255,0.94)] shadow-[0_0_0_7px_rgba(255,255,255,.3),0_14px_32px_rgba(99,94,190,.24)] sm:size-[100px]" animate={{ boxShadow: ["0 0 0 7px rgba(255,255,255,.3),0 14px 32px rgba(99,94,190,.24)", "0 0 0 12px rgba(244,179,73,.16),0 14px 38px rgba(99,94,190,.34)", "0 0 0 7px rgba(255,255,255,.3),0 14px 32px rgba(99,94,190,.24)"] }} transition={{ duration: 2.5, repeat: Infinity }}><img src="/deafference-mark.png" alt="" aria-hidden="true" className="size-[64%] object-contain drop-shadow-[0_4px_10px_rgba(232,89,12,0.35)]" /></motion.div></div>
-      </motion.div>
-    </motion.div>
-    {CARD_DATA.map(card => <StoryCard key={card.id} card={card} label={cards[card.id]} />)}
-  </div>
+  useEffect(() => {
+    if (!animate) return
+    const id = window.setTimeout(() => {
+      const next = (phaseIndex + 1) % PHASES.length
+      if (next === 0) setCycle((c) => c + 1)
+      setPhaseIndex(next)
+    }, PHASES[phaseIndex].ms)
+    return () => window.clearTimeout(id)
+  }, [animate, phaseIndex])
+
+  const phase = PHASES[phaseIndex]
+  // Without motion everything shows connected: all stages lit, both wires live.
+  const isLit = (i: number) => reduced || phase.lit === i
+  const isLive = (i: number) => reduced || phase.wire === i
+
+  return (
+    <div ref={wrapRef} className="relative mx-auto aspect-square w-full max-w-[460px] select-none" role="img" aria-label={t.landing.hero.illustrationLabel}>
+      {/* Atmosphere: a thin warm haze around the planet, in the logo's orange. */}
+      <div aria-hidden="true" className="absolute inset-[4%] rounded-full bg-[radial-gradient(circle,rgba(242,140,26,0.4)_58%,rgba(242,140,26,0)_71%)]" />
+      <div aria-hidden="true" className="absolute inset-[8%] rounded-full shadow-[0_30px_60px_-24px_rgba(94,15,69,0.7)]">
+        <Earth spinning={animate} />
+      </div>
+
+      {/* Wires: a dark plum cable with a light core; the live one carries a bright gold current (framed by the dark cable, so it reads on land and sea) and a white spark. */}
+      <svg viewBox="0 0 100 100" className="absolute inset-0 z-10 size-full overflow-visible" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="hero-current" x1="0" y1="0" x2="1" y2="1">
+            <stop stopColor="#FFE45C" />
+            <stop offset="1" stopColor="#FFC21A" />
+          </linearGradient>
+          <filter id="hero-current-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="0.9" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        {WIRES.map((d, i) => (
+          <g key={d}>
+            <path d={d} stroke="rgba(40,8,30,0.7)" strokeWidth="1.9" strokeLinecap="round" />
+            <path d={d} stroke="rgba(255,255,255,0.85)" strokeWidth="0.6" strokeLinecap="round" />
+            {isLive(i) ? (
+              <>
+                <motion.path
+                  key={`current-${i}-${cycle}`}
+                  d={d}
+                  stroke="url(#hero-current)"
+                  strokeWidth="1.15"
+                  strokeLinecap="round"
+                  filter="url(#hero-current-glow)"
+                  initial={{ pathLength: reduced ? 1 : 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: PHASES[i * 2 + 1].ms / 1000, ease: "easeInOut" }}
+                />
+                {reduced ? null : (
+                  <motion.circle
+                    key={`spark-${i}-${cycle}`}
+                    r="1.7"
+                    fill="#ffffff"
+                    filter="url(#hero-current-glow)"
+                    initial={{ offsetDistance: "0%" }}
+                    animate={{ offsetDistance: "100%" }}
+                    transition={{ duration: PHASES[i * 2 + 1].ms / 1000, ease: "easeInOut" }}
+                    style={{ offsetPath: `path('${d}')` }}
+                  />
+                )}
+              </>
+            ) : null}
+          </g>
+        ))}
+      </svg>
+
+      {STAGES.map((stage, i) => (
+        <StageNode key={stage.id} index={i} lit={isLit(i)} label={labels[i]} pulse={animate} />
+      ))}
+    </div>
+  )
 }

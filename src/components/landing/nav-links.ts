@@ -10,25 +10,29 @@ const HREF_TO_KEY: Record<string, NavKey> = {
   [APP_ROUTES.scenarios]: "forYou",
   "#scenarios": "forYou",
   "#why-choose-us": "forOrganisations",
-  "#faq": "resources",
+  "#faq": "faq",
   "#pricing": "pricing",
   "#features": "features",
   "#about": "about",
   "#contact": "contact",
   [APP_ROUTES.translate]: "translate",
   "#demo": "demo",
-  "#privacy": "privacy",
+  "#privacy": "security",
 }
 
 /**
  * Links that now open one of the landing's own pages (the shared hrefs in lib/constants still use anchors).
- * Direct links elsewhere (terms page, sign-up form) point at /how-it-works#privacy too.
+ * Direct links elsewhere (terms page, sign-up form) point at /security too.
  */
 const MOVED: Record<string, string> = {
   "#how-it-works": "/how-it-works",
   "#features": "/how-it-works#features",
   "#performance": "/how-it-works#performance",
-  "#privacy": "/how-it-works#privacy",
+  // Pricing, FAQ, privacy & security and the contact form left the home page for their own pages.
+  "#pricing": "/pricing",
+  "#faq": "/faq",
+  "#privacy": "/security",
+  "#contact": "/contact",
   // The full About us page; "Our story" stays on the home page and links there.
   "#about": "/about",
 }

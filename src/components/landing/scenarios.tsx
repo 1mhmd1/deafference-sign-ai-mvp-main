@@ -1,14 +1,39 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import Image from "next/image"
-import { useInView } from "framer-motion"
-import { Container } from "@/components/shared/container"
+import { useEffect, useRef, useState, type RefObject } from "react"
+import {
+  Ambulance,
+  Briefcase,
+  Compass,
+  ConciergeBell,
+  GraduationCap,
+  Landmark,
+  Plane,
+  Stethoscope,
+  type LucideIcon,
+} from "lucide-react"
 import { JudyCharacter, type JudyPose } from "@/components/judy/judy-character"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
 import { useLandingReducedMotion } from "./calm-mode"
-import { GlowOrb, PopEyebrow, Reveal } from "./ui/pop"
+import { AccentTitle, AppGlyph, Avatar, Bubble, DfIcon, SectionHead, type IconName } from "./home/df-ui"
+
+/** One icon per place, in the order of SCENARIOS and `t.landing.scenarios.items`. */
+const PLACE_ICONS: LucideIcon[] = [Stethoscope, ConciergeBell, Briefcase, Ambulance, Plane, Landmark, GraduationCap]
+
+/**
+ * The website design's pictures for each place (same order): the place, the person you talk to, and
+ * the icons in the two speech bubbles of `t.landing.home.places.exchanges`.
+ */
+const PLACE_ART: { place: IconName; role: IconName; you: IconName[]; them: IconName[] }[] = [
+  { place: "hospital", role: "stethoscope", you: ["bolt"], them: ["pill", "clock"] },
+  { place: "bed", role: "bell", you: ["bed", "moon"], them: ["key"] },
+  { place: "briefcase", role: "users", you: ["calendar"], them: ["check", "door"] },
+  { place: "ambulance", role: "siren", you: ["alert"], them: ["ambulance"] },
+  { place: "plane", role: "idcard", you: ["pin"], them: ["plane", "clock"] },
+  { place: "building", role: "building", you: ["idcard", "repeat"], them: ["paper", "pen"] },
+  { place: "cap", role: "book", you: ["repeat"], them: ["book"] },
+]
 
 // Spots are where Judy's feet go, as % of the illustration (left, top).
 // scenarios-hub.png is 1672×941; the numbers were read off the artwork.
@@ -65,11 +90,24 @@ const IMAGE_ASPECT = 941 / 1672
 const MS_PER_UNIT = 110
 const VISIT_MS = 3800
 
+/** Whether at least `amount` of the element is on screen (Judy only walks while the map is visible). */
+function useOnScreen(ref: RefObject<Element | null>, amount: number) {
+  const [onScreen, setOnScreen] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting), { threshold: amount })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [ref, amount])
+  return onScreen
+}
+
 export function Scenarios() {
   const { t } = useI18n()
   const copy = t.landing.scenarios
   const sceneRef = useRef<HTMLDivElement>(null)
-  const inView = useInView(sceneRef, { amount: 0.3 })
+  const inView = useOnScreen(sceneRef, 0.3)
   const reduceMotion = useLandingReducedMotion()
 
   const [stopIndex, setStopIndex] = useState(0)
@@ -81,14 +119,18 @@ export function Scenarios() {
   const [travelMs, setTravelMs] = useState(0)
   // Index of the road marker whose line Judy is saying (wins over `speaking`).
   const [ringSpeaking, setRingSpeaking] = useState<number | null>(null)
-  // A click on a marker; `n` makes repeat clicks on the same marker count as new requests.
-  const [ringVisit, setRingVisit] = useState<{ ring: number; n: number } | null>(null)
+  // A click on a road marker or a place button; `n` makes repeat clicks on the same one count as new requests.
+  const [visit, setVisit] = useState<{ kind: "ring" | "room"; index: number; n: number } | null>(null)
+  // The place just chosen with a button, shown in the panel straight away while Judy walks there.
+  const [pendingRoom, setPendingRoom] = useState<number | null>(null)
   const handledVisit = useRef(0)
   // The loop reads these between awaits, so it resumes where she is when the section scrolls back in.
   const spotRef = useRef(spot)
   const stopRef = useRef(stopIndex)
 
   function askAboutRing(index: number) {
+    // A marker click replaces any place picked with a button.
+    setPendingRoom(null)
     if (reduceMotion) {
       // No walking without motion: she answers from where she stands.
       stopRef.current = RINGS[index].room
@@ -96,7 +138,18 @@ export function Scenarios() {
       setRingSpeaking(index)
       return
     }
-    setRingVisit({ ring: index, n: Date.now() })
+    setVisit({ kind: "ring", index, n: Date.now() })
+  }
+
+  function chooseRoom(index: number) {
+    setRingSpeaking(null)
+    if (reduceMotion) {
+      stopRef.current = index
+      setStopIndex(index)
+      return
+    }
+    setPendingRoom(index)
+    setVisit({ kind: "room", index, n: Date.now() })
   }
 
   useEffect(() => {
@@ -127,6 +180,9 @@ export function Scenarios() {
     const tour = async () => {
       while (!cancelled) {
         const here = SCENARIOS[stopRef.current]
+        // Only once Judy has reached the place picked with a button: a tour step that fires just as a
+        // button is clicked must not wipe the new choice (it would highlight the old place while she walks).
+        setPendingRoom((pending) => (pending === stopRef.current ? null : pending))
         setPose(here.pose)
         setSpeaking(stopRef.current)
         await wait(VISIT_MS)
@@ -169,10 +225,25 @@ export function Scenarios() {
       }
     }
 
+    // A place button: walk the roads into that room; the tour then starts there with its line.
+    const visitRoom = async (index: number) => {
+      setSpeaking(null)
+      setRingSpeaking(null)
+      if (index !== stopRef.current) {
+        for (const point of [SCENARIOS[stopRef.current].road, SCENARIOS[index].road, SCENARIOS[index].at]) {
+          if (cancelled) return
+          await walkTo(point)
+        }
+      }
+      if (cancelled) return
+      stopRef.current = index
+      setStopIndex(index)
+    }
+
     const run = async () => {
-      if (ringVisit && ringVisit.n !== handledVisit.current) {
-        handledVisit.current = ringVisit.n
-        await visitRing(ringVisit.ring)
+      if (visit && visit.n !== handledVisit.current) {
+        handledVisit.current = visit.n
+        await (visit.kind === "ring" ? visitRing(visit.index) : visitRoom(visit.index))
       }
       if (!cancelled) await tour()
     }
@@ -184,36 +255,46 @@ export function Scenarios() {
       setSpeaking(null)
       setRingSpeaking(null)
     }
-  }, [inView, reduceMotion, ringVisit])
+  }, [inView, reduceMotion, visit])
 
   const currentItem = copy.items[stopIndex]
   const ringLine = ringSpeaking !== null ? copy.rings[ringSpeaking] : null
+  // The panel under the map follows Judy, or the place just chosen while she walks to it.
+  const shownIndex = pendingRoom ?? stopIndex
+  const shown = copy.items[shownIndex]
+  const art = PLACE_ART[shownIndex] ?? PLACE_ART[0]
+  const exchange = t.landing.home.places.exchanges[shownIndex]
   // Without motion Judy stays put, so her line for the current stop is always shown.
   const message =
     ringLine ?? (reduceMotion ? (currentItem?.message ?? "") : speaking !== null ? (copy.items[speaking]?.message ?? "") : "")
 
   return (
-    <section id="scenarios" aria-labelledby="scenarios-heading" className="pop-atmosphere relative overflow-hidden py-24 sm:py-28">
-      <GlowOrb className="-top-24 right-0 size-[26rem] pop-float" color="rgba(45,212,191,0.16)" />
+    // `df`: drawn with the website design (home/df.css) — the grey rounded band and its heading.
+    <section id="scenarios" aria-labelledby="scenarios-heading" className="df df-section df-section--sunken relative overflow-hidden">
+      <div className="df-wrap">
+        <SectionHead
+          id="scenarios-heading"
+          kicker={copy.eyebrow}
+          kickerIcon="pin"
+          title={<AccentTitle lead={t.landing.home.places.titleLead} accent={t.landing.home.places.titleAccent} />}
+          lead={t.landing.home.places.lead}
+        />
 
-      <Container fluid>
-        <Reveal className="max-w-2xl">
-          <PopEyebrow>
-            <span aria-hidden="true">🧭</span> {copy.eyebrow}
-          </PopEyebrow>
-          <h2 id="scenarios-heading" className="mt-5 text-3xl font-bold tracking-tight text-balance text-black sm:text-4xl">
-            {copy.title}
-          </h2>
-        </Reveal>
-
-        <Reveal delay={0.1} className="mt-12">
+        <div>
+          {/* The map sits on a white card, as in the design, so its light artwork reads on the grey band. */}
+          <div className="df-mapcard">
           <div ref={sceneRef} className="relative aspect-[1672/941] w-full" style={{ ["--judy-travel" as string]: `${travelMs}ms` }}>
-            <Image
-              src="/scenarios-hub.png"
+            {/* WebP copies of the artwork (scenarios-hub.png is 2 MB): 960px for phones, full size above. */}
+            <img
+              src="/scenarios-hub.webp"
+              srcSet="/scenarios-hub-960.webp 960w, /scenarios-hub.webp 1672w"
+              sizes="(max-width: 1240px) 100vw, 1176px"
+              width={1672}
+              height={941}
               alt={copy.imageAlt}
-              fill
-              sizes="(max-width: 1024px) 100vw, 1024px"
-              className="object-contain"
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-contain"
             />
             {/* The red rings are drawn in the artwork; these transparent buttons sit on top of them. */}
             {RINGS.map((ring, i) => (
@@ -225,7 +306,7 @@ export function Scenarios() {
                 aria-pressed={ringSpeaking === i}
                 className={cn(
                   "scenario-ring absolute z-10 aspect-square w-[2.6%] min-w-6 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full",
-                  "focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]",
+                  "focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--primary)]",
                   ringSpeaking === i && "scenario-ring-active",
                 )}
                 style={{ left: `${ring.left}%`, top: `${ring.top}%` }}
@@ -243,32 +324,61 @@ export function Scenarios() {
               message={message}
             />
           </div>
+          </div>
 
-          {/* Text version of Judy's bubble: readable at any screen size, not announced on every change. */}
-          {currentItem ? (
-            <p className="mt-5 text-center text-sm leading-6 text-black sm:text-base">
-              <span className="font-semibold text-[#1D4ED8]">{copy.nowLabel}</span> {currentItem.label} — {ringLine ?? currentItem.message}
-            </p>
+          {/* Pick a place: Judy walks there and the panel shows who talks to whom through Deafference. */}
+          <div role="group" aria-label={copy.listLabel} className="mt-6 flex flex-wrap justify-center gap-2">
+            {copy.items.map((item, i) => {
+              const Icon = PLACE_ICONS[i] ?? Compass
+              const active = i === shownIndex
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => chooseRoom(i)}
+                  aria-pressed={active}
+                  className={cn("df-placebtn", active && "is-on")}
+                >
+                  <Icon className="size-4 shrink-0" aria-hidden="true" />
+                  {item.label}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* The chosen place as the design's little scene: Judy's line for it (readable at any size, not
+              announced on every change), then a two-line conversation through Deafference. Keyed by place
+              so the bubbles pop in again for each one. */}
+          {shown && exchange ? (
+            <div key={shownIndex} className="df-scene mt-6">
+              <div className="df-scene__place">
+                <span className="df-scene__big" aria-hidden="true">
+                  <DfIcon name={art.place} size={56} stroke={1.75} />
+                </span>
+                <h3 className="df-scene__name">{shown.label}</h3>
+                <p className="df-scene__tag">{pendingRoom === null && currentItem ? (ringLine ?? currentItem.message) : shown.message}</p>
+              </div>
+              <div className="df-scene__stage">
+                <div className="df-scene__side">
+                  <Bubble side="sign" icons={art.you} text={exchange.you} whoLabel={t.landing.home.signed} />
+                  <Avatar tone="flame" size={88} badge="hand" />
+                  <span className="df-scene__who">{copy.you}</span>
+                </div>
+                <div className="df-scene__bridge" aria-hidden="true">
+                  <span className="df-scene__wire" />
+                  <AppGlyph size={60} />
+                  <span className="df-scene__wire" />
+                </div>
+                <div className="df-scene__side">
+                  <Bubble side="speech" icons={art.them} text={exchange.them} whoLabel={t.landing.home.spoken} />
+                  <Avatar tone="plum" size={88} badge={art.role} />
+                  <span className="df-scene__who">{shown.with}</span>
+                </div>
+              </div>
+            </div>
           ) : null}
-
-          <ul className="mt-4 flex flex-wrap justify-center gap-2" aria-label={copy.listLabel}>
-            {copy.items.map((item, i) => (
-              <li
-                key={item.label}
-                aria-current={i === stopIndex ? "true" : undefined}
-                className={cn(
-                  "rounded-full border px-3 py-1 text-xs font-semibold transition-colors",
-                  i === stopIndex
-                    ? "border-[#1D4ED8] bg-[#1D4ED8] text-white"
-                    : "border-[color:var(--primary)]/25 bg-white/60 text-[#1D4ED8]",
-                )}
-              >
-                {item.label}
-              </li>
-            ))}
-          </ul>
-        </Reveal>
-      </Container>
+        </div>
+      </div>
     </section>
   )
 }

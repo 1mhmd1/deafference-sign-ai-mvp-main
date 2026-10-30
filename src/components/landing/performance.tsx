@@ -1,23 +1,97 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Gauge, Languages, MonitorSmartphone, ShieldCheck, Timer, Zap } from "lucide-react"
+import { AppWindow, ArrowLeftRight, Captions, Laptop, Mic, MonitorSmartphone, SlidersHorizontal, Smartphone, Tablet } from "lucide-react"
 import { Container } from "@/components/shared/container"
 import { SectionTitle } from "@/components/shared/section-title"
-import { IconBadge } from "@/components/shared/icon-badge"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
-import { AnimatedNumber, GlassPanel, GlowOrb, staggerContainer, staggerItem } from "./ui/pop"
+import { useLandingReducedMotion } from "./calm-mode"
+import { AnimatedNumber, GlassPanel, popStage, popTile, staggerContainer, staggerItem } from "./ui/pop"
 
-/** Per-metric visual accents, zipped by index with `t.landing.performance.metrics`.
- * The bars are decoration only (aria-hidden), not measurements. */
-const metricMeta = [
-  { icon: Timer, progress: 92 },
-  { icon: MonitorSmartphone, progress: 100 },
-  { icon: Languages, progress: 78 },
-]
+const QUALITY_ICONS = [AppWindow, MonitorSmartphone, SlidersHorizontal]
 
-const QUALITY_ICONS = [Gauge, Zap, ShieldCheck]
+// Fixed bar heights (no randomness) so server and client draw the same waveform.
+const BARS = [8, 14, 20, 12, 24, 16, 22, 10, 18, 12] as const
+
+/** Real-time: the speaker's words and the captions move at the same time, not one after the other. */
+function RealTimeVisual() {
+  const reduced = useLandingReducedMotion()
+  return (
+    <div className="flex w-full max-w-[15rem] flex-col gap-3">
+      <div className="flex items-center gap-3">
+        <div className={cn(popTile, "size-10")}>
+          <Mic className="size-5" />
+        </div>
+        <div className="flex h-7 flex-1 items-center gap-1">
+          {BARS.map((h, i) => (
+            <motion.div
+              key={i}
+              className="w-1.5 rounded-full bg-[#E0601A]"
+              style={{ height: h }}
+              animate={reduced ? undefined : { scaleY: [0.5, 1, 0.65, 1] }}
+              transition={{ duration: 1.3, repeat: Infinity, delay: i * 0.06, ease: "easeInOut" }}
+            />
+          ))}
+        </div>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className={cn(popTile, "size-10")}>
+          <Captions className="size-5" />
+        </div>
+        <div className="flex flex-1 flex-col gap-1.5">
+          {/* Caption lines write themselves in while the bars above are still moving. */}
+          {["100%", "70%"].map((width, i) => (
+            <div key={width} className="h-1.5 overflow-hidden rounded-full bg-[color:var(--primary)]/12">
+              <motion.div
+                className="h-full origin-[left] rounded-full bg-[color:var(--primary)] rtl:origin-[right]"
+                style={{ width }}
+                initial={{ scaleX: reduced ? 1 : 0 }}
+                animate={reduced ? { scaleX: 1 } : { scaleX: [0, 1, 1] }}
+                transition={reduced ? { duration: 0 } : { duration: 2.6, repeat: Infinity, delay: i * 0.4, times: [0, 0.7, 1], ease: "easeOut" }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/** Any screen: phone, tablet and laptop, the devices people already have. */
+function AnyScreenVisual() {
+  return (
+    <div className="flex items-end gap-3">
+      <div className={cn(popTile, "size-11")}>
+        <Smartphone className="size-5" />
+      </div>
+      <div className={cn(popTile, "size-14 rounded-2xl")}>
+        <Tablet className="size-7" />
+      </div>
+      <div className={cn(popTile, "size-[4.5rem] rounded-2xl")}>
+        <Laptop className="size-9" />
+      </div>
+    </div>
+  )
+}
+
+/** Two languages: the full interface in English and in Arabic (each name in its own script). */
+function LanguagesVisual() {
+  const chip = "rounded-xl bg-white px-3.5 py-2.5 text-base font-bold text-black shadow-[0_10px_24px_-16px_rgba(94,15,69,0.45)] ring-1 ring-[color:var(--primary)]/12"
+  return (
+    <div className="flex items-center gap-3">
+      <div className={chip} lang="en" dir="ltr">
+        English
+      </div>
+      <ArrowLeftRight className="size-5 text-[color:var(--primary)]" />
+      <div className={chip} lang="ar" dir="rtl">
+        العربية
+      </div>
+    </div>
+  )
+}
+
+const METRIC_VISUALS = [RealTimeVisual, AnyScreenVisual, LanguagesVisual]
 
 /** Splits a metric string like "2 languages" into an animatable number plus its surrounding
  * text, so figures can count up. Returns null for non-numeric metrics, which render as plain text. */
@@ -32,122 +106,79 @@ function parseMetric(value: string) {
 }
 
 export function Performance() {
-  const { t, dir } = useI18n()
+  const { t } = useI18n()
   const copy = t.landing.performance
-  const isRtl = dir === "rtl"
   return (
     <section
       id="performance"
       aria-labelledby="performance-heading"
       className="relative py-24 sm:py-28"
     >
-      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-        <div className="pop-atmosphere absolute inset-0" />
-        <div className="pop-grid absolute inset-0 opacity-40" />
-        <GlowOrb className="left-[-8%] top-6 size-72" color="rgba(59,130,246,0.18)" />
-        <GlowOrb className="right-[-6%] bottom-0 size-80" color="rgba(255,138,61,0.10)" />
-      </div>
-
       <Container fluid>
         <SectionTitle
           headingId="performance-heading"
           eyebrow={copy.eyebrow}
-          title={copy.title}
+          title={copy.title}
         />
 
-        <div className="mt-12 grid gap-4 lg:grid-cols-[1fr_1.1fr]">
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.2 }}
-            className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1"
-          >
-            {copy.metrics.map((metric, index) => {
-              const meta = metricMeta[index] ?? metricMeta[0]
-              const Icon = meta.icon
-              const parsed = parseMetric(metric.value)
-
-              return (
-                <motion.div key={metric.label} variants={staggerItem}>
-                  <GlassPanel
-                    glow={index === 1}
-                    className={cn(
-                      "flex h-full flex-col p-6 transition-transform duration-300 hover:-translate-y-1",
-                      index % 2 === 0 ? "pop-float" : "pop-float-delay",
-                    )}
-                  >
-                    <div className="flex items-center justify-between">
-                      <IconBadge icon={Icon} variant="solid" size="compact" />
-                      <span className="size-1.5 rounded-full bg-brand-orange pop-pulse" aria-hidden="true" />
-                    </div>
-
+        <motion.ul
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+          className="mt-12 grid gap-4 md:grid-cols-3"
+        >
+          {copy.metrics.map((metric, index) => {
+            const Visual = METRIC_VISUALS[index] ?? AnyScreenVisual
+            const parsed = parseMetric(metric.value)
+            return (
+              <motion.li key={metric.label} variants={staggerItem} className="flex">
+                <GlassPanel className="flex w-full flex-col p-5 sm:p-6">
+                  <div aria-hidden="true" className={cn("flex h-36 items-center justify-center p-4", popStage)}>
+                    <Visual />
+                  </div>
+                  <p className="mt-5 text-3xl font-semibold tracking-tight">
                     {parsed ? (
-                      <p className="mt-4 text-3xl font-semibold tracking-tight">
-                        <span className="pop-gradient-text">
-                          {parsed.prefix}
-                          <AnimatedNumber value={parsed.number} suffix={parsed.suffix} />
-                        </span>
-                      </p>
+                      <b className="pop-gradient-text font-semibold">
+                        {parsed.prefix}
+                        <AnimatedNumber value={parsed.number} suffix={parsed.suffix} />
+                      </b>
                     ) : (
-                      <p className="mt-4 text-2xl font-semibold tracking-tight pop-gradient-text">{metric.value}</p>
+                      <b className="pop-gradient-text font-semibold">{metric.value}</b>
                     )}
+                  </p>
+                  <p className="mt-1.5 text-sm leading-6 text-black">{metric.label}</p>
+                </GlassPanel>
+              </motion.li>
+            )
+          })}
+        </motion.ul>
 
-                    <p className="mt-2 text-sm leading-7 text-black">{metric.label}</p>
-
-                    <div aria-hidden="true" className="relative mt-5 h-1.5 overflow-hidden rounded-full bg-[color:var(--primary)]/10">
-                      <motion.div
-                        className="h-full rounded-full bg-gradient-to-r from-blue-accent to-brand-orange"
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${meta.progress}%` }}
-                        viewport={{ once: true, amount: 0.4 }}
-                        transition={{ duration: 1.1, ease: "easeOut", delay: 0.15 * index }}
-                      />
-                      <motion.span
-                        aria-hidden="true"
-                        className="absolute top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-orange shadow-[0_0_8px_rgba(255,138,61,0.65)]"
-                        style={{ left: "0%" }}
-                        animate={{
-                          left: isRtl
-                            ? ["96%", `${100 - meta.progress}%`, "96%"]
-                            : ["4%", `${meta.progress}%`, "4%"],
-                        }}
-                        transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut", delay: index * 0.3 }}
-                      />
-                    </div>
-                  </GlassPanel>
-                </motion.div>
-              )
-            })}
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.55, ease: "easeOut", delay: 0.05 }}
-          >
-            <GlassPanel className="h-full p-6">
-              <div className="grid gap-4 sm:grid-cols-3">
-                {copy.qualities.map((item, i) => {
-                  const Icon = QUALITY_ICONS[i] ?? Gauge
-                  return (
-                    <div
-                      key={item.title}
-                      className="rounded-2xl border border-border bg-[color:var(--primary)]/5 p-4 transition-all duration-300 hover:-translate-y-1 hover:bg-[color:var(--primary)]/8"
-                    >
-                      <IconBadge icon={Icon} variant="solid" size="compact" />
-                      <h3 className="mt-4 text-sm font-semibold text-foreground">{item.title}</h3>
-                      <p className="mt-2 text-sm leading-6 text-black">{item.text}</p>
-                    </div>
-                  )
-                })}
-              </div>
-            </GlassPanel>
-          </motion.div>
-        </div>
+        <motion.ul
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+          className="mt-4 grid gap-4 md:grid-cols-3"
+        >
+          {copy.qualities.map((item, i) => {
+            const Icon = QUALITY_ICONS[i] ?? AppWindow
+            return (
+              <motion.li key={item.title} variants={staggerItem} className="flex">
+                <GlassPanel className="flex w-full items-start gap-4 p-5">
+                  <div aria-hidden="true" className={cn(popTile, "size-11")}>
+                    <Icon className="size-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-black">{item.title}</h3>
+                    <p className="mt-1 text-sm leading-6 text-black">{item.text}</p>
+                  </div>
+                </GlassPanel>
+              </motion.li>
+            )
+          })}
+        </motion.ul>
       </Container>
     </section>
   )
 }
-

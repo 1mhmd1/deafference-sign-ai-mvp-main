@@ -1,25 +1,26 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { ArrowUpRight, Sparkles, type LucideIcon } from "lucide-react"
+import { ArrowUpRight, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
 import type { FeatureCardData } from "./feature-card-grid"
-import { focusRingPop } from "../ui/pop"
+import { focusRingPop, popStage } from "../ui/pop"
 
-/** One side of a translation direction: spoken/written language ("voice", orange) or sign ("sign", blue). */
+/** One side of a translation direction: spoken/written language ("voice", orange) or sign ("sign", crimson). */
 export type Modality = { Icon: LucideIcon; tone: "voice" | "sign"; label: string }
 
+// Both ends of the logo: orange for spoken/written language, crimson for sign.
 const TONE = {
   voice: {
-    hex: "#F97316",
-    node: "bg-brand-orange/10 text-[#C2410C] ring-brand-orange/30",
-    halo: "border-brand-orange/40",
+    hex: "#E0601A",
+    node: "bg-[#fff] text-[#C2410C] ring-[#E0601A]/35 dark:bg-[#211620] dark:text-[#ffa36b]",
+    halo: "border-[#E0601A]/40",
   },
   sign: {
-    hex: "#2563EB",
-    node: "bg-[color:var(--primary)]/10 text-[#1D4ED8] ring-[color:var(--primary)]/30",
-    halo: "border-[color:var(--primary)]/40",
+    hex: "#B01030",
+    node: "bg-[#fff] text-[#B01030] ring-[#B01030]/30 dark:bg-[#211620] dark:text-[#ff8fa8]",
+    halo: "border-[#B01030]/40",
   },
 } as const
 
@@ -27,7 +28,8 @@ function ModalityNode({ modality, pulse }: { modality: Modality; pulse: boolean 
   const tone = TONE[modality.tone]
   return (
     <div className="flex w-16 shrink-0 flex-col items-center gap-2">
-      <span className={cn("relative flex size-14 items-center justify-center rounded-2xl ring-1", tone.node)}>
+      {/* A div, not a span: the landing forces span text (and so the icon's currentColor) dark. */}
+      <div className={cn("relative flex size-14 items-center justify-center rounded-2xl shadow-[0_10px_24px_-16px_rgba(94,15,69,0.45)] ring-1", tone.node)}>
         {pulse && (
           <motion.span
             className={cn("absolute inset-0 rounded-2xl border", tone.halo)}
@@ -36,7 +38,7 @@ function ModalityNode({ modality, pulse }: { modality: Modality; pulse: boolean 
           />
         )}
         <modality.Icon className="size-6" strokeWidth={1.75} />
-      </span>
+      </div>
       {modality.label ? (
         <span className="max-w-full truncate text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
           {modality.label}
@@ -54,7 +56,7 @@ function ConceptDiagram({ from, to, reducedMotion }: { from: Modality; to: Modal
   return (
     <div
       aria-hidden="true"
-      className="relative flex items-center gap-3 overflow-hidden rounded-xl border border-border bg-[radial-gradient(circle,rgba(37,99,235,0.12)_1px,transparent_1px)] [background-size:16px_16px] px-4 py-6"
+      className={cn("relative flex items-center gap-3 overflow-hidden px-4 py-6", popStage)}
     >
       <ModalityNode modality={from} pulse={false} />
 
@@ -74,10 +76,10 @@ function ConceptDiagram({ from, to, reducedMotion }: { from: Modality; to: Modal
               transition={{ duration: 2.1, repeat: Infinity, delay: n * 0.7, ease: "easeInOut" }}
             />
           ))}
-        {/* AI in the middle of the conversion. */}
-        <span className="absolute top-1/2 left-1/2 flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card text-[#C2410C] shadow-sm">
-          <Sparkles className="size-4" strokeWidth={1.75} />
-        </span>
+        {/* Deafference in the middle of the conversion. */}
+        <div className="absolute top-1/2 left-1/2 grid size-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[#fff] shadow-[0_0_0_4px_rgba(242,140,26,0.16)]">
+          <img src="/deafference-mark.png" alt="" className="size-5 object-contain" />
+        </div>
       </div>
 
       <ModalityNode modality={to} pulse={!reducedMotion} />
@@ -93,14 +95,14 @@ export function FeatureCard({ card, reducedMotion = false }: { card: FeatureCard
   const toHex = TONE[to.tone].hex
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(16,24,40,0.05),0_14px_32px_-22px_rgba(16,24,40,0.2)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-[color:var(--primary)]/30 hover:shadow-[0_1px_2px_rgba(16,24,40,0.05),0_28px_56px_-28px_rgba(30,64,175,0.35)]">
+    <article className="glass-pop group relative flex h-full flex-col overflow-hidden rounded-2xl border p-6 transition-transform duration-300 hover:-translate-y-1">
       {/* Top edge runs from the input colour to the output colour of this direction. */}
       <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1" style={{ background: `linear-gradient(${toward}, ${fromHex}, ${toHex})` }} />
 
       <div className="flex items-start gap-3">
         <span
           aria-hidden="true"
-          className="flex size-11 shrink-0 items-center justify-center rounded-xl text-white shadow-[0_10px_20px_-10px_rgba(37,99,235,0.6)] transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105"
+          className="on-brand flex size-11 shrink-0 items-center justify-center rounded-xl text-white shadow-[0_10px_20px_-10px_rgba(176,16,48,0.55)] transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105"
           style={{ background: `linear-gradient(135deg, ${fromHex}, ${toHex})` }}
         >
           <Icon className="size-5" strokeWidth={1.75} />

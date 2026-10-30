@@ -328,7 +328,8 @@ function SignInForm({
               </label>
               <Link
                 href="/forgot-password"
-                className="rounded text-xs font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                // -my-2 py-2: a 32px-tall touch area without moving the row.
+                className="-my-2 rounded py-2 text-xs font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {t.auth.signin.forgotPassword}
               </Link>
@@ -571,7 +572,7 @@ function SignUpForm({
                 aria-invalid={Boolean(errors.agreeToTerms) || undefined}
                 aria-describedby={errors.agreeToTerms ? `${idPrefix}-terms-error` : undefined}
                 className={cn(
-                  'mt-0.5 h-5 w-5 shrink-0 rounded border-input accent-[#3B82F6]',
+                  'size-6 shrink-0 rounded border-input accent-[#3B82F6]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 )}
               />
@@ -581,7 +582,7 @@ function SignUpForm({
                   {t.auth.signup.termsLink}
                 </Link>{' '}
                 {t.auth.signup.termsAnd}{' '}
-                <Link href="/how-it-works#privacy" className="font-medium text-primary underline-offset-4 hover:underline">
+                <Link href="/security" className="font-medium text-primary underline-offset-4 hover:underline">
                   {t.auth.signup.privacyLink}
                 </Link>
               </label>

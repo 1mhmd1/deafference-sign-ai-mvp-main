@@ -8,16 +8,32 @@ html:not(.dark) .landing-pop:not(.app-pop) {
 
 /* :not(.app-pop): the translate studio reuses the landing palette but keeps its own text colours
    (white-on-blue buttons, status tones), and this sheet stays loaded after client-side navigation. */
-html:not(.dark) .landing-pop:not(.app-pop) p,
-html:not(.dark) .landing-pop:not(.app-pop) h1,
-html:not(.dark) .landing-pop:not(.app-pop) h2,
-html:not(.dark) .landing-pop:not(.app-pop) h3,
-html:not(.dark) .landing-pop:not(.app-pop) h4,
-html:not(.dark) .landing-pop:not(.app-pop) h5,
-html:not(.dark) .landing-pop:not(.app-pop) h6,
-html:not(.dark) .landing-pop:not(.app-pop) span,
-html:not(.dark) .landing-pop:not(.app-pop) li {
+/* `.df` (the website design: header, footer, home sections) sets its own colours in home/df.css. */
+html:not(.dark) .landing-pop:not(.app-pop) :is(p, h1, h2, h3, h4, h5, h6, span, li):not(.df *) {
   color: #1a1a1a !important;
+}
+
+/* The footer is a dark panel in both themes, and `.on-brand` marks the logo-gradient cards, tiles and
+   chips: their text takes the light colours set on their wrappers instead of the forced dark text above,
+   and an `.on-brand` span or heading is white itself. `.pop-tile` (the white icon tiles in ui/pop.tsx)
+   keeps its brand-coloured icon when the tile is a span. */
+html:not(.dark) .landing-pop:not(.app-pop) :is(.site-footer, .on-brand) :is(p, h1, h2, h3, h4, h5, h6, span, li) {
+  color: inherit !important;
+}
+html:not(.dark) .landing-pop:not(.app-pop) .on-brand:is(p, h1, h2, h3, h4, h5, h6, span, li) {
+  color: #fff !important;
+}
+html:not(.dark) .landing-pop:not(.app-pop) span.pop-tile {
+  color: var(--primary) !important;
+}
+/* globals.css gives every button `color: inherit` (unlayered, so it beats Tailwind's text-white):
+   landing buttons drawn in the logo gradient, like the contact form's Send, keep their white text. */
+.landing-pop.landing-home button.text-white {
+  color: #fff;
+}
+/* Gradient text (prices, metrics) paints through a transparent fill, including counters inside it. */
+html:not(.dark) .landing-pop:not(.app-pop) :is(span.pop-gradient-text, .pop-gradient-text span) {
+  color: transparent !important;
 }
 
 /* Letter-spacing breaks the joined Arabic script, so drop it in RTL. */
@@ -33,16 +49,61 @@ html:not(.dark) .landing-pop:not(.app-pop) li {
 }
 @media (max-width: 640px) {
   .landing-pop .judy-in-scene .judy-bubble {
-    font-size: 11px;
     padding: 4px 8px;
   }
 }
 
-/* Page background (public/back 1.jpg, a soft white geometric pattern). It sits on a fixed
-   layer behind every section so the content scrolls over a still backdrop;
-   `isolation` keeps the -1 layer above the wrapper's own background colour. */
+/* Page background: plain white, calm and neutral for a healthcare product; the logo's colours live
+   in buttons, links and accents. It sits on a fixed layer behind every section (dark mode paints it
+   too) so the content scrolls over a still backdrop;
+   `isolation` keeps the -1 layer above the wrapper's own background colour.
+   Logo palette: gold #F5B400, orange #F28C1A, flame #EE4B1C, red #D71A1F,
+   crimson #B01030, plum #5E0F45, ink #282838. */
 .landing-pop {
   isolation: isolate;
+}
+/* The landing pages' tokens (home and its own pages): white surfaces and neutral greys, with the
+   logo's colour only in --primary, a deep flame red that keeps 4.5:1 on white, for links, eyebrows,
+   icons and focus rings; buttons use the flame → crimson gradient in ui/pop.tsx.
+   Dark mode re-sets every one of these in globals.css. */
+.landing-pop.landing-home {
+  --background: #ffffff;
+  --foreground: #24222f;
+  --primary: #c0341b;
+  --primary-foreground: #ffffff;
+  --ring: #c0341b;
+  --secondary: #f6f6f7;
+  --muted: #f6f6f7;
+  --muted-foreground: #5f5f6b;
+  --accent: #f4f4f5;
+  --border: rgba(15, 23, 42, 0.1);
+  --input: rgba(15, 23, 42, 0.15);
+  --brand-navy: #282838;
+  --pop-ink: #282838;
+  --pop-glow: 0 12px 32px -20px rgba(15, 23, 42, 0.22);
+}
+/* Cards and panels: solid white with a hairline grey border and a soft neutral shadow
+   (no tint, no coloured outline). */
+.landing-pop.landing-home .glass-pop {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 12px 32px -20px rgba(15, 23, 42, 0.18);
+}
+.landing-pop.landing-home .glow-border-pop::before {
+  display: none;
+}
+/* Large headline text only: the lightest stop still keeps 3:1 on white. */
+.landing-pop.landing-home .pop-gradient-text {
+  background: linear-gradient(100deg, #e0601a 0%, #c0341b 50%, #8e1243 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+/* The deep blue that the sub-pages hard-code for links and small headings follows the brand. */
+.landing-pop.landing-home .text-\[\#1D4ED8\].text-\[\#1D4ED8\],
+.landing-pop.landing-home .text-\[\#1d4ed8\].text-\[\#1d4ed8\] {
+  color: var(--primary);
 }
 .landing-pop.landing-home::before {
   content: "" !important;
@@ -50,29 +111,80 @@ html:not(.dark) .landing-pop:not(.app-pop) li {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: url("/back%201.jpg") center / cover no-repeat;
+  /* The website design's warm off-white (home/df.css). */
+  background: var(--df-surface, #ffffff);
 }
 
-/* Sections (and section backdrops) that paint their own colour wash: make the
-   base colour see-through (their soft blue glows stay) so the paper shows
-   behind them too. Doubled class beats globals.css regardless of load order. */
+/* High contrast (the header's accessibility menu, or the app's settings, put `hc` on <html>): the app's
+   own .hc tokens are overridden by the landing tokens above, so the landing pages get their own:
+   full-strength secondary text, solid borders on cards, diagram stages and tiles, no soft shadows,
+   solid colour instead of gradient text, and no photo behind the hero headline. */
+html.hc:not(.dark) .landing-pop.landing-home {
+  --muted-foreground: #24222f;
+  --border: rgba(15, 23, 42, 0.55);
+  --primary: #a3260f;
+  --ring: #a3260f;
+}
+html.hc.dark .landing-pop.landing-home {
+  --foreground: #ffffff;
+  --muted-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.6);
+}
+html.hc:not(.dark) .landing-pop.landing-home :is(.glass-pop, .pop-stage) {
+  border-color: rgba(15, 23, 42, 0.55);
+  box-shadow: none;
+}
+html.hc.dark .landing-pop.landing-home :is(.glass-pop, .pop-stage) {
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow: none;
+}
+html.hc:not(.dark) .landing-pop.landing-home .pop-tile {
+  --tw-ring-color: rgba(15, 23, 42, 0.55);
+}
+html.hc.dark .landing-pop.landing-home .pop-tile {
+  --tw-ring-color: rgba(255, 255, 255, 0.55);
+}
+html.hc:not(.dark) .landing-pop.landing-home :is(.pop-gradient-text, .pop-gradient-text span) {
+  background: none;
+  color: #a3260f !important;
+}
+html.hc.dark .landing-pop.landing-home :is(.pop-gradient-text, .pop-gradient-text span) {
+  background: none;
+  color: #ffb38a !important;
+}
+html.hc .landing-pop .hero-photo {
+  display: none;
+}
+
+/* Large and Extra large text (accessibility menu) scale the header's words but not the screen-width
+   breakpoints, so at those sizes the header keeps its compact layout (menu button) at every width.
+   Unlayered, so these beat Tailwind's `hidden` / `xl:flex` / `xl:hidden` utilities. */
+html:is([data-text-size="large"], [data-text-size="xlarge"]) .landing-pop .nav-desktop-only {
+  display: none;
+}
+html:is([data-text-size="large"], [data-text-size="xlarge"]) .landing-pop .nav-compact-only {
+  display: inline-flex;
+}
+html:is([data-text-size="large"], [data-text-size="xlarge"]) .landing-pop .nav-compact-panel {
+  display: block;
+}
+/* …and on a phone the bigger buttons wouldn't fit one row, so the language switch and profile link
+   move from the bar into the menu panel. */
+.landing-pop .nav-large-only {
+  display: none;
+}
+html:is([data-text-size="large"], [data-text-size="xlarge"]) .landing-pop .nav-bar-optional {
+  display: none;
+}
+html:is([data-text-size="large"], [data-text-size="xlarge"]) .landing-pop .nav-large-only {
+  display: flex;
+}
+
+/* Sections (and section backdrops) marked .pop-atmosphere paint nothing in light mode, so the
+   white page background runs through them. Doubled class beats globals.css regardless of load order. */
 .landing-pop .pop-atmosphere.pop-atmosphere {
-  background-color: rgba(246, 250, 255, 0.35);
-}
-
-/* Section sheets (ui/section-transition.tsx): each section is an opaque sheet that slides
-   over the one before it, so it carries the page background itself, plus a soft shadow on
-   its top edge that reads as the sheet's thickness. */
-.landing-sheet {
-  background-color: var(--background);
-  background-image: url("/back%201.jpg");
-  background-size: 100% auto;
-  background-repeat: repeat-y;
-  box-shadow: 0 -18px 50px -24px rgba(15, 23, 42, 0.35), 0 -1px 0 rgba(255, 255, 255, 0.9);
-}
-.dark .landing-sheet {
-  background-image: linear-gradient(rgba(8, 13, 26, 0.86), rgba(8, 13, 26, 0.86)), url("/back%201.jpg");
-  box-shadow: 0 -18px 50px -24px rgba(0, 0, 0, 0.7), 0 -1px 0 rgba(255, 255, 255, 0.06);
+  background-color: transparent;
+  background-image: none;
 }
 
 /* Clickable road markers on the scenarios map (scenarios.tsx). The red rings are part of
@@ -80,26 +192,38 @@ html:not(.dark) .landing-pop:not(.app-pop) li {
    and a steady highlight on the one Judy is talking about. */
 .scenario-ring {
   background: transparent;
-  box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.45);
-  animation: scenario-ring-pulse 2.4s ease-out infinite;
   transition: background-color 200ms, box-shadow 200ms, scale 200ms;
 }
-.scenario-ring:nth-of-type(3n + 1) { animation-delay: 0.8s; }
-.scenario-ring:nth-of-type(3n + 2) { animation-delay: 1.6s; }
+/* The pulse: a ring that grows and fades (transform/opacity only, no repaint of the map). */
+.scenario-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  animation: scenario-ring-pulse 2.4s ease-out infinite;
+}
+.scenario-ring:nth-of-type(3n + 1)::after { animation-delay: 0.8s; }
+.scenario-ring:nth-of-type(3n + 2)::after { animation-delay: 1.6s; }
+.scenario-ring:hover::after,
+.scenario-ring-active::after {
+  animation: none;
+}
 .scenario-ring:hover,
 .scenario-ring-active {
-  animation: none;
   background-color: rgba(255, 255, 255, 0.35);
   box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.55), 0 0 18px 4px rgba(45, 212, 191, 0.55);
   /* `scale`, not `transform`: Tailwind's -translate-* centring uses the separate `translate` property. */
   scale: 1.15;
 }
 @keyframes scenario-ring-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.45); }
-  70%, 100% { box-shadow: 0 0 0 10px rgba(225, 29, 72, 0); }
+  0% { transform: scale(1); opacity: 1; }
+  70%, 100% { transform: scale(1.8); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .scenario-ring { animation: none; }
+  .scenario-ring::after { animation: none; }
 }
 
 /* Navbar logo (navbar.tsx): warm glow behind the ear mark, a glint across the
@@ -135,8 +259,8 @@ html:not(.dark) .landing-pop:not(.app-pop) li {
   pointer-events: none;
   position: absolute;
   inset: 0;
-  -webkit-mask: url("/deafference-wordmark.png") center / 100% 100% no-repeat;
-  mask: url("/deafference-wordmark.png") center / 100% 100% no-repeat;
+  -webkit-mask: url("/deafference-wordmark.webp") center / 100% 100% no-repeat;
+  mask: url("/deafference-wordmark.webp") center / 100% 100% no-repeat;
   background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.85) 50%, transparent 60%);
   background-size: 250% 100%;
   background-position: 150% 0;

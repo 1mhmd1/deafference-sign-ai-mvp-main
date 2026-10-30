@@ -3,7 +3,8 @@ import { AuthShell } from "@/components/auth/auth-shell"
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form"
 
 export const metadata: Metadata = {
-  title: "Deafference — Reset Password",
+  title: "Reset your password",
+  robots: { index: false },
   description: "Request a password reset link for your Deafference account.",
 }
 

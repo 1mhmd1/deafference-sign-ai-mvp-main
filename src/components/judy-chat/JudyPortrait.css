@@ -99,6 +99,11 @@
   height: 5px;
   border-radius: 999px;
   background: linear-gradient(145deg, #57a4f9, #f47c20);
+}
+
+/* The thinking dots, voice bars and sparkles stay hidden (opacity 0) until their state, so they
+   only animate while shown. */
+.judy-portrait.is-thinking .judy-thinking-dots span {
   animation: judy-portrait-thinking-dot 950ms ease-in-out infinite;
 }
 
@@ -124,6 +129,10 @@
   height: 8px;
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(87, 164, 249, 0.95), rgba(244, 124, 32, 0.95));
+  transform-origin: 50% 100%;
+}
+
+.judy-portrait.is-listening .judy-wave span {
   animation: voice-wave 700ms ease-in-out infinite;
 }
 
@@ -153,6 +162,9 @@
   height: 5px;
   border-radius: 999px;
   background-color: rgba(244, 124, 32, 0.84);
+}
+
+.judy-portrait.is-responding .judy-sparkles span {
   animation: sparkle-float 1.3s ease-in-out infinite;
 }
 
@@ -246,10 +258,11 @@
   to { transform: rotate(0deg); }
 }
 
+/* The bars are 8px tall: 7px → 15px, as a scale from their bottom edge. */
 @keyframes voice-wave {
   0%,
-  100% { height: 7px; }
-  45% { height: 15px; }
+  100% { transform: scaleY(0.875); }
+  45% { transform: scaleY(1.875); }
 }
 
 @keyframes judy-portrait-thinking-dot {

@@ -3,8 +3,9 @@ import { AuthFlow } from '@/components/auth/auth-flow'
 import { SkipToAuthLink } from '@/components/auth/skip-to-auth-link'
 
 export const metadata: Metadata = {
-  title: 'Deafference — Create Account',
-  description: 'Sign in or create a Deafference account.',
+  title: 'Create an account',
+  description: 'Create a free Deafference account.',
+  alternates: { canonical: '/signup' },
 }
 
 export default async function SignupPage({

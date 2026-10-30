@@ -1,29 +1,46 @@
 "use client"
 
-import { useId, useState } from "react"
 import { motion } from "framer-motion"
-import { Clock, HeartPulse, Play, Siren, Sparkles, type LucideIcon } from "lucide-react"
+import Link from "next/link"
+import {
+  ArrowRight,
+  Camera,
+  CirclePlay,
+  Hand,
+  Languages,
+  ListChecks,
+  Maximize2,
+  MessageSquareText,
+  Siren,
+  UserRound,
+  type LucideIcon,
+} from "lucide-react"
 import { Container } from "@/components/shared/container"
-import { cn } from "@/lib/utils"
+import { APP_ROUTES } from "@/lib/constants"
 import { useI18n } from "@/i18n/use-i18n"
-import { GlowOrb, PopEyebrow, Reveal, popButtonSizes, popSecondaryButton } from "./ui/pop"
+import { FlowSteps } from "./ui/flow"
+import { PopEyebrow, Reveal, popArrowIcon } from "./ui/pop"
 
-/** Icons zipped by index with `t.landing.demo.tutorials`. */
-const TUTORIAL_ICONS: LucideIcon[] = [Sparkles, HeartPulse, Siren]
+/**
+ * Icons for each tutorial's three steps, zipped by index with `t.landing.demo.tutorials[i].steps`.
+ * They follow what the app really does: profile → camera permission → sign language; the front-desk
+ * exchange; and the Emergency button → a phrase → the phrase shown full screen.
+ */
+const TUTORIAL_STEP_ICONS: LucideIcon[][] = [
+  [UserRound, Camera, Languages],
+  [Hand, MessageSquareText, UserRound],
+  [Siren, ListChecks, Maximize2],
+]
 
-type MediaItem = { icon: LucideIcon; title: string; description: string; audience?: string }
+type Tutorial = { title: string; description: string; audience: string; steps: string[] }
 
-/** Light, brand-tinted "screen" surface used by the video placeholders. */
-const SCREEN_SURFACE =
-  "border border-[color:var(--primary)]/15 bg-gradient-to-br from-[#EAF2FF] via-white to-[#F1EEFF]"
-
-/** Placeholder card for a video that doesn't exist yet: "Preview" only reveals an honest "coming soon" note. */
-function MediaCard({ item }: { item: MediaItem }) {
-  const { t, fmt } = useI18n()
+/**
+ * A tutorial whose video isn't recorded yet: the thumbnail shows the steps it will teach, a plain
+ * "Video coming soon" status (no play button that does nothing), and a real link to try it in the app.
+ */
+function TutorialCard({ item, icons }: { item: Tutorial; icons: LucideIcon[] }) {
+  const { t } = useI18n()
   const copy = t.landing.demo.media
-  const [showNote, setShowNote] = useState(false)
-  const noteId = useId()
-  const Icon = item.icon
 
   return (
     <motion.article
@@ -31,46 +48,31 @@ function MediaCard({ item }: { item: MediaItem }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="glass-pop group flex flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--pop-glow)]"
+      className="glass-pop flex flex-col overflow-hidden rounded-2xl"
     >
-      <figure className={cn("relative m-0 aspect-video overflow-hidden border-x-0 border-t-0", SCREEN_SURFACE)}>
-        <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
-          <Icon className="size-10 text-[#2563EB]/55" />
+      <figure className="relative m-0 flex aspect-video flex-col items-center justify-center border-b border-[rgba(15,23,42,0.07)] bg-[#fff] px-3 pt-8 pb-10 dark:border-[rgba(255,255,255,0.08)] dark:bg-[#211620]">
+        <FlowSteps numbered steps={item.steps.map((label, i) => ({ label, icon: icons[i] }))} />
+        <figcaption className="sr-only">{item.description}</figcaption>
+
+        <div className="absolute start-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-black shadow-sm">
+          {item.audience}
         </div>
-
-        <span className="absolute end-2 bottom-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-xs font-semibold text-black shadow-sm">
-          <Clock className="size-3.5" aria-hidden="true" />
+        {/* Status, not a control: the play symbol says "video", the words say it isn't out yet. */}
+        <div className="absolute end-3 bottom-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-black shadow-sm">
+          <CirclePlay className="size-4 text-[color:var(--primary)]" aria-hidden="true" />
           {copy.comingSoon}
-        </span>
-
-        {item.audience ? (
-          <span className="absolute start-2 top-2 rounded-full bg-white/95 px-2 py-1 text-xs font-semibold text-[#C2410C] shadow-sm">
-            {item.audience}
-          </span>
-        ) : null}
-
-        <figcaption className="sr-only">{item.title}</figcaption>
+        </div>
       </figure>
 
-      <div className="flex flex-1 flex-col p-5">
-        <h4 className="text-base font-bold text-black">{item.title}</h4>
-        <p className="mt-2 text-sm leading-6 text-black">{item.description}</p>
-        <div className="mt-4">
-          <button
-            type="button"
-            onClick={() => setShowNote((v) => !v)}
-            aria-expanded={showNote}
-            aria-controls={noteId}
-            aria-label={fmt(copy.previewAria, { title: item.title })}
-            className={cn(popSecondaryButton, popButtonSizes.sm)}
-          >
-            <Play className="size-3.5 fill-current rtl:-scale-x-100" aria-hidden="true" />
-            {copy.preview}
-          </button>
-          <p id={noteId} hidden={!showNote} className="mt-3 text-sm leading-6 text-black">
-            {copy.comingSoonNote}
-          </p>
-        </div>
+      <div className="flex flex-1 flex-col gap-3 p-5">
+        <h4 className="text-base leading-snug font-bold text-black">{item.title}</h4>
+        <Link
+          href={APP_ROUTES.translate}
+          className="group mt-auto inline-flex w-fit items-center gap-1.5 rounded-sm text-sm font-semibold text-[color:var(--primary)] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--primary)]"
+        >
+          {copy.tryIt}
+          <ArrowRight className={popArrowIcon} aria-hidden="true" />
+        </Link>
       </div>
     </motion.article>
   )
@@ -79,7 +81,6 @@ function MediaCard({ item }: { item: MediaItem }) {
 export function DemoCenter() {
   const { t } = useI18n()
   const copy = t.landing.demo
-  const tutorials: MediaItem[] = copy.tutorials.map((item, i) => ({ ...item, icon: TUTORIAL_ICONS[i] ?? Sparkles }))
 
   return (
     <section
@@ -87,34 +88,25 @@ export function DemoCenter() {
       aria-labelledby="demo-heading"
       className="pop-atmosphere relative overflow-hidden py-24 sm:py-28"
     >
-      <div className="pop-grid pointer-events-none absolute inset-0 -z-10 opacity-[0.05]" aria-hidden="true" />
-      <GlowOrb className="top-0 -right-24 size-[26rem] pop-float" color="rgba(59,130,246,0.16)" />
-      <GlowOrb className="-bottom-24 -left-16 size-[24rem] pop-float-delay" color="rgba(127,224,224,0.18)" />
 
       <Container fluid>
         <Reveal className="max-w-2xl">
           <PopEyebrow>
-            <span aria-hidden="true">▶</span> {copy.eyebrow}
+            <CirclePlay className="size-3.5" aria-hidden="true" /> {copy.eyebrow}
           </PopEyebrow>
           <h2 id="demo-heading" className="mt-5 text-3xl font-bold tracking-tight text-balance text-black sm:text-4xl">
             {copy.title}
           </h2>
         </Reveal>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.55, ease: "easeOut", delay: 0.05 }}
-          className="mt-12"
-        >
+        <div className="mt-12">
           <h3 className="text-lg font-bold text-black sm:text-xl">{copy.tutorialsTitle}</h3>
           <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {tutorials.map((item) => (
-              <MediaCard key={item.title} item={item} />
+            {copy.tutorials.map((item, i) => (
+              <TutorialCard key={item.title} item={item} icons={TUTORIAL_STEP_ICONS[i] ?? TUTORIAL_STEP_ICONS[0]} />
             ))}
           </div>
-        </motion.div>
+        </div>
       </Container>
     </section>
   )

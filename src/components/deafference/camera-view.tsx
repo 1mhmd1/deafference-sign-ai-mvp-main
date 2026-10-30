@@ -393,7 +393,7 @@ export const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(function
                 {debugOpen && (
                   <div
                     dir="ltr"
-                    className="absolute end-2 top-14 z-20 max-w-[220px] rounded-lg bg-background/95 px-2.5 py-2 text-start font-mono text-[11px] leading-relaxed text-foreground shadow-lg ring-1 ring-border"
+                    className="absolute end-2 top-14 z-20 max-w-[220px] rounded-lg bg-background/95 px-2.5 py-2 text-start font-mono text-xs leading-relaxed text-foreground shadow-lg ring-1 ring-border"
                   >
                     <div>state: {status}</div>
                     <div>resolution: {resolution ? `${resolution.width}x${resolution.height}` : "—"}</div>

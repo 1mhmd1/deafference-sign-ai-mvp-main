@@ -15,6 +15,8 @@ const en = {
       translate: "Translate",
       demo: "Demo center",
       privacy: "Privacy",
+      faq: "FAQ",
+      security: "Security",
     },
     home: "Deafference home",
     desktopLabel: "Main navigation",
@@ -32,6 +34,30 @@ const en = {
     toDark: "Switch to dark mode",
     toLight: "Switch to light mode",
   },
+  /** The header's accessibility menu (accessibility-menu.tsx). Text size names come from the app's own settings copy. */
+  a11y: {
+    button: "Accessibility settings",
+    title: "Accessibility",
+    subtitle: "Change how this site looks. Your choices are saved in this browser.",
+    textSize: "Text size",
+    contrast: "High contrast",
+    contrastDesc: "Darker text and stronger lines.",
+    calm: "Calm mode",
+    calmDesc: "Stops moving pictures and animations.",
+    on: "On",
+    off: "Off",
+    emergency: "Emergency phrases",
+    reset: "Reset",
+    close: "Close accessibility settings",
+  },
+  /** The "Watch in sign language" button and player (sign-video.tsx); shown only where a video exists. */
+  signVideo: {
+    watch: "Watch in sign language",
+    title: "This page in sign language",
+    close: "Close video",
+    captions: "English captions",
+    error: "This video couldn't be loaded. Please try again later.",
+  },
   judy: {
     floatingLabel: "Judy, the Deafference guide (decorative animation)",
     sceneLabel: "Judy walking through the everyday places where Deafference helps",
@@ -39,21 +65,31 @@ const en = {
   hero: {
     status: "Real-time sign ↔ speech",
     headline: ["BREAKING", "COMMUNICATION", "BARRIERS"],
-    intro:
-      "Deafference translates sign language into speech and text — and speech back into sign — in real time, so Deaf, hard-of-hearing and hearing people can understand each other at the clinic, at work, in class and in everyday life.",
+    /** One supporting line under the headline; the illustration shows the rest. */
+    tagline: "Sign, speech and text, translated both ways, so both sides understand.",
     primaryCta: "Try Deafference",
+    /** Opens the emergency phrases panel (the same one as the floating button); it works without an account. */
+    emergency: "Emergency phrases",
+    emergencyNote: "Ready-made messages, shown full screen in one tap. No sign-up needed.",
     secondaryCta: "Watch it in action",
     scenariosCta: "Explore scenarios",
-    badges: ["Privacy-first", "Real-time translation", "Built for accessibility", "English & Arabic", "AI-powered"],
     modeLabel: "Mode",
     modeValue: "Live",
     modeAccent: "two-way",
     privacyLabel: "Privacy",
     privacyValue: "You stay in control",
-    illustrationLabel: "How a conversation flows: you sign, the AI understands, the other person hears you, and everyone connects.",
+    illustrationLabel: "How a conversation flows: you sign, Deafference translates, and the other person hears and reads your words.",
+    /** The three connected stages around the hero globe, in order. */
     cards: {
       sign: "You sign",
-      understands: "AI understands",
+      understands: "Deafference translates",
+      hear: "They understand",
+    },
+    /** The home hero picture (df-hero-net.tsx): Deafference in the middle, linked to four steps. */
+    net: {
+      label: "Deafference in the middle of a conversation: you sign, the AI understands, they hear you, and everyone connects.",
+      sign: "You sign",
+      ai: "AI understands",
       hear: "They hear you",
       connect: "Everyone connects",
     },
@@ -66,16 +102,16 @@ const en = {
     description:
       "Deafference started from a simple observation: everyday spoken interactions still leave Deaf and hard-of-hearing people waiting on an interpreter who isn't always there. We're building the software that closes that gap.",
     storyEyebrow: "Our story",
-    storyLead:
-      "Deafference began after watching a routine clinic visit turn stressful for reasons that had nothing to do with the diagnosis:",
-    storyBody:
-      "no interpreter was booked, the front desk defaulted to writing notes back and forth, and a five-minute check-in took forty. That gap — the everyday moments too small to schedule an interpreter for, but too important to get wrong — is what we set out to close.",
-    storyMore:
-      "We started in healthcare and public-service settings because the stakes are highest there, then built the same real-time pipeline to work anywhere a spoken conversation happens without a visual alternative on standby.",
-    glanceLabel: "At a glance",
-    glanceValues: "Core values",
-    glanceRoles: "Focus areas",
-    glanceGoals: "Goals ahead",
+    storyLead: "It started at a clinic, where a five-minute check-in took forty.",
+    /** The story as four connected scenes: the difficulty, the problem made visible, Deafference, understanding. */
+    storyScenesLabel: "Our story in four steps",
+    storyScenes: [
+      { title: "No interpreter", caption: "None was booked for a routine visit." },
+      { title: "Notes on paper", caption: "Five minutes became forty." },
+      { title: "Deafference", caption: "Built to translate sign, speech and text." },
+      { title: "Understood", caption: "Both sides can follow the conversation." },
+    ],
+    storyMinutes: "min",
     tabsLabel: "About us subsections",
     tabs: {
       mission: "Mission",
@@ -85,83 +121,84 @@ const en = {
       future: "Future goals",
     },
     missionTitle: "Our mission",
+    // Plain language throughout /about: short sentences, everyday words, no idioms (for readers whose
+    // first language is a sign language).
     missionBody:
-      "Bridge the communication gap for Deaf and hard-of-hearing people the moment it matters most — at a hospital intake desk, in an emergency room, at a service counter — by turning spoken language into clear, real-time sign and text, and signing back into speech. No waiting for the conversation to be scheduled: the support is there when it happens.",
+      "We want Deaf and hard-of-hearing people to be understood when it matters most: at a hospital desk, in an emergency room or at a service counter. Deafference turns speech into sign and text, and sign into speech. No one should have to book help in advance. Help should be there when the conversation happens.",
     visionTitle: "Our vision",
     visionBody:
-      "A world where medical and social communication barriers are no longer something Deaf and hard-of-hearing people have to plan around. We see Deafference as everyday infrastructure — as ordinary and dependable as captions or a ramp — available wherever a spoken conversation can happen.",
+      "A world where Deaf and hard-of-hearing people do not have to plan ahead to be understood, at the doctor or anywhere else. We want Deafference to be as normal and reliable as captions or a ramp, and ready wherever people talk.",
+    /** Labels in the pictures on the mission and vision cards (/about). */
+    missionPlaces: ["Hospital intake", "Emergency room", "Service counter"],
+    visionItems: ["Captions", "A ramp", "Deafference"],
     values: [
       {
         title: "Accessibility first",
-        description:
-          "Every design decision starts from how a Deaf or hard-of-hearing person will experience it — not as an afterthought added to a hearing-first product.",
+        description: "Every design choice starts with the Deaf or hard-of-hearing person. Accessibility is not added at the end.",
       },
       {
         title: "Patient safety",
         description:
-          "In clinical settings a mistranslation isn't a small bug, it's a safety risk. Output is kept clear and unambiguous, especially for medical and emergency phrases.",
+          "In a clinic, a wrong translation can hurt someone. We keep the words clear and simple, especially in medical and emergency phrases.",
       },
       {
         title: "Cultural respect",
         description:
-          "Sign languages are complete languages with their own grammar and regional variation. We treat them that way instead of translating word-for-word from spoken language.",
+          "Sign languages are full languages, with their own grammar and local signs. We do not translate them word for word from spoken language.",
       },
       {
         title: "Technical care",
-        description:
-          "Speed and accuracy are one requirement, not a trade-off — a delayed or wrong sign is a missed conversation.",
+        description: "We need speed and accuracy together. A late or wrong sign means a lost conversation.",
       },
       {
         title: "Honest about limits",
-        description:
-          "We're open about what Deafference can't do yet, and we say clearly when a qualified interpreter is the right choice.",
+        description: "We say clearly what Deafference cannot do yet, and when you should use a qualified interpreter instead.",
       },
     ],
-    teamIntro:
-      "We describe our team by what each group is responsible for. Deaf and hard-of-hearing people are involved in shaping the product, not only testing it.",
+    teamIntro: "We describe our team by what each group does. Deaf and hard-of-hearing people help shape the product, not only test it.",
     teamGroups: [
       {
         heading: "Product & partnerships",
         roles: [
-          { role: "Product leadership", note: "Sets direction with accessibility and patient safety as the first requirement." },
-          { role: "Healthcare partnerships", note: "Works with clinics and service teams to understand real front-desk and exam-room workflows." },
+          { role: "Product leadership", note: "Sets the direction. Accessibility and patient safety come first." },
+          { role: "Healthcare partnerships", note: "Works with clinics to learn how their front desks and exam rooms really work." },
         ],
       },
       {
         heading: "Engineering",
         roles: [
-          { role: "Machine learning", note: "Sign and speech recognition models built for real-time use." },
-          { role: "Product engineering", note: "Accessible, bilingual interfaces that work on everyday devices." },
+          { role: "Machine learning", note: "Builds the AI that recognises signs and speech, made for live conversation." },
+          { role: "Product engineering", note: "Builds clear screens in English and Arabic that work on everyday phones and computers." },
         ],
       },
       {
         heading: "Community & accessibility",
         roles: [
-          { role: "Deaf community input", note: "Feedback from Deaf signers shapes sign output and product decisions." },
-          { role: "Interpreter guidance", note: "Professional interpreters advise on where a human interpreter should take over." },
+          { role: "Deaf community input", note: "Deaf signers give feedback that shapes the signing and the product." },
+          { role: "Interpreter guidance", note: "Professional interpreters tell us when a human interpreter should take over." },
         ],
       },
     ],
     hiring: {
       title: "We're hiring",
-      body: "We're looking for engineers and community liaisons. Deaf and hard-of-hearing applicants are especially welcome.",
+      body: "We are looking for engineers and for people to work with the Deaf community. Deaf and hard-of-hearing applicants are very welcome.",
       cta: "Get in touch",
     },
     goals: [
       {
         title: "More sign languages and dialects",
         timeframe: "Next",
-        description: "Support for regional sign variation and additional national sign languages beyond the current core set.",
+        description: "Support for local signs and for more national sign languages.",
       },
       {
         title: "Integrations for organisations",
         timeframe: "Planned",
-        description: "Single sign-on, clinical system connectors and team management so hospitals and agencies can roll out by department.",
+        description: "One login for staff, links to clinic systems and team management, so hospitals and agencies can start one department at a time.",
       },
       {
         title: "Works with weak connections",
         timeframe: "Ongoing",
-        description: "More processing on the device itself so translation keeps working in low-connectivity clinics, classrooms and rural service centres.",
+        description: "More of the work done on the device itself, so translation keeps working where the internet is weak.",
       },
     ],
   },
@@ -171,25 +208,27 @@ const en = {
     description:
       "Deafference is designed around the real moments where communication breaks down — and around the people who rely on it most.",
     reasons: [
-      {
-        title: "Accessibility first",
-        description:
-          "Designed with Deaf and hard-of-hearing people in mind: visual-first layouts, captions alongside sign, and clear, calm controls.",
-      },
-      {
-        title: "Made for healthcare moments",
-        description: "Check-ins, consultations, pharmacies and emergencies — the places where a misunderstanding has real consequences.",
-      },
-      {
-        title: "Two-way, in real time",
-        description: "Sign to speech and speech to sign in one flow, so both people can talk without passing notes back and forth.",
-      },
-      {
-        title: "Private by design",
-        description:
-          "Your camera and microphone are used only when you start a session, and recordings of your conversations aren't saved to your account.",
-      },
+      { title: "Accessibility first", description: "Adjustable text size, high contrast and reduced motion, built in." },
+      { title: "Made for healthcare moments", description: "Check-ins, consultations, pharmacies and emergencies." },
+      { title: "Two-way, in real time", description: "Sign to speech and speech to sign, in one flow." },
+      { title: "Private by design", description: "Camera and mic run only during a session; recordings aren't saved to your account." },
     ],
+    /** Labels inside the small diagram on each card (why-choose-us.tsx). */
+    visual: {
+      textSize: "Text size",
+      contrast: "High contrast",
+      motion: "Reduced motion",
+      on: "On",
+      patient: "Patient",
+      clinician: "Clinician",
+      places: ["Check-in", "Consultation", "Pharmacy", "Emergency"],
+      sign: "Sign",
+      speech: "Speech",
+      text: "Text",
+      sessionOn: "Session on",
+      sessionOff: "Session off",
+      notSaved: "Not saved to your account",
+    },
   },
   howItWorks: {
     eyebrow: "How it works",
@@ -197,7 +236,7 @@ const en = {
     description: "The highlight moves from step to step on its own. Hovering or tapping a step pauses it there, and calm mode turns the movement off.",
     stages: [
       { title: "Speech capture", caption: "Your device's microphone picks up what the hearing person says.", tag: "Audio input" },
-      { title: "AI processing", caption: "The AI recognises the phrase and converts it into sign language structure.", tag: "Sign structure" },
+      { title: "AI processing", caption: "The AI understands the sentence and puts it in sign language order.", tag: "Sign structure" },
       { title: "Sign output", caption: "An animated signer shows the message, with text captions alongside.", tag: "Ready to watch" },
     ],
     // The other direction, shown when the visitor flips the direction switch.
@@ -224,15 +263,16 @@ const en = {
     imageAlt:
       "Illustrated map titled “Where Deafference matters — In every place. Every day.” Seven rooms surround a glowing Deafference hub, linked by paths: Healthcare (a doctor talking with a patient), Hospitality (a hotel front desk), Workplaces (a team meeting), Emergencies (an ambulance bay), Travel (an airport check-in counter), Services & Public (a public service desk) and Education (a classroom). Judy, the animated guide, walks between the rooms.",
     listLabel: "Places Judy visits",
-    nowLabel: "Now:",
+    /** Shown on the left of the exchange in the selected place: you, then Deafference, then `with`. */
+    you: "You",
     items: [
-      { label: "Healthcare", message: "Every patient understands their doctor." },
-      { label: "Hospitality", message: "Check in with no barriers." },
-      { label: "Workplaces", message: "A voice in every meeting." },
-      { label: "Emergencies", message: "Help arrives, fast and clear." },
-      { label: "Travel", message: "Gate change? You'll know right away." },
-      { label: "Services & Public", message: "Paperwork, made simple." },
-      { label: "Education", message: "Learn live, in sign language." },
+      { label: "Healthcare", message: "Every patient understands their doctor.", with: "Doctor" },
+      { label: "Hospitality", message: "Check in with no barriers.", with: "Front desk" },
+      { label: "Workplaces", message: "A voice in every meeting.", with: "Your team" },
+      { label: "Emergencies", message: "Help arrives, fast and clear.", with: "Paramedics" },
+      { label: "Travel", message: "Gate change? You'll know right away.", with: "Gate staff" },
+      { label: "Services & Public", message: "Paperwork, made simple.", with: "Service desk" },
+      { label: "Education", message: "Learn live, in sign language.", with: "Teacher" },
     ],
     /** Accessible name for each clickable road marker; {place} is the room's label. */
     askJudy: "Ask Judy about {place}",
@@ -261,30 +301,34 @@ const en = {
     tutorialsTitle: "Video & interactive tutorials",
     media: {
       comingSoon: "Video coming soon",
-      preview: "Preview",
-      previewAria: "Preview: {title}",
-      comingSoonNote: "This video isn't available yet. In the meantime, try the live app.",
+      tryIt: "Try it in the app",
     },
+    /** `steps` are drawn as the thumbnail; `description` is its text alternative. */
     tutorials: [
       {
         title: "Getting started for Deaf users",
         description: "Set up your profile, camera permission and preferred sign language.",
         audience: "New users",
+        steps: ["Your profile", "Allow camera", "Pick sign language"],
       },
       {
         title: "Using Deafference at the front desk",
         description: "How healthcare staff can use Deafference for check-in and consultations.",
         audience: "Healthcare staff",
+        steps: ["Patient signs", "Text on screen", "Staff replies"],
       },
       {
         title: "Setting up emergency phrases",
         description: "Prepare one-tap emergency phrases for high-stress, time-critical situations.",
         audience: "Admins",
+        steps: ["Open Emergency", "Pick a phrase", "Shown full screen"],
       },
     ],
-    ctaTitle: "Ready to go beyond the preview?",
-    ctaBody: "Open the live app and try real-time translation with your own voice or camera.",
-    ctaButton: "Open the live app",
+    // The app is an early preview (it says sign recognition isn't connected yet), so the CTA says so.
+    ctaTitle: "Try the Deafference app",
+    ctaBody: "An early preview: sign recognition is still being connected.",
+    ctaButton: "Open the app preview",
+    ctaImageAlt: "The Deafference listening workspace, with the live camera, current status and live translation panels.",
   },
   features: {
     eyebrow: "Features",
@@ -338,14 +382,21 @@ const en = {
       {
         title: "Private & secure",
         description:
-          "Camera and microphone are used only when you start a session, and recordings of your conversations aren't saved to your account.",
+          "The camera and microphone work only when you start a session. Recordings of your conversations are not saved to your account.",
       },
       {
         title: "Careful accuracy",
         description:
-          "AI models focused on sign recognition, with extra care for everyday and medical vocabulary. For critical decisions, always confirm with a qualified interpreter.",
+          "Our AI focuses on reading signs, with extra care for everyday and medical words. For important decisions, always check with a qualified interpreter.",
       },
     ],
+    /** Labels in the "Careful accuracy" picture. */
+    accuracyVisual: {
+      everyday: "Everyday words",
+      medical: "Medical words",
+      critical: "Critical decision",
+      interpreter: "Qualified interpreter",
+    },
   },
   performance: {
     eyebrow: "Performance",
@@ -368,7 +419,7 @@ const en = {
     description:
       "Every plan includes core translation. Higher plans add two-way translation, integrations and dedicated support as your rollout grows.",
     mostPopular: "Most popular",
-    note: "Prices are indicative and may change before general availability. Contact us for a quote tailored to your organisation.",
+    note: "Prices are estimates and may change before launch. Contact us for a price for your organisation.",
     paths: {
       label: "Who is Deafference for?",
       back: "Back to both options",
@@ -445,26 +496,26 @@ const en = {
     eyebrow: "Privacy",
     title: "Privacy that respects the conversation",
     description:
-      "A plain-language summary of how Deafference handles your camera, microphone and account data. This summary is not the full legal privacy policy.",
+      "A short, simple summary of how Deafference uses your camera, microphone and account data. It is not the full legal privacy policy.",
     badge: "Plain-language summary",
     principles: [
       {
         title: "Camera and microphone only when you ask",
         description:
-          "Your browser asks for permission first, and they're only used while you're translating. You can turn access off at any time in your browser settings.",
+          "Your browser asks you first. They work only while you are translating. You can turn them off at any time in your browser settings.",
       },
       {
         title: "No recordings saved to your account",
-        description: "Video and audio are used to produce the translation in the moment. Your account doesn't keep recordings of your conversations.",
+        description: "Video and audio are used only to make the translation at that moment. Your account does not keep recordings of your conversations.",
       },
       {
         title: "Only what your account needs",
         description:
-          "We store your name, email, password (encrypted), an optional profile photo, your preferred sign language and whether you've allowed camera access.",
+          "We keep only your name, your email, your password (encrypted), a profile photo if you add one, your sign language, and whether you allowed the camera.",
       },
       {
         title: "You're in control",
-        description: "You can update your profile, change your password or delete your account from your profile page.",
+        description: "On your profile page you can change your details, change your password or delete your account.",
       },
     ],
     contact: "Questions about your data? Email us at",
@@ -474,8 +525,14 @@ const en = {
         "See and update your profile information at any time.",
         "Delete your account from your profile page.",
         "Ask for a copy of your data by emailing us.",
-        "Clear settings saved on this device (such as calm mode and camera preferences) by clearing your browser's site data.",
+        "Remove settings saved on this device (like calm mode and camera choices) by clearing this site's data in your browser.",
       ],
+    },
+    /** Labels in the browser permission picture on the first principle. */
+    visual: {
+      prompt: "Use your camera and microphone?",
+      allow: "Allow",
+      block: "Block",
     },
   },
   faq: {
@@ -485,45 +542,51 @@ const en = {
     viewMore: "View more questions ({count})",
     viewLess: "Show fewer questions",
     description: "Everything you need to know before trying Deafference. Can't find your answer? Get in touch below.",
+    /** Card beside the questions on /faq. */
+    ask: {
+      title: "Still have a question?",
+      body: "Write to us and we'll answer by email.",
+      cta: "Contact us",
+    },
     items: [
+      // Answers in plain language: short sentences, one idea each.
       {
         question: "What is Deafference?",
         answer:
-          "Deafference is an AI communication platform that helps Deaf, hard-of-hearing and hearing people understand each other. It translates between sign language, speech and text in real time, with a focus on healthcare and everyday services.",
+          "Deafference is an AI app that helps Deaf, hard-of-hearing and hearing people understand each other. It is built to translate between sign language, speech and text, for healthcare and everyday services.",
       },
       {
         question: "Which sign languages are supported?",
         answer:
-          "Sign language support is being built step by step. You can choose your preferred sign language in your profile, and we're adding regional variation and more national sign languages over time.",
+          "We are adding sign languages step by step. You can choose your sign language in your profile. Over time we will add local signs and more national sign languages.",
       },
       {
         question: "What happens to my camera and microphone data?",
         answer:
-          "They're only used after you give permission and start a session. Video and audio are used to produce the translation in the moment and aren't saved to your account. You can turn access off at any time in your browser.",
+          "They are used only after you allow them and start a session. Video and audio make the translation at that moment. They are not saved to your account. You can turn access off at any time in your browser.",
       },
       {
         question: "Does Deafference replace a professional interpreter?",
         answer:
-          "No. Deafference helps with everyday moments when no interpreter is available. For medical consent, legal matters or other critical decisions, always book a qualified sign language interpreter.",
+          "No. Deafference helps in everyday moments when no interpreter is available. For medical consent, legal matters and other important decisions, always book a qualified sign language interpreter.",
       },
       {
         question: "How much does it cost? Can I try it for free?",
-        answer:
-          "Individuals can start with the free plan. Organisations can see our indicative plans in the Pricing section or contact us for a tailored quote.",
+        answer: "People can start with the free plan. Organisations can see our estimated prices on the Pricing page, or contact us for a price.",
       },
       {
         question: "Is Deafference available in Arabic?",
-        answer: "Yes. The interface is available in English and Arabic — use the language button at the top of the page to switch.",
+        answer: "Yes. The site is in English and Arabic. Use the language button at the top of the page to switch.",
       },
       {
         question: "How accurate is the translation?",
         answer:
-          "Accuracy keeps improving, with extra care for everyday and medical vocabulary. It can still make mistakes, so for medical consent, legal matters or other critical decisions, always confirm with a qualified interpreter.",
+          "It keeps getting better, with extra care for everyday and medical words. It can still make mistakes. For medical consent, legal matters and other important decisions, always check with a qualified interpreter.",
       },
       {
         question: "Does Deafference work without internet?",
         answer:
-          "Live translation needs an internet connection. The free plan includes some basic phrases designed for offline use, and we're moving more processing onto the device so it keeps working on weak connections.",
+          "Live translation needs the internet. The free plan has some basic phrases made to work offline. We are moving more of the work onto the device, so it keeps working when the internet is weak.",
       },
     ],
   },
@@ -533,6 +596,8 @@ const en = {
     description: "Tell us about your team or use case and we'll follow up with next steps, no matter how early you are.",
     formEyebrow: "Start a conversation",
     formTitle: "Send us a message",
+    /** How sending works, drawn above the form: there's no contact API, the visitor's own email app sends it. */
+    flow: ["Write your message", "Your email app opens", "We reply by email"],
     name: "Name",
     email: "Email",
     message: "Message",
@@ -596,11 +661,157 @@ const en = {
     primary: "Try Deafference",
     secondary: "Contact us",
   },
+  /** Home page band linking to the sections that moved to their own pages. */
+  explore: {
+    eyebrow: "Learn more",
+    title: "Pricing, questions, security and contact",
+    items: {
+      pricing: { title: "Pricing", cta: "See pricing" },
+      faq: { title: "Questions", cta: "Read the FAQ" },
+      security: { title: "Security & privacy", cta: "See how we protect it" },
+      contact: { title: "Contact", cta: "Get in touch" },
+    },
+  },
+  /**
+   * The home page drawn from the website design (components/landing/home). Copy that already existed
+   * (scenario places, demo tutorials, the explore links, why-choose-us reasons) is reused from its own block.
+   */
+  home: {
+    /** Read before each chat bubble so it's clear who is talking. */
+    signed: "Signed",
+    spoken: "Spoken",
+    hero: {
+      titleLead: "Breaking communication",
+      titleAccent: "barriers.",
+      facts: ["Full screen in one tap", "No sign-up needed", "Private"],
+      live: "Live",
+      youSay: "Hi, I am Deaf.",
+      theySay: "Hi! How can I help?",
+    },
+    how: {
+      titleLead: "Three steps.",
+      titleAccent: "Both ways.",
+      steps: ["Open the app", "Sign or speak", "Read or watch"],
+      stepLabel: "Step {n}",
+      or: "or",
+      flowTitle: "Two-way, in real time",
+      flowHint: "Tap swap to switch sides",
+      youSign: "You sign",
+      theySpeak: "They speak",
+      translates: "Deafference translates",
+      theyHearRead: "They hear + read",
+      youReadSee: "You read + see sign",
+      sign: "Sign",
+      speech: "Speech",
+      /** Spoken between the two direction words on the swap button ("Sign to Speech"). */
+      to: "to",
+      swap: "Swap direction",
+      more: "See how it works in detail",
+      /** The worked example under the two-way flow (the hero's two lines, going through the app). */
+      example: "Example",
+      saidAloud: "Said out loud",
+      captions: "Captions",
+      signedBy: "Signed by the avatar",
+    },
+    places: {
+      titleLead: "Take a walk through",
+      titleAccent: "everyday life.",
+      lead: "With Judy as your guide.",
+      /** A tiny example conversation for each place, in the order of `scenarios.items`. */
+      exchanges: [
+        { you: "My head hurts", them: "1 pill, twice a day" },
+        { you: "A room for 2 nights", them: "Room 204" },
+        { you: "Meeting at 10?", them: "Yes, in room B" },
+        { you: "He fell. Help!", them: "We are on our way" },
+        { you: "Which gate?", them: "Gate 12, in 30 min" },
+        { you: "Renew my ID", them: "Fill in this form" },
+        { you: "Again, please?", them: "Page 12" },
+      ],
+    },
+    sos: {
+      kicker: "Ready-made messages",
+      title: "Emergency phrases",
+      noSignup: "No sign-up needed",
+      how: ["Tap", "Show", "Get help"],
+      show: "Show full screen",
+      close: "Close",
+      sheetLabel: "Phrase shown full screen",
+      more: "All emergency phrases",
+    },
+    videos: {
+      titleLead: "See it in action,",
+      titleAccent: "then set it up.",
+      lead: "Video & interactive tutorials — captioned and signed.",
+      cc: "CC",
+      sign: "Sign",
+    },
+    explore: {
+      titleLead: "Pricing, questions,",
+      titleAccent: "security & contact.",
+    },
+    why: {
+      titleLead: "Built for the conversations",
+      titleAccent: "that can't wait.",
+      displayLabel: "Display settings",
+      look: "Look",
+      light: "Light",
+      dark: "Dark",
+      contrast: "High contrast",
+      motion: "Reduce motion",
+      chips: ["Aiming for WCAG 2.2 AA", "Keyboard", "Never sound-only"],
+      private: ["Camera + mic only during a session", "Recordings not saved"],
+    },
+    app: {
+      kicker: "Early preview",
+      title: "Try the Deafference app.",
+      list: ["In your browser", "On your phone", "Sign recognition: being connected"],
+      browserTitle: "Deafference — Listening workspace",
+      workspace: "Listening workspace",
+      textSpeech: "Text / Speech",
+      camera: "Your camera",
+      avatar: "Signing avatar",
+      youSay: "Hi, I am Deaf. I have an appointment.",
+      theySay: "Welcome! Please take a seat.",
+      imageLabel:
+        "A drawing of the Deafference listening workspace: your camera on one side, the signing avatar on the other, and the conversation underneath.",
+    },
+    footer: {
+      /** Badge 4 is shown after the word "عربي". */
+      badges: ["Aiming for WCAG 2.2 AA", "Keyboard", "Screen readers", "RTL", "Reduced motion", "Never sound-only"],
+    },
+  },
+  /**
+   * The landing's own pages (components/landing/pages), drawn like the home page. Most of their copy
+   * comes from the blocks above (about, pricing, faq, privacy, contact…); these are the new bits.
+   */
+  pages: {
+    /** Accessible names of the page header's "Home › Page" trail and its section links. */
+    crumbs: "Breadcrumb",
+    onThisPage: "On this page",
+    howItWorks: {
+      titleLead: "How Deafference",
+      titleAccent: "works.",
+      lead: "Deafference is built to turn speech into sign and text, and sign into text and speech. Here is each step, in both directions.",
+      steps: "Step by step",
+    },
+    faq: {
+      pills: ["Short answers", "Plain words", "English and Arabic"],
+    },
+    scenarios: {
+      titleLead: "Where Deafference",
+      titleAccent: "matters.",
+      lead: "In every place, every day. Seven everyday places where a missing interpreter should not mean a missed conversation.",
+    },
+  },
   footer: {
     tagline:
       "Real-time AI communication between sign language, speech and text — built with and for the Deaf and hard-of-hearing community.",
-    explore: "Explore",
+    product: "Product",
     company: "Company",
+    help: "Help & legal",
+    openApp: "Open the app",
+    terms: "Terms of service",
+    accessibility: "Accessibility",
     contactHeading: "Contact",
     email: "Email",
     rights: "© {year} Deafference. All rights reserved.",
@@ -630,6 +841,8 @@ const ar: LandingMessages = {
       translate: "الترجمة",
       demo: "مركز العروض",
       privacy: "الخصوصية",
+      faq: "الأسئلة الشائعة",
+      security: "الأمان",
     },
     home: "الصفحة الرئيسية لـ Deafference",
     desktopLabel: "التنقل الرئيسي",
@@ -647,6 +860,28 @@ const ar: LandingMessages = {
     toDark: "التبديل إلى الوضع الداكن",
     toLight: "التبديل إلى الوضع الفاتح",
   },
+  a11y: {
+    button: "إعدادات إمكانية الوصول",
+    title: "إمكانية الوصول",
+    subtitle: "غيّر طريقة عرض الموقع. تُحفظ اختياراتك في هذا المتصفح.",
+    textSize: "حجم النص",
+    contrast: "تباين عالٍ",
+    contrastDesc: "نص أغمق وخطوط أوضح.",
+    calm: "الوضع الهادئ",
+    calmDesc: "يوقف الصور والرسوم المتحركة.",
+    on: "مفعّل",
+    off: "متوقف",
+    emergency: "عبارات الطوارئ",
+    reset: "إعادة الضبط",
+    close: "إغلاق إعدادات إمكانية الوصول",
+  },
+  signVideo: {
+    watch: "شاهد بلغة الإشارة",
+    title: "هذه الصفحة بلغة الإشارة",
+    close: "إغلاق الفيديو",
+    captions: "ترجمة نصية بالعربية",
+    error: "تعذّر تحميل هذا الفيديو. حاول مرة أخرى لاحقًا.",
+  },
   judy: {
     floatingLabel: "جودي، مرشدة Deafference (رسم متحرك للزينة)",
     sceneLabel: "جودي تتجول في أماكن الحياة اليومية التي يساعد فيها Deafference",
@@ -654,23 +889,29 @@ const ar: LandingMessages = {
   hero: {
     status: "إشارة ↔ كلام في الوقت الفعلي",
     headline: ["نكسر", "حواجز", "التواصل"],
-    intro:
-      "يترجم Deafference لغة الإشارة إلى كلام ونص، والكلام إلى إشارة، في الوقت الفعلي، ليتمكّن الصمّ وضعاف السمع والسامعون من فهم بعضهم في العيادة والعمل والدراسة والحياة اليومية.",
+    tagline: "إشارة وكلام ونص، تُترجَم في الاتجاهين ليفهم الطرفان بعضهما.",
     primaryCta: "جرّب Deafference",
+    emergency: "عبارات الطوارئ",
+    emergencyNote: "رسائل جاهزة تظهر بملء الشاشة بلمسة واحدة. لا حاجة إلى التسجيل.",
     secondaryCta: "شاهده أثناء العمل",
     scenariosCta: "استكشف السيناريوهات",
-    badges: ["الخصوصية أولًا", "ترجمة فورية", "مصمَّم لإتاحة الوصول", "العربية والإنجليزية", "مدعوم بالذكاء الاصطناعي"],
     modeLabel: "الوضع",
     modeValue: "مباشر",
     modeAccent: "في الاتجاهين",
     privacyLabel: "الخصوصية",
     privacyValue: "التحكم بيدك",
-    illustrationLabel: "كيف تجري المحادثة: أنت تؤشّر، والذكاء الاصطناعي يفهم، والطرف الآخر يسمعك، ويتواصل الجميع.",
+    illustrationLabel: "كيف تجري المحادثة: أنت تؤشّر، وDeafference يترجم، والطرف الآخر يسمع كلامك ويقرؤه.",
     cards: {
       sign: "أنت تؤشّر",
-      understands: "الذكاء الاصطناعي يفهم",
+      understands: "Deafference يترجم",
+      hear: "هم يفهمونك",
+    },
+    net: {
+      label: "Deafference في قلب المحادثة: أنت تؤشّر، والذكاء الاصطناعي يفهم، وهم يسمعونك، والجميع يتواصلون.",
+      sign: "أنت تؤشّر",
+      ai: "الذكاء الاصطناعي يفهم",
       hear: "هم يسمعونك",
-      connect: "يتواصل الجميع",
+      connect: "الجميع يتواصلون",
     },
   },
   about: {
@@ -680,15 +921,15 @@ const ar: LandingMessages = {
     description:
       "بدأ Deafference من ملاحظة بسيطة: ما زالت التعاملات اليومية المنطوقة تترك الصمّ وضعاف السمع في انتظار مترجم لا يكون متاحًا دائمًا. نحن نبني البرنامج الذي يسدّ هذه الفجوة.",
     storyEyebrow: "قصتنا",
-    storyLead: "بدأ Deafference بعد أن رأينا زيارة روتينية لعيادة تتحوّل إلى تجربة مرهقة لأسباب لا علاقة لها بالتشخيص:",
-    storyBody:
-      "لم يُحجز مترجم، ولجأ مكتب الاستقبال إلى تبادل الملاحظات المكتوبة، فاستغرق تسجيل وصول مدته خمس دقائق أربعين دقيقة. تلك الفجوة — اللحظات اليومية الأصغر من أن يُحجز لها مترجم والأهم من أن نخطئ فيها — هي ما قررنا سدّه.",
-    storyMore:
-      "بدأنا بالرعاية الصحية والخدمات العامة لأن المخاطر هناك هي الأعلى، ثم صمّمنا المسار الفوري نفسه ليعمل في أي مكان تجري فيه محادثة منطوقة دون بديل مرئي.",
-    glanceLabel: "لمحة سريعة",
-    glanceValues: "قيم أساسية",
-    glanceRoles: "مجالات تركيز",
-    glanceGoals: "أهداف قادمة",
+    storyLead: "بدأت القصة في عيادة، حيث استغرق تسجيل وصول مدته خمس دقائق أربعين دقيقة.",
+    storyScenesLabel: "قصتنا في أربع خطوات",
+    storyScenes: [
+      { title: "لا مترجم", caption: "لم يُحجز مترجم لزيارة روتينية." },
+      { title: "ملاحظات على الورق", caption: "خمس دقائق صارت أربعين." },
+      { title: "Deafference", caption: "صُمّم لترجمة الإشارة والكلام والنص." },
+      { title: "تفاهم", caption: "يستطيع الطرفان متابعة المحادثة." },
+    ],
+    storyMinutes: "دقيقة",
     tabsLabel: "أقسام من نحن",
     tabs: {
       mission: "رسالتنا",
@@ -699,76 +940,78 @@ const ar: LandingMessages = {
     },
     missionTitle: "رسالتنا",
     missionBody:
-      "سدّ فجوة التواصل للصمّ وضعاف السمع في اللحظة الأهم — عند مكتب الاستقبال في المستشفى، وفي قسم الطوارئ، وعند نافذة الخدمة — بتحويل اللغة المنطوقة إلى إشارة ونص واضحين في الوقت الفعلي، وتحويل الإشارة إلى كلام. لا حاجة لانتظار موعد: الدعم حاضر لحظة حدوث المحادثة.",
+      "نريد أن يُفهَم الصمّ وضعاف السمع في اللحظات الأهم: عند مكتب الاستقبال في المستشفى، وفي قسم الطوارئ، وعند نافذة الخدمة. يحوّل Deafference الكلام إلى إشارة ونص، والإشارة إلى كلام. لا ينبغي أن يحتاج أحد إلى حجز المساعدة مسبقًا، فالمساعدة يجب أن تكون حاضرة لحظة بدء المحادثة.",
     visionTitle: "رؤيتنا",
     visionBody:
-      "عالم لا يضطر فيه الصمّ وضعاف السمع إلى التخطيط مسبقًا لتجاوز حواجز التواصل الطبية والاجتماعية. نرى Deafference بنية تحتية يومية — مألوفة وموثوقة مثل الترجمة النصية أو المنحدر — متاحة أينما يمكن أن تجري محادثة منطوقة.",
+      "عالم لا يحتاج فيه الصمّ وضعاف السمع إلى التخطيط مسبقًا ليُفهَموا، عند الطبيب أو في أي مكان آخر. نريد أن يكون Deafference عاديًا وموثوقًا مثل الترجمة النصية أو المنحدر، ومتاحًا أينما يتحدث الناس.",
+    missionPlaces: ["الاستقبال في المستشفى", "قسم الطوارئ", "نافذة الخدمة"],
+    visionItems: ["الترجمة النصية", "المنحدر", "Deafference"],
     values: [
       {
         title: "إتاحة الوصول أولًا",
-        description: "يبدأ كل قرار تصميمي من تجربة الشخص الأصمّ أو ضعيف السمع، لا كإضافة لاحقة إلى منتج صُمّم للسامعين.",
+        description: "يبدأ كل قرار تصميمي من الشخص الأصمّ أو ضعيف السمع. إتاحة الوصول ليست إضافة في النهاية.",
       },
       {
         title: "سلامة المرضى",
-        description: "في البيئات السريرية لا يُعدّ الخطأ في الترجمة خللًا بسيطًا بل خطرًا على السلامة. لذلك نحرص على وضوح المخرجات، خاصة في العبارات الطبية والطارئة.",
+        description: "في العيادة، قد تؤذي الترجمة الخاطئة شخصًا ما. لذلك نجعل الكلمات واضحة وبسيطة، خاصة في العبارات الطبية والطارئة.",
       },
       {
         title: "احترام الثقافة",
-        description: "لغات الإشارة لغات كاملة لها قواعدها وتنوّعها الإقليمي. نتعامل معها على هذا الأساس بدل الترجمة الحرفية من اللغة المنطوقة.",
+        description: "لغات الإشارة لغات كاملة، لها قواعدها وإشاراتها المحلية. لا نترجمها كلمة بكلمة من اللغة المنطوقة.",
       },
       {
         title: "عناية تقنية",
-        description: "السرعة والدقة متطلب واحد لا مفاضلة بينهما — فالإشارة المتأخرة أو الخاطئة محادثة ضائعة.",
+        description: "نحتاج إلى السرعة والدقة معًا. الإشارة المتأخرة أو الخاطئة تعني محادثة ضائعة.",
       },
       {
         title: "الصراحة بشأن الحدود",
-        description: "نتحدث بوضوح عمّا لا يستطيع Deafference فعله بعد، ونخبرك متى يكون المترجم المؤهّل هو الخيار الصحيح.",
+        description: "نقول بوضوح ما لا يستطيع Deafference فعله بعد، ومتى يجب أن تستعين بمترجم مؤهّل بدلًا منه.",
       },
     ],
-    teamIntro: "نعرّف فريقنا بما تتولاه كل مجموعة. يشارك الصمّ وضعاف السمع في تشكيل المنتج، لا في اختباره فقط.",
+    teamIntro: "نعرّف فريقنا بما تفعله كل مجموعة. يساعد الصمّ وضعاف السمع في تشكيل المنتج، لا في اختباره فقط.",
     teamGroups: [
       {
         heading: "المنتج والشراكات",
         roles: [
-          { role: "قيادة المنتج", note: "تحدد الاتجاه مع جعل إتاحة الوصول وسلامة المرضى المتطلب الأول." },
-          { role: "شراكات الرعاية الصحية", note: "تعمل مع العيادات وفرق الخدمة لفهم سير العمل الفعلي في الاستقبال وغرف الفحص." },
+          { role: "قيادة المنتج", note: "تحدد الاتجاه. إتاحة الوصول وسلامة المرضى أولًا." },
+          { role: "شراكات الرعاية الصحية", note: "تعمل مع العيادات لتفهم كيف يجري العمل فعلًا في الاستقبال وغرف الفحص." },
         ],
       },
       {
         heading: "الهندسة",
         roles: [
-          { role: "تعلّم الآلة", note: "نماذج للتعرّف على الإشارة والكلام مصممة للعمل في الوقت الفعلي." },
-          { role: "هندسة المنتج", note: "واجهات ثنائية اللغة سهلة الوصول تعمل على الأجهزة اليومية." },
+          { role: "تعلّم الآلة", note: "يبني الذكاء الاصطناعي الذي يتعرّف على الإشارة والكلام، وهو مصمّم للمحادثة المباشرة." },
+          { role: "هندسة المنتج", note: "يبني شاشات واضحة بالعربية والإنجليزية تعمل على الهواتف والحواسيب اليومية." },
         ],
       },
       {
         heading: "المجتمع وإتاحة الوصول",
         roles: [
-          { role: "آراء مجتمع الصمّ", note: "ملاحظات مستخدمي لغة الإشارة من الصمّ تشكّل مخرجات الإشارة وقرارات المنتج." },
-          { role: "إرشاد المترجمين", note: "مترجمو لغة الإشارة المحترفون يحددون متى يجب أن يتولى مترجم بشري المهمة." },
+          { role: "آراء مجتمع الصمّ", note: "يقدّم مستخدمو لغة الإشارة من الصمّ ملاحظات تشكّل الإشارة والمنتج." },
+          { role: "إرشاد المترجمين", note: "يخبرنا مترجمو لغة الإشارة المحترفون متى يجب أن يتولى مترجم بشري المهمة." },
         ],
       },
     ],
     hiring: {
       title: "نحن نوظّف",
-      body: "نبحث عن مهندسين ومنسّقين للتواصل مع المجتمع، ونرحّب بشكل خاص بالمتقدّمين الصمّ وضعاف السمع.",
+      body: "نبحث عن مهندسين وعن أشخاص للعمل مع مجتمع الصمّ. نرحّب كثيرًا بالمتقدّمين الصمّ وضعاف السمع.",
       cta: "تواصل معنا",
     },
     goals: [
       {
         title: "المزيد من لغات الإشارة واللهجات",
         timeframe: "التالي",
-        description: "دعم التنوّع الإقليمي في الإشارة ولغات إشارة وطنية إضافية تتجاوز المجموعة الأساسية الحالية.",
+        description: "دعم الإشارات المحلية والمزيد من لغات الإشارة الوطنية.",
       },
       {
         title: "تكاملات للمؤسسات",
         timeframe: "مخطط له",
-        description: "تسجيل دخول موحّد وروابط مع الأنظمة السريرية وإدارة الفرق، لتتمكن المستشفيات والجهات من التطبيق قسمًا بعد قسم.",
+        description: "تسجيل دخول واحد للموظفين، وربط بأنظمة العيادات، وإدارة الفرق، لتبدأ المستشفيات والجهات قسمًا بعد قسم.",
       },
       {
         title: "العمل مع الاتصال الضعيف",
         timeframe: "مستمر",
-        description: "معالجة أكبر على الجهاز نفسه لتستمر الترجمة في العيادات والفصول ومراكز الخدمة الريفية ضعيفة الاتصال.",
+        description: "جزء أكبر من العمل على الجهاز نفسه، لتستمر الترجمة حيث يكون الإنترنت ضعيفًا.",
       },
     ],
   },
@@ -777,23 +1020,26 @@ const ar: LandingMessages = {
     title: "مصمَّم للمحادثات التي لا تحتمل الانتظار",
     description: "صُمّم Deafference حول اللحظات الحقيقية التي ينقطع فيها التواصل — وحول الأشخاص الذين يعتمدون عليه أكثر من غيرهم.",
     reasons: [
-      {
-        title: "إتاحة الوصول أولًا",
-        description: "مصمَّم مع مراعاة الصمّ وضعاف السمع: تخطيطات مرئية أولًا، ونص مكتوب إلى جانب الإشارة، وعناصر تحكم واضحة وهادئة.",
-      },
-      {
-        title: "لِلحظات الرعاية الصحية",
-        description: "تسجيل الوصول والاستشارات والصيدليات والطوارئ — حيث يكون لسوء الفهم عواقب حقيقية.",
-      },
-      {
-        title: "في الاتجاهين وفي الوقت الفعلي",
-        description: "من الإشارة إلى الكلام ومن الكلام إلى الإشارة في مسار واحد، ليتحدث الطرفان دون تبادل الملاحظات المكتوبة.",
-      },
-      {
-        title: "الخصوصية في التصميم",
-        description: "تُستخدم الكاميرا والميكروفون فقط عند بدء جلسة، ولا تُحفظ تسجيلات محادثاتك في حسابك.",
-      },
+      { title: "إتاحة الوصول أولًا", description: "حجم نص قابل للتعديل، وتباين عالٍ، وتقليل الحركة، كلها مدمجة." },
+      { title: "لِلحظات الرعاية الصحية", description: "تسجيل الوصول والاستشارات والصيدليات والطوارئ." },
+      { title: "في الاتجاهين وفي الوقت الفعلي", description: "من الإشارة إلى الكلام ومن الكلام إلى الإشارة في مسار واحد." },
+      { title: "الخصوصية في التصميم", description: "تعمل الكاميرا والميكروفون أثناء الجلسة فقط، ولا تُحفظ التسجيلات في حسابك." },
     ],
+    visual: {
+      textSize: "حجم النص",
+      contrast: "تباين عالٍ",
+      motion: "تقليل الحركة",
+      on: "مفعّل",
+      patient: "المريض",
+      clinician: "الطبيب",
+      places: ["تسجيل الوصول", "الاستشارة", "الصيدلية", "الطوارئ"],
+      sign: "إشارة",
+      speech: "كلام",
+      text: "نص",
+      sessionOn: "الجلسة تعمل",
+      sessionOff: "انتهت الجلسة",
+      notSaved: "لا يُحفظ في حسابك",
+    },
   },
   howItWorks: {
     eyebrow: "كيف يعمل",
@@ -801,7 +1047,7 @@ const ar: LandingMessages = {
     description: "ينتقل التمييز من خطوة إلى أخرى تلقائيًا. يتوقف عند الخطوة التي تمرّر المؤشر فوقها أو تضغط عليها، ويوقف الوضع الهادئ الحركة تمامًا.",
     stages: [
       { title: "التقاط الكلام", caption: "يلتقط ميكروفون جهازك ما يقوله الشخص السامع.", tag: "إدخال صوتي" },
-      { title: "المعالجة بالذكاء الاصطناعي", caption: "يتعرّف الذكاء الاصطناعي على العبارة ويحوّلها إلى بنية لغة الإشارة.", tag: "بنية الإشارة" },
+      { title: "المعالجة بالذكاء الاصطناعي", caption: "يفهم الذكاء الاصطناعي الجملة ويرتّبها بترتيب لغة الإشارة.", tag: "بنية الإشارة" },
       { title: "عرض الإشارة", caption: "يعرض مؤشّر متحرك الرسالة، مع نص مكتوب إلى جانبها.", tag: "جاهز للمشاهدة" },
     ],
     titleReverse: "3 خطوات من الإشارة المرئية إلى النص والكلام.",
@@ -826,15 +1072,15 @@ const ar: LandingMessages = {
     imageAlt:
       "خريطة مصوّرة بعنوان «حيث يُحدث Deafference فرقًا — في كل مكان، كل يوم». سبع غرف تحيط بمركز Deafference المضيء وتصل بينها ممرات: الرعاية الصحية (طبيب يتحدث مع مريض)، والضيافة (مكتب استقبال فندق)، وأماكن العمل (اجتماع فريق)، والطوارئ (موقف سيارة إسعاف)، والسفر (مكتب تسجيل في المطار)، والخدمات العامة (مكتب خدمة عامة)، والتعليم (فصل دراسي). تتنقّل جودي، المرشدة المتحركة، بين الغرف.",
     listLabel: "أماكن تزورها جودي",
-    nowLabel: "الآن:",
+    you: "أنت",
     items: [
-      { label: "الرعاية الصحية", message: "كل مريض يفهم طبيبه." },
-      { label: "الضيافة", message: "سجّل وصولك بلا حواجز." },
-      { label: "أماكن العمل", message: "صوتك مسموع في كل اجتماع." },
-      { label: "الطوارئ", message: "المساعدة تصل بسرعة ووضوح." },
-      { label: "السفر", message: "تغيّرت البوابة؟ ستعرف فورًا." },
-      { label: "الخدمات العامة", message: "معاملاتك أصبحت أسهل." },
-      { label: "التعليم", message: "تعلّم مباشرة بلغة الإشارة." },
+      { label: "الرعاية الصحية", message: "كل مريض يفهم طبيبه.", with: "الطبيب" },
+      { label: "الضيافة", message: "سجّل وصولك بلا حواجز.", with: "الاستقبال" },
+      { label: "أماكن العمل", message: "صوتك مسموع في كل اجتماع.", with: "فريقك" },
+      { label: "الطوارئ", message: "المساعدة تصل بسرعة ووضوح.", with: "المسعفون" },
+      { label: "السفر", message: "تغيّرت البوابة؟ ستعرف فورًا.", with: "موظفو البوابة" },
+      { label: "الخدمات العامة", message: "معاملاتك أصبحت أسهل.", with: "مكتب الخدمة" },
+      { label: "التعليم", message: "تعلّم مباشرة بلغة الإشارة.", with: "المعلّم" },
     ],
     askJudy: "اسأل جودي عن {place}",
     rings: [
@@ -861,30 +1107,32 @@ const ar: LandingMessages = {
     tutorialsTitle: "دروس مرئية وتفاعلية",
     media: {
       comingSoon: "الفيديو قريبًا",
-      preview: "معاينة",
-      previewAria: "معاينة: {title}",
-      comingSoonNote: "هذا الفيديو غير متاح بعد. يمكنك في الأثناء تجربة التطبيق المباشر.",
+      tryIt: "جرّبه في التطبيق",
     },
     tutorials: [
       {
         title: "البدء للمستخدمين الصمّ",
         description: "أعدّ ملفك الشخصي وإذن الكاميرا ولغة الإشارة المفضلة لديك.",
         audience: "مستخدمون جدد",
+        steps: ["ملفك الشخصي", "اسمح بالكاميرا", "اختر لغة الإشارة"],
       },
       {
         title: "استخدام Deafference في الاستقبال",
         description: "كيف يستخدم الطاقم الصحي Deafference لتسجيل الوصول والاستشارات.",
         audience: "الطاقم الصحي",
+        steps: ["المريض يؤشّر", "نص على الشاشة", "الطاقم يردّ"],
       },
       {
         title: "إعداد عبارات الطوارئ",
         description: "جهّز عبارات طوارئ بلمسة واحدة للمواقف العصيبة التي لا تحتمل التأخير.",
         audience: "المسؤولون",
+        steps: ["افتح الطوارئ", "اختر عبارة", "تُعرض بملء الشاشة"],
       },
     ],
-    ctaTitle: "مستعد لتجاوز المعاينة؟",
-    ctaBody: "افتح التطبيق المباشر وجرّب الترجمة الفورية بصوتك أو بالكاميرا.",
-    ctaButton: "افتح التطبيق المباشر",
+    ctaTitle: "جرّب تطبيق Deafference",
+    ctaBody: "نسخة تجريبية مبكرة: ما زلنا نعمل على ربط التعرّف على الإشارة.",
+    ctaButton: "افتح النسخة التجريبية",
+    ctaImageAlt: "مساحة الاستماع في Deafference، مع لوحات الكاميرا المباشرة والحالة الحالية والترجمة المباشرة.",
   },
   features: {
     eyebrow: "المزايا",
@@ -937,13 +1185,19 @@ const ar: LandingMessages = {
     trust: [
       {
         title: "خاص وآمن",
-        description: "تُستخدم الكاميرا والميكروفون فقط عند بدء جلسة، ولا تُحفظ تسجيلات محادثاتك في حسابك.",
+        description: "تعمل الكاميرا والميكروفون فقط عندما تبدأ جلسة. لا تُحفظ تسجيلات محادثاتك في حسابك.",
       },
       {
         title: "دقة بعناية",
-        description: "نماذج ذكاء اصطناعي تركّز على التعرّف على الإشارة، مع عناية خاصة بالمفردات اليومية والطبية. في القرارات الحرجة، تحقّق دائمًا مع مترجم مؤهل.",
+        description: "يركّز الذكاء الاصطناعي لدينا على قراءة الإشارة، مع عناية خاصة بالكلمات اليومية والطبية. في القرارات المهمة، تحقّق دائمًا مع مترجم مؤهّل.",
       },
     ],
+    accuracyVisual: {
+      everyday: "كلمات يومية",
+      medical: "كلمات طبية",
+      critical: "قرار حرج",
+      interpreter: "مترجم مؤهّل",
+    },
   },
   performance: {
     eyebrow: "الأداء",
@@ -965,7 +1219,7 @@ const ar: LandingMessages = {
     title: "خطط لكل حجم، من الاستخدام الشخصي إلى شبكات المستشفيات",
     description: "تشمل كل خطة الترجمة الأساسية. وتضيف الخطط الأعلى الترجمة في الاتجاهين والتكاملات والدعم المخصص مع توسّع استخدامك.",
     mostPopular: "الأكثر طلبًا",
-    note: "الأسعار تقديرية وقد تتغير قبل الإطلاق العام. تواصل معنا للحصول على عرض سعر مناسب لمؤسستك.",
+    note: "الأسعار تقديرية وقد تتغير قبل الإطلاق. تواصل معنا لمعرفة السعر المناسب لمؤسستك.",
     paths: {
       label: "لمن صُمّم Deafference؟",
       back: "العودة إلى الخيارين",
@@ -1041,24 +1295,24 @@ const ar: LandingMessages = {
   privacy: {
     eyebrow: "الخصوصية",
     title: "خصوصية تحترم المحادثة",
-    description: "ملخص بلغة بسيطة لكيفية تعامل Deafference مع بيانات الكاميرا والميكروفون والحساب. هذا الملخص ليس سياسة الخصوصية القانونية الكاملة.",
+    description: "ملخص قصير وبسيط لكيفية استخدام Deafference للكاميرا والميكروفون وبيانات حسابك. هذا الملخص ليس سياسة الخصوصية القانونية الكاملة.",
     badge: "ملخص بلغة بسيطة",
     principles: [
       {
         title: "الكاميرا والميكروفون عند طلبك فقط",
-        description: "يطلب متصفحك الإذن أولًا، ولا يُستخدمان إلا أثناء الترجمة. يمكنك إيقاف الوصول في أي وقت من إعدادات المتصفح.",
+        description: "يسألك متصفحك أولًا. لا يعملان إلا أثناء الترجمة. يمكنك إيقافهما في أي وقت من إعدادات المتصفح.",
       },
       {
         title: "لا تُحفظ تسجيلات في حسابك",
-        description: "يُستخدم الفيديو والصوت لإنتاج الترجمة في لحظتها. لا يحتفظ حسابك بتسجيلات لمحادثاتك.",
+        description: "يُستخدم الفيديو والصوت فقط لإنتاج الترجمة في تلك اللحظة. لا يحتفظ حسابك بتسجيلات لمحادثاتك.",
       },
       {
         title: "فقط ما يحتاجه حسابك",
-        description: "نخزّن اسمك وبريدك الإلكتروني وكلمة المرور (مشفّرة) وصورة ملف شخصي اختيارية ولغة الإشارة المفضلة لديك وما إذا كنت سمحت بالوصول إلى الكاميرا.",
+        description: "نحتفظ فقط باسمك، وبريدك الإلكتروني، وكلمة المرور (مشفّرة)، وصورة الملف الشخصي إن أضفتها، ولغة الإشارة لديك، وهل سمحت باستخدام الكاميرا.",
       },
       {
         title: "التحكم بيدك",
-        description: "يمكنك تحديث ملفك الشخصي أو تغيير كلمة المرور أو حذف حسابك من صفحة ملفك الشخصي.",
+        description: "من صفحة ملفك الشخصي يمكنك تعديل بياناتك أو تغيير كلمة المرور أو حذف حسابك.",
       },
     ],
     contact: "لديك أسئلة عن بياناتك؟ راسلنا على",
@@ -1068,8 +1322,13 @@ const ar: LandingMessages = {
         "الاطلاع على معلومات ملفك الشخصي وتحديثها في أي وقت.",
         "حذف حسابك من صفحة ملفك الشخصي.",
         "طلب نسخة من بياناتك عبر مراسلتنا بالبريد الإلكتروني.",
-        "مسح الإعدادات المحفوظة على هذا الجهاز (مثل الوضع الهادئ وتفضيلات الكاميرا) بمسح بيانات الموقع من متصفحك.",
+        "حذف الإعدادات المحفوظة على هذا الجهاز (مثل الوضع الهادئ واختيارات الكاميرا) بمسح بيانات هذا الموقع من متصفحك.",
       ],
+    },
+    visual: {
+      prompt: "استخدام الكاميرا والميكروفون؟",
+      allow: "سماح",
+      block: "حظر",
     },
   },
   faq: {
@@ -1078,42 +1337,47 @@ const ar: LandingMessages = {
     viewMore: "عرض المزيد من الأسئلة ({count})",
     viewLess: "عرض أسئلة أقل",
     description: "كل ما تحتاج معرفته قبل تجربة Deafference. لم تجد إجابتك؟ تواصل معنا أدناه.",
+    ask: {
+      title: "لديك سؤال آخر؟",
+      body: "راسلنا وسنجيبك عبر البريد الإلكتروني.",
+      cta: "تواصل معنا",
+    },
     items: [
       {
         question: "ما هو Deafference؟",
         answer:
-          "Deafference منصة تواصل بالذكاء الاصطناعي تساعد الصمّ وضعاف السمع والسامعين على فهم بعضهم. تترجم بين لغة الإشارة والكلام والنص في الوقت الفعلي، مع تركيز على الرعاية الصحية والخدمات اليومية.",
+          "Deafference تطبيق بالذكاء الاصطناعي يساعد الصمّ وضعاف السمع والسامعين على فهم بعضهم. صُمّم للترجمة بين لغة الإشارة والكلام والنص، في الرعاية الصحية والخدمات اليومية.",
       },
       {
         question: "ما لغات الإشارة المدعومة؟",
-        answer: "نبني دعم لغات الإشارة خطوة بخطوة. يمكنك اختيار لغة الإشارة المفضلة في ملفك الشخصي، ونضيف التنوّع الإقليمي ومزيدًا من لغات الإشارة الوطنية مع الوقت.",
+        answer: "نضيف لغات الإشارة خطوة بخطوة. يمكنك اختيار لغة الإشارة لديك في ملفك الشخصي. ومع الوقت سنضيف الإشارات المحلية والمزيد من لغات الإشارة الوطنية.",
       },
       {
         question: "ماذا يحدث لبيانات الكاميرا والميكروفون؟",
         answer:
-          "لا تُستخدم إلا بعد منحك الإذن وبدء جلسة. يُستخدم الفيديو والصوت لإنتاج الترجمة في لحظتها ولا يُحفظان في حسابك. يمكنك إيقاف الوصول في أي وقت من متصفحك.",
+          "لا تُستخدم إلا بعد أن تسمح بها وتبدأ جلسة. يُستخدم الفيديو والصوت لإنتاج الترجمة في تلك اللحظة. لا يُحفظان في حسابك. يمكنك إيقاف الوصول في أي وقت من متصفحك.",
       },
       {
         question: "هل يحلّ Deafference محل مترجم لغة الإشارة المحترف؟",
-        answer: "لا. يساعد Deafference في اللحظات اليومية التي لا يتوفر فيها مترجم. أما الموافقات الطبية والمسائل القانونية وغيرها من القرارات الحرجة، فاحجز دائمًا مترجم لغة إشارة مؤهلًا.",
+        answer: "لا. يساعد Deafference في اللحظات اليومية عندما لا يتوفر مترجم. في الموافقات الطبية والمسائل القانونية والقرارات المهمة الأخرى، احجز دائمًا مترجم لغة إشارة مؤهّلًا.",
       },
       {
         question: "كم التكلفة؟ هل يمكنني التجربة مجانًا؟",
-        answer: "يمكن للأفراد البدء بالخطة المجانية. ويمكن للمؤسسات الاطلاع على خططنا التقديرية في قسم الأسعار أو التواصل معنا للحصول على عرض سعر مخصص.",
+        answer: "يمكن للأفراد البدء بالخطة المجانية. ويمكن للمؤسسات الاطلاع على الأسعار التقديرية في صفحة الأسعار، أو التواصل معنا لمعرفة السعر.",
       },
       {
         question: "هل يتوفر Deafference باللغة العربية؟",
-        answer: "نعم. الواجهة متاحة بالعربية والإنجليزية — استخدم زر اللغة أعلى الصفحة للتبديل.",
+        answer: "نعم. الموقع متاح بالعربية والإنجليزية. استخدم زر اللغة أعلى الصفحة للتبديل.",
       },
       {
         question: "ما مدى دقة الترجمة؟",
         answer:
-          "تتحسّن الدقة باستمرار، مع عناية إضافية بالمفردات اليومية والطبية. ومع ذلك قد تحدث أخطاء، لذا تحقّق دائمًا مع مترجم مؤهّل في حالات الموافقة الطبية أو المسائل القانونية أو القرارات المهمة الأخرى.",
+          "تتحسّن الدقة باستمرار، مع عناية خاصة بالكلمات اليومية والطبية. لكنها قد تخطئ. في الموافقات الطبية والمسائل القانونية والقرارات المهمة الأخرى، تحقّق دائمًا مع مترجم مؤهّل.",
       },
       {
         question: "هل يعمل Deafference بدون إنترنت؟",
         answer:
-          "تحتاج الترجمة المباشرة إلى اتصال بالإنترنت. تتضمن الخطة المجانية بعض العبارات الأساسية المصمّمة للاستخدام دون اتصال، ونعمل على نقل المزيد من المعالجة إلى الجهاز ليستمر العمل مع الاتصال الضعيف.",
+          "تحتاج الترجمة المباشرة إلى الإنترنت. في الخطة المجانية بعض العبارات الأساسية المصمّمة للعمل دون اتصال. ونعمل على نقل جزء أكبر من العمل إلى الجهاز، ليستمر عندما يكون الإنترنت ضعيفًا.",
       },
     ],
   },
@@ -1123,6 +1387,7 @@ const ar: LandingMessages = {
     description: "أخبرنا عن فريقك أو حالة الاستخدام لديك وسنتواصل معك بالخطوات التالية، مهما كانت مرحلتك مبكرة.",
     formEyebrow: "ابدأ المحادثة",
     formTitle: "أرسل لنا رسالة",
+    flow: ["اكتب رسالتك", "يفتح تطبيق البريد لديك", "نردّ عليك بالبريد"],
     name: "الاسم",
     email: "البريد الإلكتروني",
     message: "الرسالة",
@@ -1184,10 +1449,140 @@ const ar: LandingMessages = {
     primary: "جرّب Deafference",
     secondary: "تواصل معنا",
   },
+  explore: {
+    eyebrow: "اعرف المزيد",
+    title: "الأسعار والأسئلة والأمان والتواصل",
+    items: {
+      pricing: { title: "الأسعار", cta: "اطّلع على الأسعار" },
+      faq: { title: "الأسئلة الشائعة", cta: "اقرأ الأسئلة الشائعة" },
+      security: { title: "الأمان والخصوصية", cta: "تعرّف على طريقة الحماية" },
+      contact: { title: "تواصل معنا", cta: "تواصل معنا" },
+    },
+  },
+  home: {
+    signed: "بالإشارة",
+    spoken: "بالكلام",
+    hero: {
+      titleLead: "نكسر حواجز",
+      titleAccent: "التواصل.",
+      facts: ["ملء الشاشة بلمسة واحدة", "لا حاجة إلى التسجيل", "يحفظ خصوصيتك"],
+      live: "مباشر",
+      youSay: "مرحبًا، أنا أصم.",
+      theySay: "أهلًا! كيف أساعدك؟",
+    },
+    how: {
+      titleLead: "ثلاث خطوات.",
+      titleAccent: "في الاتجاهين.",
+      steps: ["افتح التطبيق", "أشِر أو تكلّم", "اقرأ أو شاهد"],
+      stepLabel: "الخطوة {n}",
+      or: "أو",
+      flowTitle: "في الاتجاهين، في الوقت الفعلي",
+      flowHint: "اضغط زر التبديل لتغيير الاتجاه",
+      youSign: "أنت تؤشّر",
+      theySpeak: "هم يتكلمون",
+      translates: "Deafference يترجم",
+      theyHearRead: "هم يسمعون ويقرؤون",
+      youReadSee: "أنت تقرأ وترى الإشارة",
+      sign: "إشارة",
+      speech: "كلام",
+      to: "إلى",
+      swap: "بدّل الاتجاه",
+      more: "اعرف كيف يعمل بالتفصيل",
+      example: "مثال",
+      saidAloud: "يُقال بصوت مسموع",
+      captions: "الترجمة النصية",
+      signedBy: "تعرضه الشخصية المؤشِّرة بالإشارة",
+    },
+    places: {
+      titleLead: "تجوّل في",
+      titleAccent: "الحياة اليومية.",
+      lead: "مع جودي مرشدتك.",
+      exchanges: [
+        { you: "رأسي يؤلمني", them: "حبة واحدة، مرتين في اليوم" },
+        { you: "غرفة لليلتين", them: "الغرفة 204" },
+        { you: "الاجتماع الساعة 10؟", them: "نعم، في القاعة B" },
+        { you: "لقد سقط. ساعدوني!", them: "نحن في الطريق إليكم" },
+        { you: "أي بوابة؟", them: "البوابة 12، بعد 30 دقيقة" },
+        { you: "أريد تجديد هويتي", them: "املأ هذا النموذج" },
+        { you: "مرة أخرى، من فضلك؟", them: "الصفحة 12" },
+      ],
+    },
+    sos: {
+      kicker: "رسائل جاهزة",
+      title: "عبارات الطوارئ",
+      noSignup: "لا حاجة إلى التسجيل",
+      how: ["المس", "اعرض", "احصل على المساعدة"],
+      show: "اعرض بملء الشاشة",
+      close: "إغلاق",
+      sheetLabel: "عبارة معروضة بملء الشاشة",
+      more: "كل عبارات الطوارئ",
+    },
+    videos: {
+      titleLead: "شاهده أثناء العمل،",
+      titleAccent: "ثم جهّزه.",
+      lead: "دروس بالفيديو وتفاعلية، مع ترجمة نصية ولغة إشارة.",
+      cc: "ترجمة",
+      sign: "إشارة",
+    },
+    explore: {
+      titleLead: "الأسعار والأسئلة،",
+      titleAccent: "الأمان والتواصل.",
+    },
+    why: {
+      titleLead: "صُمّم للمحادثات",
+      titleAccent: "التي لا تحتمل الانتظار.",
+      displayLabel: "إعدادات العرض",
+      look: "المظهر",
+      light: "فاتح",
+      dark: "داكن",
+      contrast: "تباين عالٍ",
+      motion: "تقليل الحركة",
+      chips: ["نسعى إلى WCAG 2.2 AA", "لوحة المفاتيح", "لا نعتمد على الصوت وحده"],
+      private: ["الكاميرا والميكروفون أثناء الجلسة فقط", "لا تُحفظ التسجيلات"],
+    },
+    app: {
+      kicker: "نسخة تجريبية مبكرة",
+      title: "جرّب تطبيق Deafference.",
+      list: ["في متصفحك", "على هاتفك", "التعرّف على الإشارة: قيد الربط"],
+      browserTitle: "Deafference — مساحة الاستماع",
+      workspace: "مساحة الاستماع",
+      textSpeech: "نص / كلام",
+      camera: "كاميرتك",
+      avatar: "الشخصية المؤشِّرة",
+      youSay: "مرحبًا، أنا أصم. لدي موعد.",
+      theySay: "أهلًا بك! تفضّل بالجلوس.",
+      imageLabel: "رسم لمساحة الاستماع في Deafference: كاميرتك في جهة، والشخصية المؤشِّرة في الجهة الأخرى، والمحادثة في الأسفل.",
+    },
+    footer: {
+      badges: ["نسعى إلى WCAG 2.2 AA", "لوحة المفاتيح", "قارئات الشاشة", "من اليمين إلى اليسار", "تقليل الحركة", "لا نعتمد على الصوت وحده"],
+    },
+  },
+  pages: {
+    crumbs: "مسار التنقل",
+    onThisPage: "في هذه الصفحة",
+    howItWorks: {
+      titleLead: "كيف يعمل",
+      titleAccent: "Deafference؟",
+      lead: "صُمّم Deafference ليحوّل الكلام إلى إشارة ونص، والإشارة إلى نص وكلام. إليك كل خطوة، في الاتجاهين.",
+      steps: "خطوة بخطوة",
+    },
+    faq: {
+      pills: ["إجابات قصيرة", "كلمات بسيطة", "بالعربية والإنجليزية"],
+    },
+    scenarios: {
+      titleLead: "حيث يُحدث Deafference",
+      titleAccent: "فرقًا.",
+      lead: "في كل مكان، كل يوم. سبعة أماكن يومية لا يجب أن يعني فيها غياب المترجم ضياع المحادثة.",
+    },
+  },
   footer: {
     tagline: "تواصل فوري بالذكاء الاصطناعي بين لغة الإشارة والكلام والنص — مبني مع مجتمع الصمّ وضعاف السمع ومن أجله.",
-    explore: "استكشف",
+    product: "المنتج",
     company: "الشركة",
+    help: "المساعدة والشروط",
+    openApp: "افتح التطبيق",
+    terms: "شروط الخدمة",
+    accessibility: "إمكانية الوصول",
     contactHeading: "تواصل",
     email: "البريد الإلكتروني",
     rights: "© {year} Deafference. جميع الحقوق محفوظة.",

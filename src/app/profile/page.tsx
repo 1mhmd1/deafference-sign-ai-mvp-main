@@ -4,7 +4,8 @@ import { Loading } from '@/components/shared/loading'
 import { ProfileHub } from '@/components/profile/profile-hub'
 
 export const metadata: Metadata = {
-  title: 'Deafference — Profile',
+  title: 'Profile',
+  robots: { index: false },
   description: 'Your Deafference profile, history and settings in one place.',
 }
 

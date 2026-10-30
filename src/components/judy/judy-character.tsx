@@ -381,6 +381,34 @@ export function JudyCharacter({
   const { classes, mood: poseMood } = POSES[pose]
   const visible = message.length > 0
 
+  // Near the edge of the screen (where she rests), a bubble centred over her would be cut off: slide it
+  // sideways by however much it sticks out (the tail stays over her). Checked again when a walk ends.
+  const bubbleRef = useRef<HTMLDivElement>(null)
+  const placeX = current ? current.x : x
+  const placeY = current ? current.y : y
+  useEffect(() => {
+    const bubble = bubbleRef.current
+    const root = bubble?.parentElement
+    if (!bubble || !root || inline) return
+    const fit = () => {
+      bubble.style.removeProperty("--judy-bubble-nudge")
+      const width = document.documentElement.clientWidth
+      const self = root.getBoundingClientRect()
+      // Driving off-screen: leave the bubble with her.
+      if (self.right < 0 || self.left > width) return
+      const box = bubble.getBoundingClientRect()
+      const nudge = box.left < 8 ? 8 - box.left : box.right > width - 8 ? width - 8 - box.right : 0
+      if (nudge) bubble.style.setProperty("--judy-bubble-nudge", `${Math.round(nudge)}px`)
+    }
+    fit()
+    root.addEventListener("transitionend", fit)
+    window.addEventListener("resize", fit)
+    return () => {
+      root.removeEventListener("transitionend", fit)
+      window.removeEventListener("resize", fit)
+    }
+  }, [bubbleText, placeX, placeY, inline])
+
   function onPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
     if (event.button !== 0 && event.pointerType === "mouse") return
     const el = event.currentTarget
@@ -466,6 +494,7 @@ export function JudyCharacter({
       })}
     >
       <div
+        ref={bubbleRef}
         className={["judy-bubble", visible && "judy-bubble-visible", pose === "cheer-loop" && "judy-subscribe-bubble"]
           .filter(Boolean)
           .join(" ")}
