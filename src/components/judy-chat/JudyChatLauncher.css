@@ -1,7 +1,8 @@
-/* Sits on the same line as the Emergency circle (bottom-6 end-6, 4rem wide), with a 0.75rem gap. */
+/* Sits on the same line as the Emergency pill (bottom-6 end-6), 0.75rem before it. The pill is
+   min(14rem, 100vw - 128px) wide (emergency-quick-actions.tsx); keep the two in step. */
 .judy-launcher-wrap {
   position: fixed;
-  inset-inline-end: 6.25rem;
+  inset-inline-end: calc(1.5rem + min(14rem, 100vw - 128px) + 0.75rem);
   bottom: 1.5rem;
   z-index: 65;
 }
@@ -86,11 +87,22 @@
   50% { transform: scale(1.35); opacity: 1; }
 }
 
-/* Below Tailwind's sm breakpoint the Emergency circle moves to bottom-5 end-5. */
+/* Below Tailwind's sm breakpoint the Emergency pill moves to bottom-5 end-5. */
 @media (max-width: 639.98px) {
   .judy-launcher-wrap {
-    inset-inline-end: 6rem;
+    inset-inline-end: calc(1.25rem + min(14rem, 100vw - 128px) + 0.75rem);
     bottom: 1.25rem;
+  }
+}
+
+/* Phones held sideways: lower and smaller, in step with the Emergency pill (globals.css). */
+@media (max-height: 500px) {
+  .judy-launcher-wrap {
+    bottom: 0.75rem;
+  }
+  .judy-launcher .judy-portrait-sm {
+    width: 44px;
+    height: 44px;
   }
 }
 

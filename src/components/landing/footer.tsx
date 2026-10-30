@@ -1,158 +1,141 @@
 "use client"
 
-import type { MouseEvent, ReactNode } from "react"
-import { motion } from "framer-motion"
+import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ArrowUp, Mail } from "lucide-react"
-import { Container } from "@/components/shared/container"
-import { FOOTER_EXPLORE_NAV, FOOTER_COMPANY_NAV } from "@/lib/constants"
-import { cn } from "@/lib/utils"
+import { Wordmark } from "@/components/shared/wordmark"
+import { APP_ROUTES } from "@/lib/constants"
 import { useI18n } from "@/i18n/use-i18n"
-import { navLabel, resolveLandingHref, smoothScrollToTop } from "./nav-links"
-import { focusRingPop } from "./ui/pop"
+import { resolveLandingHref, smoothScrollToTop } from "./nav-links"
+import { DfIcon, JudyArt, type IconName } from "./home/df-ui"
 
 const CONTACT_EMAIL = "fatima@deafference.com"
 
-function FooterLink({ href, children, onClick }: { href: string; children: ReactNode; onClick?: (event: MouseEvent<HTMLAnchorElement>) => void }) {
-  return (
-    <a
-      href={href}
-      onClick={onClick}
-      className={cn(
-        "group relative inline-flex w-fit items-center gap-2 rounded-sm text-[15px] text-foreground/75 transition-all duration-200 hover:translate-x-0.5 hover:text-[#1D4ED8] rtl:hover:-translate-x-0.5 dark:hover:text-[#93C5FD]",
-        focusRingPop,
-      )}
-    >
-      {children}
-      <span
-        aria-hidden="true"
-        className="absolute -bottom-0.5 start-0 h-px w-0 bg-[color:var(--primary)] transition-all duration-300 group-hover:w-full"
-      />
-    </a>
-  )
-}
+/** Pictures for the accessibility badges of `t.landing.home.footer.badges` (same order). */
+const BADGE_ICONS: IconName[] = ["check", "keyboard", "volume", "globe", "motion", "earoff"]
 
-/** Column heading with a short blue→orange brand rule in front of it. */
-function FooterHeading({ children }: { children: ReactNode }) {
-  return (
-    <h2 className="flex items-center gap-2.5 text-xs font-semibold tracking-[0.2em] text-foreground uppercase">
-      <span aria-hidden="true" className="h-0.5 w-5 rounded-full bg-gradient-to-r from-[#2563EB] to-[#F47C20] rtl:bg-gradient-to-l" />
-      {children}
-    </h2>
-  )
-}
-
-/** Rounded "pill" link used for the email in the brand block. */
-function FooterPill({ href, children, dir }: { href: string; children: ReactNode; dir?: "ltr" }) {
-  return (
-    <a
-      href={href}
-      dir={dir}
-      className={cn(
-        "inline-flex items-center gap-2 rounded-full border border-[#3b82f6]/20 bg-white/80 px-4 py-2 text-sm font-medium text-foreground shadow-[0_8px_24px_-18px_rgba(37,99,235,0.6)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#F47C20]/50 dark:bg-white/5",
-        focusRingPop,
-      )}
-    >
-      {children}
-    </a>
-  )
-}
-
+/**
+ * Site footer, drawn as the website design: the brand and its two actions, three groups of links, and
+ * the accessibility statement with Judy. The "Accessibility" link lands on that card from every page.
+ */
 export function Footer() {
   const { t, fmt } = useI18n()
   const copy = t.landing.footer
   const links = t.landing.nav.links
+  const badges = t.landing.home.footer.badges
   const pathname = usePathname()
+  // Each page appears once ("Open the app" is the button in the brand block). Section anchors
+  // (#scenarios, #demo) resolve to the home page from other pages.
+  const groups: { heading: string; icon: IconName; items: { href: string; label: string }[] }[] = [
+    {
+      heading: copy.product,
+      icon: "phone",
+      items: [
+        { href: resolveLandingHref("#how-it-works", pathname), label: links.howItWorks },
+        { href: resolveLandingHref("#features", pathname), label: links.features },
+        { href: resolveLandingHref("#scenarios", pathname), label: links.scenarios },
+        { href: resolveLandingHref("#demo", pathname), label: links.demo },
+      ],
+    },
+    {
+      heading: copy.company,
+      icon: "heart",
+      items: [
+        { href: "/about", label: links.about },
+        { href: "/pricing", label: links.pricing },
+        { href: "/contact", label: links.contact },
+      ],
+    },
+    {
+      heading: copy.help,
+      icon: "question",
+      items: [
+        { href: "/faq", label: links.faq },
+        { href: "/security", label: links.security },
+        { href: "/terms", label: copy.terms },
+        { href: "#accessibility", label: copy.accessibility },
+      ],
+    },
+  ]
 
   return (
-    <motion.footer
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, amount: 0.15 }}
-      transition={{ duration: 0.45, ease: "easeOut" }}
-      // Full-width footer flush with the bottom of the page. On phones the bottom strip is a bit taller
-      // so the bottom bar sits above the fixed Judy / Emergency circles.
-      className="relative z-10 overflow-hidden border-t border-[#3b82f6]/10 bg-[#F8FAFF] pt-16 pb-24 sm:pt-20 sm:pb-0 dark:border-[#60a5fa]/15 dark:bg-[#0B1220]"
-    >
-      {/* Brand gradient along the top edge */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#2563EB] via-[#57A4F9] to-[#F47C20] rtl:bg-gradient-to-l"
-      />
-
-      <Container fluid className="relative">
-        <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
-          <div className="lg:col-span-5">
-            {/* Same light/dark wordmarks as <Logo />, sized up for the footer. */}
-            <span className="inline-flex items-center">
-              <img src="/deafference-logo-transparent.png" alt="Deafference" className="h-14 w-auto object-contain sm:h-16 dark:hidden" />
-              <img src="/deafference-logo-transparent-dark.png" alt="Deafference" className="hidden h-14 w-auto object-contain sm:h-16 dark:block" />
-            </span>
-            <p className="mt-5 max-w-md text-[15px] leading-7 text-foreground/80">{copy.tagline}</p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <FooterPill href={`mailto:${CONTACT_EMAIL}`} dir="ltr">
-                <Mail className="size-4 text-[#2563EB]" aria-hidden="true" />
-                {CONTACT_EMAIL}
-              </FooterPill>
+    <footer className="df df-foot">
+      <div className="df-wrap">
+        <div className="df-foot__top">
+          <div className="df-foot__brand">
+            <Wordmark className="df-footlogo" />
+            <p>{copy.tagline}</p>
+            <div className="df-foot__ctas">
+              <Link href={APP_ROUTES.translate} className="df-btn df-btn--primary">
+                <DfIcon name="phone" size={20} />
+                <span>{copy.openApp}</span>
+                <DfIcon name="arrow" size={18} className="df-btn__trail" />
+              </Link>
+              <a className="df-chip df-chip--link" href={`mailto:${CONTACT_EMAIL}`} dir="ltr">
+                <DfIcon name="mail" size={18} />
+                <span>{CONTACT_EMAIL}</span>
+              </a>
             </div>
           </div>
-
-          <div className="grid gap-10 sm:grid-cols-4 lg:col-span-7">
-            <div className="sm:col-span-2">
-              <FooterHeading>{copy.explore}</FooterHeading>
-              <nav aria-label={copy.explore} className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3.5">
-                {FOOTER_EXPLORE_NAV.map((item) => (
-                  <FooterLink key={item.href} href={resolveLandingHref(item.href, pathname)}>
-                    {navLabel(links, item.href, item.label)}
-                  </FooterLink>
+          {groups.map((group) => (
+            <nav key={group.heading} className="df-foot__col" aria-labelledby={`foot-${group.icon}`}>
+              <h2 className="df-foot__h" id={`foot-${group.icon}`}>
+                <DfIcon name={group.icon} size={20} />
+                {group.heading}
+              </h2>
+              <ul>
+                {group.items.map((item) => (
+                  <li key={item.href}>
+                    {item.href.startsWith("/") ? <Link href={item.href}>{item.label}</Link> : <a href={item.href}>{item.label}</a>}
+                  </li>
                 ))}
-              </nav>
-            </div>
-
-            <div>
-              <FooterHeading>{copy.company}</FooterHeading>
-              <nav aria-label={copy.company} className="mt-5 flex flex-col gap-3.5">
-                {FOOTER_COMPANY_NAV.map((item) => (
-                  <FooterLink key={item.href} href={resolveLandingHref(item.href, pathname)}>
-                    {navLabel(links, item.href, item.label)}
-                  </FooterLink>
-                ))}
-              </nav>
-            </div>
-
-            <div>
-              <FooterHeading>{copy.contactHeading}</FooterHeading>
-              <div className="mt-5 flex flex-col gap-3.5">
-                <FooterLink href={`mailto:${CONTACT_EMAIL}`}>
-                  <Mail className="size-4" aria-hidden="true" />
-                  {copy.email}
-                </FooterLink>
-              </div>
-            </div>
-          </div>
+              </ul>
+            </nav>
+          ))}
         </div>
 
-        {/* Bottom bar: centered on desktop (clear of the walking Judy on the left and the circles on the
-            right); on phones it hugs the end side, above the circles. */}
-        <div className="mt-12 flex items-center justify-end gap-3 border-t border-[#3b82f6]/10 py-6 sm:justify-center sm:gap-8 dark:border-[#60a5fa]/15">
-          <p className="text-xs text-foreground/70">{fmt(copy.rights, { year: new Date().getFullYear() })}</p>
-          {/* Back to top of whichever page you're on, gliding up. */}
-          <a
-            href="#top"
-            onClick={smoothScrollToTop}
-            className={cn(
-              "group inline-flex items-center gap-2.5 rounded-full text-sm font-medium text-foreground/80 transition-colors hover:text-[#1D4ED8] dark:hover:text-[#93C5FD]",
-              focusRingPop,
-            )}
-          >
-            {/* Phones show just the round arrow so it stays on the copyright line. */}
-            <span className="max-sm:sr-only">{copy.backToTop}</span>
-            <span className="grid size-9 shrink-0 place-items-center rounded-full border border-[#3b82f6]/20 bg-white/80 shadow-[0_8px_20px_-14px_rgba(37,99,235,0.7)] transition-transform duration-200 group-hover:-translate-y-0.5 dark:bg-white/5">
-              <ArrowUp className="size-4" aria-hidden="true" />
-            </span>
+        <section className="df-foot__a11y" id="accessibility" aria-labelledby="footer-a11y-title">
+          <span className="df-foot__judy">
+            <JudyArt size={120} pose="wave" />
+          </span>
+          <div className="df-foot__a11ytext">
+            <h2 className="df-foot__h" id="footer-a11y-title">
+              <DfIcon name="a11y" size={20} />
+              {copy.a11yTitle}
+            </h2>
+            <ul className="df-foot__badges">
+              {badges.map((badge, i) => (
+                <li key={badge}>
+                  <DfIcon name={BADGE_ICONS[i] ?? "check"} size={20} />
+                  {/* The right-to-left badge names Arabic in its own script. */}
+                  <span>
+                    {i === 3 ? (
+                      <>
+                        <span lang="ar">عربي</span> {badge}
+                      </>
+                    ) : (
+                      badge
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p>
+              {copy.a11yContact}{" "}
+              <a href={`mailto:${CONTACT_EMAIL}`} dir="ltr">
+                {CONTACT_EMAIL}
+              </a>
+            </p>
+          </div>
+        </section>
+
+        <div className="df-foot__bottom">
+          <span>{fmt(copy.rights, { year: new Date().getFullYear() })}</span>
+          <a href="#top" onClick={smoothScrollToTop} className="df-link">
+            <DfIcon name="arrowup" size={18} />
+            {copy.backToTop}
           </a>
         </div>
-      </Container>
-    </motion.footer>
+      </div>
+    </footer>
   )
 }

@@ -2,30 +2,51 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react"
 import { motion } from "framer-motion"
-import { Check, Copy, HeadphonesIcon, Mail, RefreshCw, Send, Users, Video, X, type LucideIcon } from "lucide-react"
+import {
+  Check,
+  Copy,
+  HeadphonesIcon,
+  Mail,
+  MailOpen,
+  MessageSquareText,
+  PenLine,
+  RefreshCw,
+  Reply,
+  Send,
+  Users,
+  Video,
+  X,
+  type LucideIcon,
+} from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Container } from "@/components/shared/container"
 import { SectionTitle } from "@/components/shared/section-title"
-import { IconBadge } from "@/components/shared/icon-badge"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
 import {
   GlassPanel,
-  GlowOrb,
   Magnetic,
   Reveal,
   focusRingPop,
+  popBrandTile,
   popButtonSizes,
   popPrimaryButton,
   popSecondaryButton,
+  popStage,
+  popTile,
   staggerContainer,
   staggerItem,
 } from "./ui/pop"
-import { CONTACT_TOPICS, TOPIC_EMAIL, onContactTopic, type ContactTopic } from "./contact-intent"
+import { FlowSteps } from "./ui/flow"
+import { SignVideoButton } from "./sign-video"
+import { CONTACT_TOPICS, TOPIC_EMAIL, onContactTopic, topicFromUrl, type ContactTopic } from "./contact-intent"
 
 const CONTACT_METHODS = ["email", "video", "chat"] as const
 type ContactMethod = (typeof CONTACT_METHODS)[number]
+const METHOD_ICONS: Record<ContactMethod, LucideIcon> = { email: Mail, video: Video, chat: MessageSquareText }
+/** Icons for `t.landing.contact.flow`: write, the email app opens, the team replies. */
+const FLOW_ICONS: LucideIcon[] = [PenLine, MailOpen, Reply]
 const MESSAGE_MIN_LENGTH = 10
 /** Most email apps refuse attachments over ~25 MB. */
 const VIDEO_MAX_BYTES = 25 * 1024 * 1024
@@ -42,7 +63,7 @@ const CHANNELS: { icon: LucideIcon; email: string }[] = [
 type Field = "name" | "email" | "message" | "video"
 type Errors = Partial<Record<Field, string>>
 
-/** Floating-label field: label shrinks/lifts and the border glows soft blue on focus or when filled. */
+/** Floating-label field: label shrinks/lifts and the border glows in the brand colour on focus or when filled. */
 function FloatingField({
   id,
   label,
@@ -82,7 +103,7 @@ function FloatingField({
         <div
           className={cn(
             "rounded-xl transition-shadow duration-200",
-            focused && "shadow-[0_0_0_3px_rgba(59,130,246,0.18)]",
+            focused && "shadow-[0_0_0_3px_rgba(214,60,26,0.18)]",
             error && "ring-1 ring-[#B91C1C]/60",
           )}
         >
@@ -128,8 +149,13 @@ export function Contact() {
   const topicId = useId()
   const contactEmail = TOPIC_EMAIL[topic]
 
-  // "Contact sales", "Plan an integration", etc. pre-select the matching topic.
-  useEffect(() => onContactTopic(setTopic), [])
+  // "Contact sales", "Plan an integration", etc. pre-select the matching topic: through
+  // /contact?topic=… when they link here from another page, or in place on /contact itself.
+  useEffect(() => {
+    const fromUrl = topicFromUrl()
+    if (fromUrl) setTopic(fromUrl)
+    return onContactTopic(setTopic)
+  }, [])
 
   useEffect(() => {
     if (!video) {
@@ -234,25 +260,26 @@ export function Contact() {
       aria-labelledby="contact-heading"
       className="relative overflow-hidden border-y border-border/60 py-28 sm:py-32"
     >
-      {/* Ambient ground + drifting orbs behind the whole workspace */}
-      <div className="pop-atmosphere pop-grid absolute inset-0 opacity-70" aria-hidden="true" />
-      <GlowOrb className="pop-float top-[-6rem] left-[-4rem] size-72" color="rgba(59,130,246,0.22)" />
-      <GlowOrb className="pop-float-delay right-[-5rem] bottom-[-4rem] size-80" color="rgba(167,180,255,0.24)" />
-      <GlowOrb className="pop-float top-1/3 right-[8%] size-40" color="rgba(255,138,61,0.14)" />
-
       <Container fluid className="relative">
         <SectionTitle headingId="contact-heading" eyebrow={copy.eyebrow} title={copy.title} />
+        <SignVideoButton videoKey="contact" className="mt-6" />
 
         {/* Form + channel cards: stacked on mobile, side by side (in normal flow) on large screens. */}
-        <div className="relative mt-16 grid gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] lg:items-start lg:gap-8">
+        <div className="relative mt-16 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] lg:items-start lg:gap-8">
           <Reveal className="relative z-10" y={26}>
-            <GlassPanel glow className="p-6 sm:p-9">
-              <span
-                className="pop-orbit absolute end-6 top-6 hidden size-16 rounded-full border border-dashed border-[color:var(--primary)]/25 sm:block"
-                aria-hidden="true"
-              />
+            <GlassPanel className="p-6 sm:p-9">
               <p className="text-xs font-semibold tracking-[0.2em] text-[#1D4ED8] uppercase">{copy.formEyebrow}</p>
               <h3 className="mt-2 text-xl font-semibold text-foreground">{copy.formTitle}</h3>
+
+              {/* How sending works, as a picture: there's no contact API, the visitor's own email app sends it. */}
+              <div className={cn("mt-5 px-3 py-4", popStage)}>
+                <FlowSteps numbered steps={copy.flow.map((label, i) => ({ label, icon: FLOW_ICONS[i] }))} className="flex-wrap gap-y-3 sm:gap-4" />
+              </div>
+              <ol className="sr-only">
+                {copy.flow.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
 
               <form onSubmit={handleSubmit} noValidate className="mt-6 grid gap-6">
                 <div className="grid gap-6 sm:grid-cols-2">
@@ -341,28 +368,36 @@ export function Contact() {
 
                 <fieldset>
                   <legend className="text-sm font-semibold text-foreground">{copy.method}</legend>
-                  <div className="mt-3 flex flex-wrap gap-2.5">
-                    {CONTACT_METHODS.map((value) => (
-                      <label
-                        key={value}
-                        className={cn(
-                          "inline-flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[color:var(--primary)] has-[:focus-visible]:ring-offset-2",
-                          method === value
-                            ? "border-[color:var(--primary)]/40 bg-[color:var(--primary)]/10 text-[#1D4ED8]"
-                            : "border-border/70 bg-background/60 text-black hover:text-foreground",
-                        )}
-                      >
-                        <input
-                          type="radio"
-                          name="method"
-                          value={value}
-                          checked={method === value}
-                          onChange={() => chooseMethod(value)}
-                          className="size-3.5 accent-[#2563EB]"
-                        />
-                        {copy.methods[value]}
-                      </label>
-                    ))}
+                  {/* One tile per way to get in touch, each with its picture; the radio stays visible. */}
+                  <div className="mt-3 grid gap-2.5 sm:grid-cols-3">
+                    {CONTACT_METHODS.map((value) => {
+                      const Icon = METHOD_ICONS[value]
+                      const selected = method === value
+                      return (
+                        <label
+                          key={value}
+                          className={cn(
+                            "flex cursor-pointer items-center gap-3 rounded-2xl border p-3 text-sm font-semibold transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[color:var(--primary)] has-[:focus-visible]:ring-offset-2",
+                            selected
+                              ? "border-[color:var(--primary)]/45 bg-[color:var(--primary)]/[0.06] text-black"
+                              : "border-border bg-card text-black hover:border-[color:var(--primary)]/30",
+                          )}
+                        >
+                          <span aria-hidden="true" className={cn(selected ? popBrandTile : popTile, "size-10")}>
+                            <Icon className="size-5" />
+                          </span>
+                          <span className="min-w-0 flex-1 leading-snug">{copy.methods[value]}</span>
+                          <input
+                            type="radio"
+                            name="method"
+                            value={value}
+                            checked={selected}
+                            onChange={() => chooseMethod(value)}
+                            className="size-4 shrink-0 accent-[#c0341b]"
+                          />
+                        </label>
+                      )
+                    })}
                   </div>
                 </fieldset>
 
@@ -432,7 +467,7 @@ export function Contact() {
                             : "border-[color:var(--primary)]/30 bg-background/60 hover:border-[color:var(--primary)]/60 hover:bg-[color:var(--primary)]/5",
                         )}
                       >
-                        <span className="flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] text-white">
+                        <span className={cn(popBrandTile, "size-11 rounded-full")}>
                           <Video className="size-5" aria-hidden="true" />
                         </span>
                         <span className="text-sm font-semibold text-[#1D4ED8]">{copy.video.choose}</span>
@@ -520,9 +555,11 @@ export function Contact() {
               return (
                 // Keyed by position: the channels can share one address, so the email isn't unique.
                 <motion.div key={i} variants={staggerItem} className={i === 2 ? "sm:col-span-2 lg:col-span-1" : undefined}>
-                  <GlassPanel className="p-5" tilt>
+                  <GlassPanel className="p-5">
                     <div className="flex items-start gap-4">
-                      <IconBadge icon={Icon} size="compact" />
+                      <span aria-hidden="true" className={cn(popTile, "size-11")}>
+                        <Icon className="size-5" />
+                      </span>
                       <div className="min-w-0">
                         <h3 className="text-base font-semibold text-foreground">{text?.title}</h3>
                         <p className="mt-1 text-sm leading-6 text-black">{text?.description}</p>

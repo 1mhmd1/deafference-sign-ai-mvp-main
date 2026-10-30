@@ -2,7 +2,8 @@ import type { Metadata } from "next"
 import { AdminShell } from "@/components/admin/admin-shell"
 
 export const metadata: Metadata = {
-  title: "Deafference — Admin Panel",
+  title: "Admin panel",
+  robots: { index: false },
   description: "Manage users, feedback, and contact submissions for the Deafference platform.",
 }
 

@@ -19,7 +19,7 @@ function MockModeBadge() {
       <span
         tabIndex={0}
         aria-describedby={tooltipId}
-        className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:text-amber-400"
+        className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 text-xs font-semibold tracking-wide text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:text-amber-400"
       >
         <span className="relative flex size-1.5" aria-hidden="true">
           <span className="absolute inline-flex size-full animate-ping rounded-full bg-amber-400 opacity-75" />

@@ -10,7 +10,6 @@ import { useI18n } from "@/i18n/use-i18n"
 import {
   ConnectorPath,
   GlassPanel,
-  GlowOrb,
   Magnetic,
   popArrowIcon,
   popButtonSizes,
@@ -29,10 +28,6 @@ export function CTA() {
       className="pop-atmosphere relative overflow-hidden py-28 sm:py-32"
     >
       {/* Large soft-blue gradient environment + drifting depth */}
-      <div className="pop-grid pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
-      <GlowOrb className="pop-float top-[-8rem] left-[6%] size-96" color="rgba(59,130,246,0.28)" />
-      <GlowOrb className="pop-float-delay right-[4%] bottom-[-10rem] size-[26rem]" color="rgba(167,180,255,0.26)" />
-      <GlowOrb className="pop-pulse top-1/2 left-1/2 size-24 -translate-x-1/2 -translate-y-1/2" color="rgba(255,138,61,0.16)" />
 
       {/* Animated connection paths crossing the background */}
       <ConnectorPath

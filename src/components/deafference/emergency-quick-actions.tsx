@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react"
-import { AlertTriangle, ArrowLeft, Volume2, X } from "lucide-react"
+import { ArrowLeft, Siren, Volume2, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/use-i18n"
 import { getServerSnapshot, getSnapshot, speak, stop, subscribe } from "@/lib/speech"
@@ -15,6 +15,13 @@ import {
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+
+const OPEN_EVENT = "deafference:open-emergency"
+
+/** Opens the emergency panel from anywhere on the site (e.g. the home page hero's "Emergency phrases" button). */
+export function openEmergencyPhrases() {
+  window.dispatchEvent(new Event(OPEN_EVENT))
+}
 
 /**
  * Persistent, zero-latency "Emergency Quick-Action" panel.
@@ -38,17 +45,25 @@ export function EmergencyQuickActions() {
   const dialogRef = useRef<HTMLDivElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const readAloudButtonRef = useRef<HTMLButtonElement>(null)
+  // Whatever opened the panel (the floating button or a button elsewhere) gets focus back on close.
+  const returnFocusRef = useRef<HTMLElement | null>(null)
 
   const speech = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
   const isFullscreen = activePhrase !== null
 
   function openSelect() {
+    returnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
     setIsSelectOpen(true)
+  }
+
+  function restoreFocus() {
+    const target = returnFocusRef.current
+    ;(target && target.isConnected ? target : triggerRef.current)?.focus()
   }
 
   function closeSelect() {
     setIsSelectOpen(false)
-    triggerRef.current?.focus()
+    restoreFocus()
   }
 
   function openPhrase(phrase: EmergencyPhrase) {
@@ -64,8 +79,13 @@ export function EmergencyQuickActions() {
     stop()
     setActivePhrase(null)
     setIsSelectOpen(false)
-    triggerRef.current?.focus()
+    restoreFocus()
   }
+
+  useEffect(() => {
+    window.addEventListener(OPEN_EVENT, openSelect)
+    return () => window.removeEventListener(OPEN_EVENT, openSelect)
+  }, [])
 
   // ESC: fullscreen closes back to the grid first; a second ESC closes the panel.
   useEffect(() => {
@@ -153,7 +173,11 @@ export function EmergencyQuickActions() {
 
   return (
     <>
-      {/* Floating trigger */}
+      {/* Floating trigger: the website design's red pill with a siren and its name written on it.
+          Its width, min(14rem, 100vw - 128px), is repeated in JudyChatLauncher.css, which puts Judy's
+          launcher just beside it: pure CSS, so they line up from the first paint, in any language or
+          text size (on a narrow phone with large text the name wraps onto two lines). The 128px kept
+          free for her launcher is in px because the launcher doesn't grow with the text size. */}
       <button
         ref={triggerRef}
         type="button"
@@ -163,14 +187,16 @@ export function EmergencyQuickActions() {
         aria-controls="emergency-select-dialog"
         tabIndex={isSelectOpen || isFullscreen ? -1 : 0}
         className={cn(
-          // Icon-only circle; Judy's launcher sits beside it on the same line (JudyChatLauncher.css).
-          "fixed bottom-5 end-5 z-50 grid size-16 place-items-center rounded-full border border-white/80 bg-gradient-to-br from-[#EE6C2B] to-[#F59E0B] sm:bottom-6 sm:end-6 text-white shadow-[0_10px_40px_-10px_rgba(238,108,43,0.7)] transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F59E0B]/60 active:scale-95",
+          "fixed bottom-5 end-5 z-50 inline-flex min-h-16 w-[min(14rem,calc(100vw-128px))] items-center justify-center gap-2 rounded-full border-2 border-white bg-[#c81d1d] px-3 py-2 sm:bottom-6 sm:end-6 sm:px-4",
+          "shadow-[0_10px_30px_-10px_rgba(200,29,29,0.7)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#c81d1d]/45 active:scale-95",
           "emergency-fab-pulse",
           (isSelectOpen || isFullscreen) && "pointer-events-none opacity-0",
         )}
       >
-        <AlertTriangle className="size-7 shrink-0" strokeWidth={2.4} aria-hidden="true" />
-        <span className="sr-only">{copy.trigger}</span>
+        {/* Colours on the children: globals.css gives buttons `color: inherit`, which beats text-white here.
+            A <b>, not a <span>: light-theme span text is forced black. */}
+        <Siren className="size-6 shrink-0 text-white" strokeWidth={2.2} aria-hidden="true" />
+        <b className="text-start text-base leading-tight font-bold text-white">{copy.trigger}</b>
       </button>
 
       {/* Select panel backdrop */}
@@ -326,9 +352,11 @@ export function EmergencyQuickActions() {
               aria-hidden="true"
             />
 
-            <p className="text-balance text-4xl font-extrabold leading-tight md:text-6xl">
+            {/* Divs, not <p>: globals.css forces <p> text black in the light theme, which made the
+                phrase invisible on this dark card. */}
+            <div className="text-balance text-4xl font-extrabold leading-tight text-white md:text-6xl">
               {textOf(activePhrase)}
-            </p>
+            </div>
 
             <button
               ref={readAloudButtonRef}
@@ -342,7 +370,7 @@ export function EmergencyQuickActions() {
             </button>
 
             {!speech.supported && (
-              <p className="max-w-sm text-sm text-white/70">{copy.unsupported}</p>
+              <div className="max-w-sm text-sm text-white/70">{copy.unsupported}</div>
             )}
           </div>
         </div>

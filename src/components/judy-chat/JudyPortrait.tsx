@@ -1,7 +1,7 @@
 'use client'
 
 import type { JudyChatState } from '@/hooks/useJudyChat'
-import judyImage from './assets/judyy.jpeg'
+import judyImage from './assets/judy-portrait.webp'
 import './JudyPortrait.css'
 
 interface JudyPortraitProps {

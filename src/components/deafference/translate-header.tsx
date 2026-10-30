@@ -23,20 +23,24 @@ export function TranslateHeader({ title }: { title: string }) {
   const profileLabel = t.profile.hub.tabs.profile.label
 
   return (
-    <header className="sticky top-0 z-40 px-3 pt-3 sm:px-4 sm:pt-4">
-      <div className="glass-pop flex min-h-16 items-center justify-between gap-2 rounded-[1.75rem] px-3 py-2.5 min-[380px]:gap-3 min-[380px]:px-4 sm:gap-4 sm:px-6">
+    // On a phone held sideways (a short screen) the bar scrolls away instead of covering a quarter of it;
+    // app-topbar: the same when large text gives it two rows on a narrow phone (globals.css).
+    <header className="app-topbar sticky top-0 z-40 px-3 pt-3 sm:px-4 sm:pt-4 [@media(max-height:500px)]:static">
+      {/* Below 480px with Extra large text the buttons drop to a second row instead of overlapping the logo;
+          wider, the page title is shortened with "…" instead. */}
+      <div className="glass-pop flex min-h-16 items-center justify-between gap-2 rounded-[1.75rem] px-3 py-2.5 max-[479px]:flex-wrap min-[380px]:gap-3 min-[380px]:px-4 sm:gap-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3 sm:gap-4">
           <Link href={APP_ROUTES.home} aria-label={t.profile.hub.backToSite} className={cn("shrink-0 rounded-lg", FOCUS_RING)}>
-            <Wordmark />
+            <Wordmark className="max-[379px]:h-9" />
           </Link>
           <div className="sr-only min-w-0 border-s border-[color:var(--primary)]/15 text-start min-[480px]:not-sr-only min-[480px]:ps-3 sm:ps-4">
-            <p className="hidden truncate text-[11px] font-semibold tracking-[0.18em] text-[#1D4ED8] uppercase sm:block">
+            <p className="hidden truncate text-xs font-semibold tracking-[0.18em] text-[#1D4ED8] uppercase sm:block">
               {t.app.header.eyebrow}
             </p>
             <h1 className="truncate text-base font-bold tracking-tight text-brand-navy sm:text-xl">{title}</h1>
           </div>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="ms-auto flex shrink-0 items-center gap-1.5 min-[380px]:gap-2">
           <BackButton />
           <LanguageToggle />
           <Link

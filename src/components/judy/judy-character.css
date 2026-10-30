@@ -131,9 +131,12 @@
 
 .judy-sparkles { display: none; fill: #F47C20; transform-box: view-box; transform-origin: 110px 110px; }
 
-.judy-bubble { position: absolute; bottom: 100%; left: 50%; padding: 8px 12px; border: 1px solid rgba(51,42,34,.12); border-radius: 14px; background: #FCFBF9; color: #332A22; box-shadow: 0 14px 34px -20px rgba(51,42,34,.55); font: 500 12px/1.35 Inter, sans-serif; white-space: normal; width: max-content; max-width: 160px; text-align: center; opacity: 0; transform: translate(-50%, 4px) scale(.94); transition: opacity 240ms ease, transform 240ms ease; }
+.judy-bubble { position: absolute; bottom: 100%; left: 50%; padding: 8px 12px; border: 1px solid rgba(51,42,34,.12); border-radius: 14px; background: #FCFBF9; color: #332A22; box-shadow: 0 14px 34px -20px rgba(51,42,34,.55); font: 500 12px/1.35 var(--font-inter), var(--font-arabic), sans-serif; white-space: normal; width: max-content; max-width: 160px; text-align: center; opacity: 0; transform: translate(-50%, 4px) scale(.94); transition: opacity 240ms ease, transform 240ms ease; }
 .judy-bubble::after { content: ''; position: absolute; top: 100%; left: 50%; margin-left: -5px; border: 5px solid transparent; border-top-color: #FCFBF9; }
 .judy-bubble-visible { opacity: 1; transform: translate(-50%, -8px) scale(1); }
+/* Slid back on screen near an edge (judy-character.tsx); the tail moves the other way so it stays over her. */
+.judy-bubble { translate: var(--judy-bubble-nudge, 0px) 0; }
+.judy-bubble::after { margin-left: calc(-5px - var(--judy-bubble-nudge, 0px)); }
 
 @keyframes judy-breathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 @keyframes judy-blink { 0%,95%,100% { transform: scaleY(1); } 97.2% { transform: scaleY(.08); } }
@@ -352,7 +355,7 @@
 .judy-sleeping .judy-sleep-arm { display: block; }
 .judy-sleeping .judy-eye-open { display: none; }
 .judy-sleeping .judy-eye-arc { display: block; }
-.judy-sleep-zzz { display: none; position: absolute; inset-inline-end: -1.1rem; top: 3rem; color: #57A4F9; font: 800 1.1rem/1 Inter, sans-serif; text-shadow: 0 2px 8px rgba(16,38,74,.2); }
+.judy-sleep-zzz { display: none; position: absolute; inset-inline-end: -1.1rem; top: 3rem; color: #57A4F9; font: 800 1.1rem/1 var(--font-inter), sans-serif; text-shadow: 0 2px 8px rgba(16,38,74,.2); }
 .judy-sleep-zzz span { position: absolute; animation: judy-zzz 2s ease-out infinite; }
 .judy-sleep-zzz span:nth-child(1) { inset-inline-start: 0; top: 1.4rem; font-size: .75rem; animation-delay: 0s; }
 .judy-sleep-zzz span:nth-child(2) { inset-inline-start: .7rem; top: .6rem; font-size: 1rem; animation-delay: .55s; }
@@ -413,7 +416,7 @@
 .judy-subscribing .judy-leg-right { animation: judy-party-leg-right 1200ms ease-in-out infinite; }
 .judy-subscribing .judy-sparkles { display: block; animation: judy-sparkle 1000ms ease-in-out infinite; }
 
-@media (max-width: 640px) { .judy-companion { width: 100px; bottom: 6px; } .judy-bubble { font-size: 11px; max-width: 100px; } }
+@media (max-width: 640px) { .judy-companion { width: 100px; bottom: 6px; } .judy-bubble { font-size: 12px; max-width: 112px; } }
 @media (prefers-reduced-motion: reduce) {
   .judy-companion,.judy-bubble { transition: none; }
   .judy-figure,.judy-figure g { animation: none !important; }

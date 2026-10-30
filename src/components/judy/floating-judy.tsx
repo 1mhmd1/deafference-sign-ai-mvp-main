@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useSyncExternalStore } from "react"
 import { usePathname } from "next/navigation"
 import { useI18n } from "@/i18n/use-i18n"
 import { useMobile } from "@/hooks/use-mobile"
@@ -9,10 +9,19 @@ import { JudyCharacter } from "./judy-character"
 // Sign-in and sign-up keep the screen to the form alone.
 const HIDDEN_ON = ["/login", "/signup"]
 
+// A phone held sideways: wide enough for her full size, but too short to spare it.
+const SHORT_QUERY = "(max-height: 500px)"
+function subscribeShort(onChange: () => void) {
+  const query = window.matchMedia(SHORT_QUERY)
+  query.addEventListener("change", onChange)
+  return () => query.removeEventListener("change", onChange)
+}
+
 /**
  * Site-wide floating Judy with her random idle moves. Mounted once in the root
  * layout, so she keeps her place across page changes. On phones she is smaller
- * and rests just above the emergency button so the two never overlap.
+ * and rests just above the emergency button so the two never overlap; on short
+ * (sideways) screens she is smaller too.
  */
 export function FloatingJudy() {
   const pathname = usePathname()
@@ -20,7 +29,8 @@ export function FloatingJudy() {
   // Where the visitor last dropped Judy; she returns here after her auto-play moves.
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null)
   const isPhone = useMobile(640)
-  const size = isPhone ? 66 : 112
+  const isShort = useSyncExternalStore(subscribeShort, () => window.matchMedia(SHORT_QUERY).matches, () => false)
+  const size = isPhone || isShort ? 66 : 112
 
   if (HIDDEN_ON.some((path) => pathname === path || pathname.startsWith(`${path}/`))) return null
 

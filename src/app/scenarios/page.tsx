@@ -1,22 +1,20 @@
 import type { Metadata } from "next"
-import { Navbar } from "@/components/landing/navbar"
-import { ScenarioGrid } from "@/components/landing/scenario-grid"
-import { Footer } from "@/components/landing/footer"
+import { ScenariosPage } from "@/components/landing/scenarios-page"
+import { JsonLd } from "@/components/shared/json-ld"
+import { breadcrumbJsonLd, pageMetadata } from "@/lib/site"
 
-export const metadata: Metadata = {
-  title: "Scenarios — Deafference",
+export const metadata: Metadata = pageMetadata({
+  title: "Scenarios",
   description:
-    "Everyday environments where Deafference bridges spoken and sign communication in real time.",
-}
+    "Where Deafference helps: healthcare, hotels, workplaces, emergencies, travel, public services and education. A walk through everyday life with Judy.",
+  path: "/scenarios",
+})
 
-export default function ScenariosPage() {
+export default function Page() {
   return (
-    <div className="landing-bright relative min-h-dvh bg-background text-foreground">
-      <Navbar />
-      <main>
-        <ScenarioGrid />
-      </main>
-      <Footer />
-    </div>
+    <>
+      <JsonLd data={breadcrumbJsonLd("Scenarios", "/scenarios")} />
+      <ScenariosPage />
+    </>
   )
 }

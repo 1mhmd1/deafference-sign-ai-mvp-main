@@ -126,7 +126,8 @@ export function SettingsDebugPanel({
                   onChange={(e) => setConfidence(Number(e.target.value))}
                   aria-label={copy.confidence}
                   dir="ltr"
-                  className="mt-2 h-2 w-full cursor-pointer appearance-none rounded-full bg-muted accent-primary"
+                  // A 24px-tall touch area with the same thin 8px track painted across its middle.
+                  className="mt-1 h-6 w-full cursor-pointer appearance-none rounded-full bg-[linear-gradient(var(--muted),var(--muted))] bg-[length:100%_0.5rem] bg-center bg-no-repeat accent-primary"
                 />
                 <PreviewOnlyNote text={copy.previewOnly} />
               </div>

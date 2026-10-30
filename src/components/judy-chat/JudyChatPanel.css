@@ -33,7 +33,7 @@
 }
 
 .judy-name {
-  font-family: Fraunces, serif;
+  font-family: var(--font-fraunces), var(--font-arabic), serif;
   font-size: 1.35rem;
   line-height: 1;
   color: #332a22;
@@ -130,7 +130,7 @@
 
 .judy-intro {
   margin: 0.72rem 1rem 0;
-  font-family: Fraunces, serif;
+  font-family: var(--font-fraunces), var(--font-arabic), serif;
   font-size: 1.06rem;
   color: #332a22;
 }
@@ -230,7 +230,7 @@
   border: 1px solid rgba(87, 164, 249, 0.3);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(239, 246, 254, 0.75));
   color: #f47c20;
-  font-family: Fraunces, serif;
+  font-family: var(--font-fraunces), var(--font-arabic), serif;
   font-size: 0.85rem;
   font-weight: 700;
   line-height: 1;

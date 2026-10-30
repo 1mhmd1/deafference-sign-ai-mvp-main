@@ -224,7 +224,7 @@ export function AvatarPreview({
       </div>
 
       <div className="relative flex flex-1 items-center justify-center overflow-hidden rounded-2xl border border-border bg-gradient-to-b from-accent/50 to-card px-2 pt-4 pb-2">
-        <span className="absolute start-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[11px] font-semibold text-muted-foreground shadow-sm">
+        <span className="absolute start-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-xs font-semibold text-muted-foreground shadow-sm">
           {s.demoBadge}
         </span>
         <div ref={judyRef}>

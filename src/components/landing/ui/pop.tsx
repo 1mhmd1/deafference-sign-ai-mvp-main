@@ -54,7 +54,7 @@ export function PopEyebrow({ children, className }: { children: ReactNode; class
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border border-[color:var(--primary)]/20 bg-[color:var(--primary)]/8 px-3.5 py-1.5 text-xs font-semibold tracking-[0.14em] text-[#1D4ED8] uppercase",
+        "inline-flex items-center gap-2 rounded-full border border-[color:var(--primary)]/20 bg-[color:var(--primary)]/8 px-3.5 py-1.5 text-xs font-semibold tracking-[0.14em] text-[color:var(--primary)] uppercase",
         className,
       )}
     >
@@ -220,27 +220,16 @@ export function ConnectorPath({ d, delay = 0, className }: { d: string; delay?: 
   )
 }
 
-/** Floating decorative blob of color, for ambient depth behind sections. */
-export function GlowOrb({ className, color = "rgba(59,130,246,0.25)" }: { className?: string; color?: string }) {
-  return (
-    <div
-      aria-hidden="true"
-      className={cn("pointer-events-none absolute rounded-full blur-3xl", className)}
-      style={{ background: color }}
-    />
-  )
-}
-
 export const focusRingPop =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 
 /**
- * The landing page's two button styles. Primary: darker blue gradient so white
- * text stays above 4.5:1 contrast. Secondary: light glass with navy text.
+ * The landing page's two button styles. Primary: the logo's flame red → crimson, dark
+ * enough at both ends that white text stays above 4.5:1. Secondary: light glass with ink text.
  * Pair with a size, e.g. `popButtonSizes.md`.
  */
 export const popPrimaryButton = cn(
-  "group inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] font-semibold text-white shadow-[0_14px_32px_-12px_rgba(37,99,235,0.55)] transition-all hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-12px_rgba(37,99,235,0.65)]",
+  "group inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#D63C1A] to-[#B01030] font-semibold text-white shadow-[0_14px_32px_-12px_rgba(214,60,26,0.5)] transition-all hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-12px_rgba(176,16,48,0.55)]",
   focusRingPop,
 )
 export const popSecondaryButton = cn(
@@ -252,6 +241,23 @@ export const popButtonSizes = {
   md: "h-11 px-5 text-sm",
   lg: "h-12 px-6 text-base",
 } as const
+
+/**
+ * Plain white "stage" with a hairline border behind a card's small diagram (no tint, no pattern).
+ * `pop-stage` lets high contrast (landing.css) strengthen the border.
+ */
+export const popStage =
+  "pop-stage rounded-2xl border border-[rgba(15,23,42,0.07)] bg-[#fff] dark:border-[rgba(255,255,255,0.08)] dark:bg-[#211620]"
+
+/**
+ * White icon tile with the brand-coloured icon, used inside the diagrams. Pair with a size, e.g. `size-10`.
+ * `pop-tile` keeps the icon colour when the tile is a span (landing.css).
+ */
+export const popTile =
+  "pop-tile grid shrink-0 place-items-center rounded-xl bg-white text-[color:var(--primary)] shadow-[0_10px_24px_-16px_rgba(94,15,69,0.45)] ring-1 ring-[color:var(--primary)]/12"
+
+/** Logo-gradient tile (flame → crimson) with a white icon; `on-brand` keeps any text in it white. */
+export const popBrandTile = "on-brand grid shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#D63C1A] to-[#B01030] text-white"
 
 /** Forward-pointing arrow icon classes: mirrored in RTL, with a direction-aware hover nudge. */
 export const popArrowIcon =

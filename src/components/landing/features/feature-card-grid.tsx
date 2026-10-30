@@ -62,7 +62,8 @@ export function FeatureCardGrid() {
       badgeTag: text?.badge ?? "",
       detail: text?.detail ?? "",
       learnMore: copy.learnMore,
-      learnMoreHref: "#demo",
+      // The demo center is on the home page (these cards live on /how-it-works).
+      learnMoreHref: "/#demo",
     }
   })
 

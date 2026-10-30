@@ -1,14 +1,13 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react"
-import { MotionConfig, useReducedMotion } from "framer-motion"
 
 /**
  * Landing-only "calm mode": a real, page-scoped motion reduction.
  * When on, the landing wrapper gets the existing `.reduce-motion` class (stops
- * CSS animations/transitions inside it), framer-motion is told to skip
- * transform/layout animations, and auto-advancing sections stop rotating.
+ * CSS animations/transitions inside it) and auto-advancing sections stop rotating.
  * With calm mode off, the OS "reduce motion" preference is still respected.
+ * (No animation library here, so the landing pages don't download one.)
  */
 type CalmModeValue = { calm: boolean; setCalm: (calm: boolean) => void }
 
@@ -37,11 +36,7 @@ export function CalmModeProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(() => ({ calm, setCalm }), [calm, setCalm])
 
-  return (
-    <CalmModeContext.Provider value={value}>
-      <MotionConfig reducedMotion={calm ? "always" : "user"}>{children}</MotionConfig>
-    </CalmModeContext.Provider>
-  )
+  return <CalmModeContext.Provider value={value}>{children}</CalmModeContext.Provider>
 }
 
 /** Null outside the landing page (e.g. /terms reuses the navbar), where the toggle hides itself. */
@@ -49,7 +44,12 @@ export function useCalmMode() {
   return useContext(CalmModeContext)
 }
 
-const noopSubscribe = () => () => {}
+const REDUCE_QUERY = "(prefers-reduced-motion: reduce)"
+const subscribeReduce = (onChange: () => void) => {
+  const query = window.matchMedia(REDUCE_QUERY)
+  query.addEventListener("change", onChange)
+  return () => query.removeEventListener("change", onChange)
+}
 
 /**
  * True when calm mode is on or the OS asks for reduced motion. The OS preference
@@ -58,8 +58,6 @@ const noopSubscribe = () => () => {}
  */
 export function useLandingReducedMotion() {
   const ctx = useContext(CalmModeContext)
-  const prefersReduced = useReducedMotion()
-  const hydrated = useSyncExternalStore(noopSubscribe, () => true, () => false)
-  return Boolean(ctx?.calm || (hydrated && prefersReduced))
+  const prefersReduced = useSyncExternalStore(subscribeReduce, () => window.matchMedia(REDUCE_QUERY).matches, () => false)
+  return Boolean(ctx?.calm || prefersReduced)
 }
-

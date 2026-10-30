@@ -2,13 +2,15 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { ArrowRight, Check } from "lucide-react"
+import { ArrowRight, TriangleAlert } from "lucide-react"
 import { Container } from "@/components/shared/container"
+import { openEmergencyPhrases } from "@/components/deafference/emergency-quick-actions"
 import { APP_ROUTES } from "@/lib/constants"
 import { useI18n } from "@/i18n/use-i18n"
 import { cn } from "@/lib/utils"
 import { HeroIllustration } from "./hero-illustration"
-import { GlowOrb, Magnetic, popArrowIcon, popButtonSizes, popPrimaryButton } from "./ui/pop"
+import { SignVideoButton } from "./sign-video"
+import { Magnetic, popArrowIcon, popButtonSizes, popPrimaryButton, popSecondaryButton } from "./ui/pop"
 
 const headlineContainer = {
   hidden: {},
@@ -32,7 +34,7 @@ export function Hero() {
       {/* Hero photo behind everything, washed out so the headline and buttons stay readable.
           The section is pulled up under the sticky navbar (76px tall, 84px from `sm`: its top
           padding + bar height in navbar.tsx) so the photo also fills the area behind the navbar. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20">
+      <div aria-hidden="true" className="hero-photo pointer-events-none absolute inset-0 -z-20">
         {/* hero3.webp is a wide photo: show it whole (contain) over a blurred copy that fills
             the rest of the tall hero, with its top and bottom edges faded into the blur. */}
         <img src="/hero3.webp" alt="" className="absolute inset-0 h-full w-full scale-105 object-cover blur-lg" />
@@ -43,10 +45,6 @@ export function Hero() {
         />
         <div className="absolute inset-0 bg-background/60" />
       </div>
-      <div className="pop-grid pointer-events-none absolute inset-0 -z-10 opacity-[0.05]" aria-hidden="true" />
-      <GlowOrb className="-top-24 -left-24 size-[26rem] pop-float" color="rgba(59,130,246,0.22)" />
-      <GlowOrb className="top-10 -right-32 size-[30rem] pop-float-delay" color="rgba(167,180,255,0.22)" />
-      <GlowOrb className="bottom-0 left-1/3 size-72" color="rgba(255,138,61,0.12)" />
 
       <Container fluid className="pb-24 sm:pb-32">
         <div className="grid items-center gap-16 lg:grid-cols-2 lg:items-start lg:gap-12">
@@ -87,9 +85,9 @@ export function Hero() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.5 }}
-              className="mt-6 max-w-lg text-lg leading-8 text-pretty text-black"
+              className="mt-6 max-w-md text-lg leading-8 font-medium text-pretty text-black sm:text-xl"
             >
-              {hero.intro}
+              {hero.tagline}
             </motion.p>
 
             <motion.div
@@ -104,24 +102,28 @@ export function Hero() {
                   <ArrowRight className={popArrowIcon} aria-hidden="true" />
                 </Link>
               </Magnetic>
+              {/* The same panel as the floating emergency button, so it's found before it's needed. */}
+              <button
+                type="button"
+                onClick={openEmergencyPhrases}
+                aria-haspopup="dialog"
+                aria-describedby="hero-emergency-note"
+                className={cn(popSecondaryButton, popButtonSizes.lg, "w-full sm:w-auto")}
+              >
+                <TriangleAlert className="size-5 text-[#C2410C]" aria-hidden="true" />
+                {hero.emergency}
+              </button>
             </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: "easeOut", delay: 0.85 }}
-              className="mt-10 flex flex-wrap items-center gap-2.5"
+            <motion.p
+              id="hero-emergency-note"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.8 }}
+              className="mt-3 max-w-md text-sm leading-6 text-black"
             >
-              {hero.badges.map((label) => (
-                <span
-                  key={label}
-                  className="glass-pop inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium text-black"
-                >
-                  <Check className="size-3.5 text-[#C2410C]" aria-hidden="true" />
-                  {label}
-                </span>
-              ))}
-            </motion.div>
+              {hero.emergencyNote}
+            </motion.p>
+            <SignVideoButton videoKey="home" className="mt-6" />
           </div>
 
           <motion.div
